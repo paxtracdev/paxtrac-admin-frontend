@@ -1,0 +1,267 @@
+.body-bg {
+  background-color: #e8f5ff5c;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.form-control {
+  background: #e8f0fe !important;
+  border: 1px solid var(--Neutrals-Gray-7, #635f66) !important;
+  border-radius: 8px !important;
+  /* height: 45px; */
+  padding: 8px 12px !important;
+}
+
+.form-control:focus {
+  box-shadow: none !important;
+ }
+
+.login-card {
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  border-radius: 12px;
+}
+
+.title {
+  color: #66988b;
+}
+
+.dark-bg {
+  background:
+    linear-gradient(
+      0deg,
+      rgba(125, 201, 255, 0.27) 0%,
+      rgba(46, 153, 255, 0.9) 100%
+    ),
+    rgba(0, 133, 255, 0.15);
+  /* background: #166fff; */
+}
+
+.login-left {
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  bottom: 50px;
+}
+
+.login-left img {
+  width: 85%;
+}
+
+.btn-bg {
+  background-color: #71a99a !important;
+}
+
+.primary-text {
+  color: #166fff !important;
+}
+
+.button-primary {
+  padding: 10px 25px;
+  border-radius: 5px;
+  background: #166fff;
+  color: #fff;
+  font-family: Montserrat;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  border: none;
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+}
+
+.logo-login {
+  width: 69px;
+  height: 61px;
+}
+
+.login-heading {
+  color: #000;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 35px;
+  text-transform: capitalize;
+}
+
+.input-label {
+  color: #2a2a2a;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.forgot-text {
+  color: #8b8b8b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-check-input:checked {
+  background-color: #71a99a !important;
+  border-color: #71a99a !important;
+  box-shadow: none !important;
+}
+
+input#rememberMe {
+  border-radius: 0;
+  box-shadow: none;
+  border: 2px solid #000;
+}
+
+.noaccount-text {
+  color: #8b8b8b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.signup-text {
+  color: #71a99a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pass-input span {
+  position: absolute;
+  right: 15px;
+  top: 70%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.signup-sidebar {
+  width: 300px;
+  padding: 88px 35px;
+}
+
+.text-step {
+  color: #646464;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.text-nostep {
+  color: #b1b1b1;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.upload-box {
+  border: 2px dashed #c7c7c7 !important;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+  height: 200px;
+}
+.upload-box:hover {
+  border-color: #198754;
+}
+.upload-box input {
+  cursor: pointer;
+}
+
+.after-input {
+  color: #b1b1b1;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.form-title {
+  color: #000;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 18px; /* 90% */
+}
+
+.form-title-basic {
+  color: #252525;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.stepform-title {
+  color: #66988b;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.stepform-desc {
+  color: #3d3d3d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.step-checkbox {
+  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 150%;
+}
+
+.step-checkbox span {
+  font-weight: 600;
+}
+
+.stepfour-card img {
+  width: 250px;
+}
+
+.stepfour-card h4 {
+  color: #71a99a;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.stepfour-card p {
+  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: 0.252px;
+}
+
+.under-review {
+  display: flex;
+  width: 644px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-card {
+  border-radius: 10px;
+  background: #ffffff;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .custom-card.collection-card .collection-card-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .collection-card-item .duration-div {
+    justify-content: space-around;
+    width: 100%;
+  }
+
+  .collection-card-item .duration-div div {
+    flex-direction: row !important;
+    gap: 12px;
+  }
+}

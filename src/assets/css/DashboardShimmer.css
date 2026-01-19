@@ -1,0 +1,47 @@
+/* Skeleton Card */
+.skeleton-card {
+  background: #2f6ff2;
+  border-radius: 14px;
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer Animation */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    rgba(255, 255, 255, 0.35) 37%,
+    rgba(255, 255, 255, 0.15) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Skeleton sizes */
+.skeleton-title {
+  width: 60%;
+  height: 14px;
+}
+
+.skeleton-value {
+  width: 40%;
+  height: 28px;
+}
+
+.skeleton-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
