@@ -90,6 +90,7 @@ const ViewUser = () => {
                 className="form-control"
                 value={formData?.id || ""}
                 readOnly
+                disabled
               />
             </div>
 
@@ -100,7 +101,8 @@ const ViewUser = () => {
                 type="text"
                 className="form-control"
                 value={formData?.first_name || ""}
-                readOnly={!isEdit}
+                readOnly
+                disabled
                 onChange={(e) =>
                   setFormData({ ...formData, first_name: e.target.value })
                 }
@@ -113,7 +115,8 @@ const ViewUser = () => {
                 type="text"
                 className="form-control"
                 value={formData?.last_name || ""}
-                readOnly={!isEdit}
+                readOnly
+                disabled 
                 onChange={(e) =>
                   setFormData({ ...formData, last_name: e.target.value })
                 }
@@ -128,7 +131,8 @@ const ViewUser = () => {
                 className="form-control"
                 placeholder="Enter your email"
                 value={formData?.email || ""}
-                readOnly={!isEdit}
+                readOnly
+                disabled
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
@@ -141,7 +145,8 @@ const ViewUser = () => {
                 type="text"
                 className="form-control"
                 value={formData?.role || ""}
-                readOnly={!isEdit}
+                readOnly
+                disabled
                 onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
                 }
@@ -154,6 +159,7 @@ const ViewUser = () => {
                 className="form-control"
                 value={formData?.subscriptionStatus}
                 readOnly
+                disabled
               />
             </div>
 
@@ -162,7 +168,8 @@ const ViewUser = () => {
               <input
                 className="form-control"
                 value={formData?.eventsCreated}
-                readOnly={!isEdit}
+                readOnly
+                disabled
                 onChange={(e) =>
                   setFormData({ ...formData, eventsCreated: e.target.value })
                 }
@@ -174,6 +181,7 @@ const ViewUser = () => {
                 className="form-control"
                 value={formData?.isOtpVerified ? "Yes" : "No"}
                 readOnly
+                disabled
               />
             </div>
 
@@ -184,6 +192,7 @@ const ViewUser = () => {
                 className="form-control"
                 value={formatDateForInput(formData?.createdAt)}
                 readOnly
+                disabled
               />
             </div>
           </div>
@@ -191,66 +200,7 @@ const ViewUser = () => {
           <div className="d-flex justify-content-center gap-3 mt-4">
             <button className="button-secondary" onClick={() => navigate(-1)}>
               Back
-            </button>
-
-            {!isEdit ? (
-              <button
-                className="primary-button card-btn"
-                onClick={() => {
-                  Swal.fire({
-                    title: "Edit Mode Enabled",
-                    text: "You can now edit the user details.",
-                    icon: "info",
-                    confirmButtonColor: "#166fff",
-                  }).then(() => {
-                    setIsEdit(true);
-                  });
-                }}
-              >
-                Edit
-              </button>
-            ) : (
-              <button
-                className="primary-button card-btn"
-                disabled={isUpdating}
-                onClick={async () => {
-                  try {
-                    const payload = {
-                      first_name: formData.first_name,
-                      last_name: formData.last_name,
-                      email: formData.email,
-                      role: formData.role,
-                      allNotifications: formData.allNotifications,
-                      chatNotifications: formData.chatNotifications,
-                    };
-
-                    await updateUser({
-                      id: formData.id,
-                      payload,
-                    }).unwrap();
-
-                    Swal.fire({
-                      title: "Updated!",
-                      text: "User details updated successfully",
-                      icon: "success",
-                      timer: 3000, // ⏱ auto close in 3 sec
-                      showConfirmButton: true,
-                      timerProgressBar: true,
-                    });
-
-                    setIsEdit(false);
-                  } catch (error) {
-                    Swal.fire(
-                      "Error",
-                      error?.data?.message || "Failed to update user",
-                      "error"
-                    );
-                  }
-                }}
-              >
-                {isUpdating ? "Saving..." : "Save Changes"}
-              </button>
-            )}
+            </button> 
           </div>
         </div>
       </section>

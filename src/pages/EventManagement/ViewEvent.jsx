@@ -1,216 +1,118 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
-import {
-  useGetEventDetailsQuery,
-  useUpdateEventMutation,
-} from "../../api/eventApi";
-import Loader from "../../Components/Loader";
-import NoData from "../../Components/NoData";
 
-const ViewEvent = () => {
-  const { eventId } = useParams();
+const ViewFirm = () => {
   const navigate = useNavigate();
+  const { propertyId } = useParams();
 
-  const { data, isLoading, error } = useGetEventDetailsQuery(eventId);
-  const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
-
-  const [isEdit, setIsEdit] = useState(false);
-  const [formData, setFormData] = useState(null);
-
-  // Fill form when API responds
-  useEffect(() => {
-    if (data?.data) {
-      setFormData({
-        location: data.data.location,
-        description: data.data.description,
-        participantsCount: data.data.participantsCount,
-        eventName: data.data.eventName,
-        startDate: data.data.startDate?.split("T")[0],
-        endDate: data.data.endDate?.split("T")[0],
-        status: data.data.status,
-      });
-    }
-  }, [data]);
-
-  const handleUpdate = async () => {
-    try {
-      await updateEvent({
-        id: eventId,
-        body: {
-          description: formData.description,
-          location: formData.location,
-          participantsCount: formData.participantsCount,
-          eventName: formData.eventName,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          participantsCount: formData.participantsCount,
-          status: formData.status,
-        },
-      }).unwrap();
-
-      Swal.fire("Success", "Event updated successfully", "success");
-      setIsEdit(false);
-    } catch (err) {
-      Swal.fire("Error", "Failed to update event", "error");
-    }
+  // 🔒 STATIC DATA (NO API)
+  const property = {
+    address: "123 Main Street, New York, NY 10001",
+    legalOwner: "John Doe",
+    managementCompany: "ABC Property Management LLC",
+    serviceTypes: ["Maintenance", "Cleaning", "Security"],
+    propertyType: "Residential",
+    units: 24,
+    squareFeet: null,
+    dueDiligenceDays: 14,
+    inspectionAllowed: "Yes",
+    bidDuration: "30 Days",
+    additionalRequirements:
+      "All vendors must provide valid insurance and licenses.",
+    documents: ["Deed.pdf", "Insurance.pdf"],
+    scopeOfWork:
+      "Provide complete maintenance and upkeep of the residential property including plumbing, electrical, and common area cleaning.",
+    contractLength: "2 Years",
+    targetCompensation: "$120,000",
+    expectedStartDate: "2026-02-01",
+    completionTimeframe: "180 Days",
+    contractFile: "ServiceContract.pdf",
+    photos: 5,
+    videos: 2,
   };
 
-  if (isLoading) {
-    return (
-      <section className="app-content h-full overflow-auto">
-        <div
-          className="container d-flex justify-content-center align-items-center"
-          style={{ height: "70vh" }}
-        >
-          <Loader size="lg" color="logo" />
-        </div>
-      </section>
-    );
-  }
+  const handleApprove = () => {
+    Swal.fire("Approved", "Property has been approved", "success");
+  };
 
-  if (error) {
-    return (
-      <div className="app-content">
-        <div className="container">
-          <NoData text="Event not found" imageWidth={300} showImage={true} />
-        </div>
-      </div>
-    );
-  }
-  if (!formData) return null;
+  const handleReject = () => {
+    Swal.fire("Rejected", "Property has been rejected", "error");
+  };
 
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="d-flex justify-content-between mb-4">
-          <div>
-            <div className="title-heading mb-2">View Event</div>
-          </div>
-        </div>
-
+        <div className="title-heading mb-3">View Property</div>
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-4 mt-3">
-          <div className="title-heading text-center mb-4">Event Details</div>
-
-          <div>
-            <label className="form-label fw-semibold">Description</label>
-            <textarea
-              className="form-control"
-              rows={4}
-              placeholder="Type your description..."
-              value={formData.description}
-              readOnly={!isEdit}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-            ></textarea>
-          </div>
           <div className="row">
-            {/* Event ID */}
-            <div className="col-md-6 mb-3 mt-2">
-              <label className="form-label fw-semibold">Event ID</label>
-              <input
-                type="text"
-                className="form-control"
-                value={eventId}
-                readOnly
-              />
-            </div>
 
-            {/* Event Name */}
-            <div className="col-md-6 mb-3 mt-2">
-              <label className="form-label fw-semibold">Event Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={formData.eventName}
-                readOnly={!isEdit}
-                onChange={(e) =>
-                  setFormData({ ...formData, eventName: e.target.value })
-                }
-              />
-            </div>
+            <Detail label="Property ID" value={propertyId} />
+            <Detail label="Property Address" value={property.address} />
+            <Detail label="Legal Owner" value={property.legalOwner} />
+            <Detail
+              label="Property Management Company"
+              value={property.managementCompany}
+            />
+            <Detail
+              label="Service Types"
+              value={property.serviceTypes.join(", ")}
+            />
+            <Detail label="Property Type" value={property.propertyType} />
 
-            {/* location */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">location</label>
-              <input
-                type="text"
-                className="form-control"
-                value={formData.location}
-                readOnly={!isEdit}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-              />
-            </div>
+            {property.propertyType === "Residential" && (
+              <Detail label="Units" value={property.units} />
+            )}
 
-            {/* Participants count */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">
-                Participants count
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                value={formData.participantsCount}
-                readOnly={!isEdit}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    participantsCount: e.target.value,
-                  })
-                }
-              />
-            </div>
-            {/* Start Date */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Start Date</label>
-              <input
-                type="date"
-                className="form-control cursor-pointer"
-                value={formData.startDate}
-                readOnly={!isEdit}
-                onClick={(e) => {
-                  if (isEdit && e.target.showPicker) {
-                    e.target.showPicker();
-                  }
-                }}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    startDate: e.target.value,
-                    endDate:
-                      formData.endDate && e.target.value > formData.endDate
-                        ? ""
-                        : formData.endDate,
-                  })
-                }
-              />
-            </div>
+            {property.propertyType === "Commercial" && (
+              <Detail label="Square Feet" value={property.squareFeet} />
+            )}
 
-            {/* End Date */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">End Date</label>
-              <input
-                type="date"
-                className="form-control cursor-pointer"
-                value={formData.endDate}
-                readOnly={!isEdit}
-                min={formData.startDate}
-                onClick={(e) => {
-                  if (isEdit && e.target.showPicker) {
-                    e.target.showPicker();
-                  }
-                }}
-                onChange={(e) =>
-                  setFormData({ ...formData, endDate: e.target.value })
-                }
-              />
-            </div>
+            <Detail
+              label="Due Diligence Period"
+              value={`${property.dueDiligenceDays} Days`}
+            />
+            <Detail
+              label="Inspection Allowed"
+              value={property.inspectionAllowed}
+            />
+            <Detail label="Bid Duration" value={property.bidDuration} />
+
+            <FullDetail
+              label="Additional Requirements"
+              value={property.additionalRequirements}
+            />
+
+            <Detail
+              label="Relevant Documents"
+              value={property.documents.join(", ")}
+            />
+
+            <FullDetail label="Scope of Work" value={property.scopeOfWork} />
+
+            <Detail
+              label="Service Contract Length"
+              value={property.contractLength}
+            />
+            <Detail
+              label="Target Compensation"
+              value={property.targetCompensation}
+            />
+            <Detail
+              label="Expected Start Date"
+              value={property.expectedStartDate}
+            />
+            <Detail
+              label="Completion Timeframe"
+              value={property.completionTimeframe}
+            />
+
+            <Detail label="Contract File" value={property.contractFile} />
+            <Detail label="Photos Uploaded" value={property.photos} />
+            <Detail label="Videos Uploaded" value={property.videos} />
           </div>
 
           {/* ACTION BUTTONS */}
@@ -218,30 +120,12 @@ const ViewEvent = () => {
             <button className="button-secondary" onClick={() => navigate(-1)}>
               Back
             </button>
-
-            {!isEdit ? (
-              <button
-                className="primary-button card-btn"
-                onClick={() => {
-                  Swal.fire({
-                    title: "Edit Mode Enabled",
-                    text: "You can now edit the event details.",
-                    icon: "info",
-                    confirmButtonColor: "#166fff",
-                  }).then(() => setIsEdit(true));
-                }}
-              >
-                Edit
-              </button>
-            ) : (
-              <button
-                className="primary-button card-btn"
-                onClick={handleUpdate}
-                disabled={isUpdating}
-              >
-                {isUpdating ? "Saving..." : "Save Changes"}
-              </button>
-            )}
+            <button className="primary-button" onClick={handleApprove}>
+              Approve
+            </button>
+            <button className="button-danger" onClick={handleReject}>
+              Reject
+            </button>
           </div>
         </div>
       </section>
@@ -249,4 +133,20 @@ const ViewEvent = () => {
   );
 };
 
-export default ViewEvent;
+export default ViewFirm;
+ 
+const Detail = ({ label, value }) => (
+  <div className="col-md-6 mb-3">
+    <label className="form-label fw-semibold">{label}</label>
+    <div className="form-control bg-light">{value}</div>
+  </div>
+);
+
+const FullDetail = ({ label, value }) => (
+  <div className="col-md-12 mb-3">
+    <label className="form-label fw-semibold">{label}</label>
+    <div className="form-control bg-light" style={{ minHeight: "80px" }}>
+      {value}
+    </div>
+  </div>
+);

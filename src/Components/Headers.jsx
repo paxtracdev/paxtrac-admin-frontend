@@ -16,6 +16,7 @@ import {
   UsersRound,
   Vote,
   Wallet,
+  Power,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -210,9 +211,9 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
           <li>
-            <NavLink className="app-menu__item" to="/event-management">
+            <NavLink className="app-menu__item" to="/firm-management">
               <CalendarDays size={20} />
-              <span className="app-menu__label">Event Management</span>
+              <span className="app-menu__label">Firms Management</span>
             </NavLink>
           </li>
           <li>
@@ -257,7 +258,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               className="app-menu__item sidebar-logout cursor-pointer"
               onClick={handleLogoutClick}
             >
-              <LogOutIcon />
+              <Power />
               <span className="app-menu__label">Signout</span>
             </div>
           </li>
