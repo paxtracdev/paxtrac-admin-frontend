@@ -7,11 +7,10 @@
 }
 
 .form-control {
-  background: #e8f0fe !important;
-  border: 1px solid var(--Neutrals-Gray-7, #635f66) !important;
-  border-radius: 8px !important;
-  /* height: 45px; */
-  padding: 8px 12px !important;
+    background: #aa926b10 !important;
+    border: 2px solid #a99068 !important;
+    border-radius: 8px !important; 
+    padding: 8px 12px !important;
 }
 
 .form-control:focus {
@@ -107,8 +106,8 @@
 }
 
 .form-check-input:checked {
-  background-color: #71a99a !important;
-  border-color: #71a99a !important;
+  background-color: #a99068 !important;
+  border-color: #a99068 !important;
   box-shadow: none !important;
 }
 

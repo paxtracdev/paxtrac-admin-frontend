@@ -3,48 +3,160 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Link, useNavigate } from "react-router-dom";
-import Switch from "react-switch";
-import Swal from "sweetalert2";
+import { Eye, Trash2 } from "lucide-react";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
-import { Eye, Trash2 } from "lucide-react";
-import { useGetUsersQuery, useUpdateUserMutation } from "../../api/userApi";
-import Loader from "../../Components/Loader";
+import FilterModal from "../../Components/FilterModal";
+import Switch from "react-switch"; // import react-switch
+import { useNavigate } from "react-router-dom";
+import FilterUserModal from "../../Components/FilterUserModal";
+import Swal from "sweetalert2";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+
+const STATIC_USERS = [
+  {
+    _id: "1",
+    first_name: "John",
+    last_name: "Doe",
+    email: "john@example.com",
+    phone: "9876543210",
+    role: "vendor",
+    status: true,
+    registrationDate: "2025-12-01",
+  },
+  {
+    _id: "2",
+    first_name: "Jane",
+    last_name: "Smith",
+    email: "jane@example.com",
+    phone: "9876500000",
+    role: "manager",
+    status: false,
+    registrationDate: "2026-01-10",
+  },
+  {
+    _id: "3",
+    first_name: "Alice",
+    last_name: "Johnson",
+    email: "alice@example.com",
+    phone: "9876511111",
+    role: "owner",
+    status: true,
+    registrationDate: "2025-11-15",
+  },
+  // add more users as needed
+];
 
 const UserManagement = () => {
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [search, setSearch] = useState("");
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState({ status: "", role: "" });
 
-  const { data, isLoading, error } = useGetUsersQuery({
-    page,
-    limit: pageSize,
-    search,
-  });
+  // Use userData state so we can update status locally
+  const [userData, setUserData] = useState(STATIC_USERS);
 
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  // Filtering + Searching on userData
+  const filteredUsers = useMemo(() => {
+    return userData.filter((user) => {
+      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+      const email = user.email.toLowerCase();
+      const phone = user.phone.toLowerCase();
+      const searchLower = search.toLowerCase();
 
-  const users = data?.data?.users || [];
-  const pagination = data?.data?.pagination || {};
+      const matchesSearch =
+        fullName.includes(searchLower) ||
+        email.includes(searchLower) ||
+        phone.includes(searchLower);
 
-  const totalCount = pagination.total || 0;
-  const totalPages = pagination.pages || 1;
+      const matchesStatus =
+        filters.status === ""
+          ? true
+          : filters.status === "active"
+            ? user.status === true
+            : user.status === false;
 
-  const paginatedData = useMemo(() => users, [users]);
+      const matchesRole =
+        !filters.role || filters.role === ""
+          ? true
+          : user.role === filters.role;
 
-  // COLUMNS
+      return matchesSearch && matchesStatus && matchesRole;
+    });
+  }, [search, filters, userData]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, page, pageSize]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
+
+  // Toggle status locally
+  const toggleStatus = (id) => {
+    const user = userData.find((u) => u._id === id);
+    if (!user) return;
+
+    Swal.fire({
+      title: `Change status for ${user.first_name} ${user.last_name}?`,
+      text: `This will ${user.status ? "deactivate" : "activate"} the user.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, change it",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#a99068",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setUserData((prev) =>
+          prev.map((u) => (u._id === id ? { ...u, status: !u.status } : u)),
+        );
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: `User status has been ${user.status ? "deactivated" : "activated"}.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
+  };
+
+  const handleDelete = (id) => {
+    const user = userData.find((u) => u._id === id);
+    if (!user) return;
+
+    Swal.fire({
+      title: `Delete user ${user.first_name} ${user.last_name}?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#dc3545", // Bootstrap danger color
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setUserData((prev) => prev.filter((u) => u._id !== id));
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "User has been deleted.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
+  };
+
   const columnDefs = useMemo(
     () => [
       {
         headerName: "S.NO.",
-        cellRenderer: (params) => {
-          return params.node.rowIndex + 1;
-        },
+        valueGetter: (params) =>
+          params.node.rowIndex + 1 + (page - 1) * pageSize,
         minWidth: 100,
         flex: 1,
         cellStyle: { textAlign: "center" },
@@ -62,199 +174,97 @@ const UserManagement = () => {
         flex: 1,
       },
       {
+        headerName: "Phone Number",
+        field: "phone",
+        minWidth: 150,
+        flex: 1,
+      },
+      {
         headerName: "Role",
         field: "role",
-        minWidth: 200,
+        minWidth: 150,
         flex: 1,
         cellRenderer: (p) =>
           p.value
             ? p.value.charAt(0).toUpperCase() + p.value.slice(1).toLowerCase()
             : "",
       },
-
-      {
-        headerName: "All Notifications",
-        field: "allNotifications",
-        minWidth: 200,
-        flex: 1,
-        cellRenderer: (p) => (p.value ? "Yes" : "No"),
-      },
-      {
-        headerName: "Chat Notifications",
-        field: "chatNotifications",
-        minWidth: 200,
-        flex: 1,
-        cellRenderer: (p) => (p.value ? "Yes" : "No"),
-      },
-
-      {
-        headerName: "isOtpVerified",
-        field: "isOtpVerified",
-        minWidth: 200,
-        cellRenderer: (p) => (p.value ? "Yes" : "No"),
-
-        flex: 1,
-      },
-      {
-        headerName: "star tDate",
-        valueGetter: (p) =>
-          p.data.subscription?.startDate
-            ? new Date(p.data.subscription.startDate).toLocaleDateString(
-                "en-GB"
-              )
-            : "N/A",
-        minWidth: 200,
-        flex: 1,
-      },
-
-      {
-        headerName: "End Date",
-        valueGetter: (p) =>
-          p.data.subscription?.expiryDate
-            ? new Date(p.data.subscription.expiryDate).toLocaleDateString(
-                "en-GB"
-              )
-            : "N/A",
-        minWidth: 200,
-        flex: 1,
-      },
-
       {
         headerName: "Status",
         field: "status",
-        minWidth: 140,
-        cellRenderer: (params) => {
-          const handleToggle = async (checked) => {
-            try {
-              await updateUser({
-                id: params.data._id,
-                payload: {
-                  status: checked,
-                },
-              }).unwrap();
-
-              Swal.fire({
-                icon: "success",
-                title: "Updated",
-                text: "User status updated successfully",
-                showConfirmButton: true,
-              });
-            } catch (error) {
-              Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: "Unable to update status",
-              });
-            }
-          };
-
-          return (
-            <Switch
-              checked={Boolean(params.value)}
-              onChange={handleToggle}
-              onColor="#a99068"
-              // offColor="#ef4444"
-              checkedIcon={false}
-              uncheckedIcon={false}
-              height={20}
-              width={40}
-            />
-          );
-        },
+        minWidth: 120,
+        flex: 1,
+        cellRenderer: (params) => (
+          <Switch
+            onChange={() => toggleStatus(params.data._id)}
+            checked={Boolean(params.value)}
+            onColor="#a99068"
+            uncheckedIcon={false}
+            checkedIcon={false}
+            height={20}
+            width={40}
+          />
+        ),
       },
-
+      {
+        headerName: "Registration Date",
+        field: "registrationDate",
+        minWidth: 160,
+        flex: 1,
+        valueFormatter: (p) =>
+          p.value ? new Date(p.value).toLocaleDateString("en-GB") : "N/A",
+      },
       {
         headerName: "Action",
-        width: 150,
-        cellRenderer: (params) => {
-          const handleDelete = () => {
-            Swal.fire({
-              title: "Delete User?",
-              text: `Are you sure you want to delete ${params.data.name}?`,
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonColor: "#d33",
-              cancelButtonColor: "#166fff",
-              confirmButtonText: "Yes, delete",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                const updated = userData.filter(
-                  (u) => u._id !== params.data._id
-                );
-                setUserData(updated);
-
-                Swal.fire({
-                  title: "Deleted!",
-                  icon: "success",
-                  confirmButtonColor: "#166fff",
-                });
+        minWidth: 140,
+        flex: 1,
+        cellRenderer: (params) => (
+          <div className="d-flex gap-2 align-items-center">
+            <button
+              className="btn p-0 border-0 bg-transparent"
+              title="View"
+              onClick={() =>
+                navigate(`/user-management/view-user?id=${params.data._id}`)
               }
-            });
-          };
-          return (
-            // View Button
-            <div className="d-flex align-items-center gap-1">
-              <button
-                className="btn p-0 border-0 bg-transparent"
-                title="View"
-                onClick={() =>
-                  navigate(`/user-management/view-user/${params.data._id}`)
-                }
-                style={{ cursor: "pointer" }}
-              >
-                <Eye size={20} />
-              </button>
-              {/* <p className="mb-0 ms-2"> | </p> */}
-              {/* Delete Button */}
-              {/* <button
-                className="delete-btn-icon"
-                onClick={handleDelete}
-                title="Delete"
-              >
-                <Trash2 size={20} />
-              </button> */}
-            </div>
-          );
-        },
+              style={{ cursor: "pointer" }}
+            >
+              <Eye size={20} />
+            </button>
+            <span>|</span>
+            <button
+              className="btn p-0 border-0 bg-transparent text-danger"
+              title="Delete"
+              onClick={() => handleDelete(params.data._id)}
+              style={{ cursor: "pointer" }}
+            >
+              <Trash2 size={20} />
+            </button>
+          </div>
+        ),
       },
     ],
-    [page, pageSize]
+    [navigate, page, pageSize],
   );
-
-  if (isLoading) {
-    return (
-      <section className="app-content h-full overflow-auto">
-        <div
-          className="container d-flex justify-content-center align-items-center"
-          style={{ height: "70vh" }}
-        >
-          <Loader size="lg" color="logo" />
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="app-content">
-        <div className="container">
-          <NoData text="User not found" imageWidth={300} showImage={true} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <main className="app-content body-bg">
       <section className="container">
         {/* Header */}
-        <div className="d-flex justify-content-between mb-4">
+        <div className="d-flex justify-content-between mb-4 align-items-center">
           <div>
-            <div className="title-heading mb-2">Users Management</div>
+            <div className="title-heading mb-2">User Management</div>
             <p className="title-sub-heading">
               Manage registered users and their access
             </p>
           </div>
+
+          <button
+            className="primary-button"
+            onClick={() => setFilterModalOpen(true)}
+            style={{ height: "38px" }}
+          >
+            Filter
+          </button>
         </div>
 
         <Breadcrumbs />
@@ -263,28 +273,26 @@ const UserManagement = () => {
         <div className="search-bar mb-4 position-relative">
           <input
             type="text"
-            className="form-control ps-3"
-            placeholder="Search users..."
+            className="form-control ps-3 w-50"
+            placeholder="Search users by name, email or phone..."
             value={search}
             autoFocus
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1); // reset pagination on search
+              setPage(1);
             }}
           />
         </div>
 
         {/* Table */}
         <div className="custom-card bg-white p-3">
-          {isLoading ? (
-            <p className="text-center">Loading users...</p>
-          ) : users.length === 0 ? (
+          {paginatedUsers.length === 0 ? (
             <NoData text="No users found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedData}
+                  rowData={paginatedUsers}
                   columnDefs={columnDefs}
                   headerHeight={40}
                   rowHeight={48}
@@ -299,9 +307,9 @@ const UserManagement = () => {
               <CustomPagination
                 currentPage={page}
                 totalPages={totalPages}
-                totalCount={totalCount}
+                totalCount={filteredUsers.length}
                 pageSize={pageSize}
-                onPageChange={(p) => setPage(p)}
+                onPageChange={setPage}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
                   setPage(1);
@@ -310,6 +318,18 @@ const UserManagement = () => {
             </>
           )}
         </div>
+
+        {/* Filter Modal */}
+        <FilterUserModal
+          show={filterModalOpen}
+          onClose={() => setFilterModalOpen(false)}
+          initialFilters={filters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+            setFilterModalOpen(false);
+            setPage(1);
+          }}
+        />
       </section>
     </main>
   );
