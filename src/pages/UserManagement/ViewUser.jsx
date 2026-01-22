@@ -1,141 +1,162 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import { useEffect, useState } from "react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import CustomDropdown from "../../Components/CustomDropdown";
-import Swal from "sweetalert2";
-import Switch from "react-switch";
-import { useGetUserByIdQuery, useUpdateUserMutation } from "../../api/userApi";
-import Loader from "../../Components/Loader";
-import NoData from "../../Components/NoData";
+
+// Static data simulating users and their business info (ideally you would fetch this)
+const STATIC_USERS = [
+  {
+    _id: "1",
+    first_name: "John",
+    last_name: "Doe",
+    email: "john@example.com",
+    phone: "9876543210",
+    role: "vendor",
+    status: "active",
+    registrationDate: "2025-12-01",
+    businessDetails: {
+      ownerName: "John Doe Enterprises",
+      ownerAddress: "123 Main St, Cityville",
+      employees: 25,
+      unitsOwned: 100,
+      startYear: 2010,
+      capexBudget: "$1,000,000",
+      geographicAreas: "Cityville, Region A",
+      propertyTypes: ["Apartment", "Commercial", "Vacation Rentals"],
+      propertyPortfolio:
+        "We own multiple apartment buildings and commercial properties focused on mid-sized urban developments.",
+    },
+  },
+  {
+    _id: "2",
+    first_name: "Jane",
+    last_name: "Smith",
+    email: "jane@example.com",
+    phone: "9876500000",
+    role: "manager",
+    status: "inactive",
+    registrationDate: "2026-01-10",
+    businessDetails: {
+      ownerName: "Smith Property Group",
+      ownerAddress: "456 Elm St, Townsville",
+      employees: 10,
+      unitsOwned: 50,
+      startYear: 2015,
+      capexBudget: "$500,000",
+      geographicAreas: "Townsville, Region B",
+      propertyTypes: ["Single Family", "Multi-Family"],
+      propertyPortfolio:
+        "Focused on residential single and multi-family homes in suburban areas.",
+    },
+  }, 
+  {
+    _id: "3",
+    first_name: "Michael",
+    last_name: "Brown",
+    email: "michael.brown@example.com",
+    phone: "9123456789",
+    role: "vendor",
+    status: "active",
+    registrationDate: "2026-01-15",
+    businessDetails: {
+      ownerName: "Brown Realty Solutions",
+      ownerAddress: "789 Oak Ave, Metropolis",
+      employees: 18,
+      unitsOwned: 75,
+      startYear: 2012,
+      capexBudget: "$750,000",
+      geographicAreas: "Metropolis, Region C",
+      propertyTypes: ["Commercial", "Office Space"],
+      propertyPortfolio:
+        "Specializing in property acquisition and leasing of office and mixed-use commercial spaces.",
+    },
+  },
+];
 
 const ViewUser = () => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { id } = useParams();
 
-  const [formData, setFormData] = useState(null);
-  const [isEdit, setIsEdit] = useState(false);
+  const id = searchParams.get("id");
 
-  const { data, isLoading, error } = useGetUserByIdQuery(id);
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (data?.data) {
-      const user = data.data;
+    if (!id) return;
 
-      setFormData({
-        id: user._id,
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-        email: user.email || "",
-        gender: user.gender || "",
-        role: user.role || "",
-        status: user.status,
-        isOtpVerified: user.isOtpVerified,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        subscriptionStatus: user.subscription?.status || "none",
-        eventsCreated: user.subscription?.eventsCreated || 0,
-      });
-    }
-  }, [data]);
+    const foundUser = STATIC_USERS.find((u) => u._id === id);
+    setUser(foundUser);
+  }, [id]); 
 
-  // if (!user) return null;
-  const formatDateForInput = (date) => {
-    if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
-  };
+  if (!user) return ;
 
-  if (isLoading) {
-    return (
-      <section className="app-content h-full overflow-auto">
-        <div
-          className="container d-flex justify-content-center align-items-center"
-          style={{ height: "70vh" }}
-        >
-          <Loader size="lg" color="logo" />
-        </div>
-      </section>
-    );
-  }
+  const {
+    first_name,
+    last_name,
+    email,
+    phone,
+    role,
+    status,
+    registrationDate,
+    businessDetails,
+  } = user;
 
-  if (error) {
-    return (
-      <div className="app-content">
-        <div className="container">
-          <NoData text="User not found" imageWidth={300} showImage={true} />
-        </div>
-      </div>
-    );
-  }
   return (
     <main className="app-content body-bg">
-      <section className="container">
-        <div className="d-flex justify-content-between mb-4">
+      <section className="container py-4 position-relative">
+        {/* Header */}
+        <div className="d-flex justify-content-between mb-4 align-items-center">
           <div>
-            <div className="title-heading mb-2">View User</div>
+            <div className="title-heading mb-2">User Management</div>
+            <p className="title-sub-heading">
+              Manage registered users and their access
+            </p>
           </div>
         </div>
 
         <Breadcrumbs />
 
-        <div className="custom-card bg-white p-4 mt-3">
-          <div className="title-heading text-center mb-4">User Details</div>
+        <div className="custom-card bg-white p-4 mt-3 position-relative">
+          <h2 className="title text-black mb-4">User Details</h2>
+          {/* Status Badge Top Right */}
+          <div
+            className={`status-badge ${status === "inactive" ? "inactive" : ""}`}
+          >
+            {status}
+          </div>
 
-          <div className="row">
-            {/* User ID */}
+          {/* User Details */}
+          <div className="row mb-4">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">User ID</label>
+              <label className="form-label fw-semibold">Name</label>
               <input
                 type="text"
                 className="form-control"
-                value={formData?.id || ""}
-                readOnly
+                value={`${first_name} ${last_name}`}
                 disabled
-              />
-            </div>
-
-            {/* User Name */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">First Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={formData?.first_name || ""}
                 readOnly
-                disabled
-                onChange={(e) =>
-                  setFormData({ ...formData, first_name: e.target.value })
-                }
               />
             </div>
-
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Last Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={formData?.last_name || ""}
-                readOnly
-                disabled 
-                onChange={(e) =>
-                  setFormData({ ...formData, last_name: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Email */}
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Email</label>
               <input
+                type="email"
+                className="form-control"
+                value={email}
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Phone Number</label>
+              <input
                 type="text"
                 className="form-control"
-                placeholder="Enter your email"
-                value={formData?.email || ""}
-                readOnly
+                value={phone}
                 disabled
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                readOnly
               />
             </div>
 
@@ -144,63 +165,158 @@ const ViewUser = () => {
               <input
                 type="text"
                 className="form-control"
-                value={formData?.role || ""}
-                readOnly
+                value={role.charAt(0).toUpperCase() + role.slice(1)}
                 disabled
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
+                readOnly
               />
             </div>
 
             <div className="col-md-6 mb-3">
-              <label className="fw-semibold">Subscription Status</label>
+              <label className="form-label fw-semibold">
+                Registration Date
+              </label>
               <input
+                type="text"
                 className="form-control"
-                value={formData?.subscriptionStatus}
-                readOnly
+                value={new Date(registrationDate).toLocaleDateString("en-GB")}
                 disabled
-              />
-            </div>
-
-            <div className="col-md-6 mb-3">
-              <label className="fw-semibold">Events Created</label>
-              <input
-                className="form-control"
-                value={formData?.eventsCreated}
                 readOnly
-                disabled
-                onChange={(e) =>
-                  setFormData({ ...formData, eventsCreated: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="fw-semibold">OTP Verified</label>
-              <input
-                className="form-control"
-                value={formData?.isOtpVerified ? "Yes" : "No"}
-                readOnly
-                disabled
-              />
-            </div>
-
-            <div className="col-md-6">
-              <label className="fw-semibold">Created Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={formatDateForInput(formData?.createdAt)}
-                readOnly
-                disabled
               />
             </div>
           </div>
 
-          <div className="d-flex justify-content-center gap-3 mt-4">
-            <button className="button-secondary" onClick={() => navigate(-1)}>
-              Back
-            </button> 
+          {/* Business Details */}
+          <h4 className="mb-3">Business Details</h4>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                Name of Property Owner (Entity) *
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={businessDetails.ownerName}
+                disabled
+                readOnly
+                placeholder="Name of Property Owner (Entity)"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                Property Owner Entity Address *
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={businessDetails.ownerAddress}
+                disabled
+                readOnly
+                placeholder="Property Owner Entity Address"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                Number of employees? *
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                value={businessDetails.employees}
+                disabled
+                readOnly
+                placeholder="Number of employees"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                How many units does this entity own? *
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                value={businessDetails.unitsOwned}
+                disabled
+                readOnly
+                placeholder="Units owned"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                What year did the business start? *
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                value={businessDetails.startYear}
+                disabled
+                readOnly
+                placeholder="Business start year"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">
+                Average annual CapEx budget? *
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={businessDetails.capexBudget}
+                disabled
+                readOnly
+                placeholder="Annual CapEx budget"
+              />
+            </div>
+
+            <div className="col-md-12 mb-3">
+              <label className="form-label fw-semibold">
+                List the geographic areas that you focus on
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={businessDetails.geographicAreas}
+                disabled
+                readOnly
+                placeholder="Geographic areas"
+              />
+            </div>
+
+            <div className="col-md-12 mb-3">
+              <label className="form-label fw-semibold">
+                Types of property
+              </label>
+              <div className="d-flex flex-wrap gap-2">
+                {businessDetails.propertyTypes.map((type, i) => (
+                  <span
+                    key={i}
+                    className="service-chip"
+                    style={{ fontSize: "0.9rem" }}
+                  >
+                    {type}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-md-12 mb-3">
+              <label className="form-label fw-semibold">
+                Property Portfolio
+              </label>
+              <textarea
+                className="form-control"
+                rows={4}
+                value={businessDetails.propertyPortfolio}
+                disabled
+                readOnly
+                placeholder="Property Portfolio"
+              ></textarea>
+            </div>
           </div>
         </div>
       </section>

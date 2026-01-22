@@ -1,10 +1,9 @@
 import React from 'react';
-import noDataSvg from "../assets/images/nodataImage.png";
- 
+import noDataImgbg from "../assets/images/noDataImgbg.png";
 
 const NoData= ({ 
   text = "No data found", 
-  image = noDataSvg, 
+  image = noDataImgbg, 
   imageWidth = 250, 
   className = "",
   showImage = true 
@@ -19,7 +18,7 @@ const NoData= ({
           className=""
         />
       )}
-      <p className="text-muted mt-3">{text}</p>
+      <p className="text-muted">{text}</p>
     </div>
   );
 };

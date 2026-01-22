@@ -8,22 +8,18 @@ import { Modal, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
 import { Eye, Trash2 } from "lucide-react";
-import {
-  useCreateAnnouncementMutation,
-  useDeleteAnnouncementMutation,
-  useGetAnnouncementByIdQuery,
-  useGetAnnouncementsQuery,
-} from "../../api/notificationApi";
-import Loader from "../../Components/Loader";
 import { ReadMoreCell } from "../../Components/ReadMoreCell";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+
+/* ---------------- DROPDOWN OPTIONS ---------------- */
+
 const notiTypeOptions = [
   { label: "General Notification", value: "general" },
   { label: "Promotional Offer", value: "promotion" },
   { label: "System Update", value: "system_update" },
-  { label: "Important Update", value: "Important Update" },
-  { label: "Maintenance Notice", value: "Maintenance Notice" },
+  { label: "Important Update", value: "important" },
+  { label: "Maintenance Notice", value: "maintenance" },
 ];
 
 const prioritytyOptions = [
@@ -31,316 +27,234 @@ const prioritytyOptions = [
   { label: "High", value: "high" },
 ];
 
+const userGroupOptions = [
+  { label: "All Users", value: "all" },
+  { label: "Vendors", value: "vendors" },
+  { label: "Owners", value: "owners" },
+  { label: "Managers", value: "managers" },
+];
+
+/* ---------------- STATIC DATA ---------------- */
+
+const STATIC_NOTIFICATIONS = [
+  {
+    id: 1,
+    title: "Scheduled Maintenance",
+    message: "Platform maintenance will occur tonight from 12 AM to 2 AM.",
+    type: "maintenance",
+    priority: "high",
+    targetAudience: "all",
+    status: "sent",
+    sentAt: "2026-01-20",
+  },
+  {
+    id: 2,
+    title: "New Feature Release",
+    message: "We have launched a new dashboard experience.",
+    type: "system_update",
+    priority: "medium",
+    targetAudience: "vendors",
+    status: "failed",
+    sentAt: "2026-01-18",
+  },
+  {
+    id: 3,
+    title: "Upcoming Announcement",
+    message: "Draft notification for upcoming platform changes.",
+    type: "general",
+    priority: "medium",
+    targetAudience: "owners",
+    status: "draft",
+    sentAt: "2026-01-15", // draft hasn’t been sent yet
+  },
+];
+
+/* ---------------- COMPONENT ---------------- */
+
 const NotificationCommunication = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState(null);
-  const [notiType, setNotiType] = useState("");
-  const [prorityType, SetProrityType] = useState("");
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [notiType, setNotiType] = useState("");
+  const [priorityType, setPriorityType] = useState("");
+  const [userGroup, setUserGroup] = useState("");
+
   const [openModal, setOpenModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const { data, isLoading } = useGetAnnouncementsQuery({
-    page,
-    limit: pageSize,
-    search,
-  });
-  const {
-    data: singleNotification,
-    isLoading: isLoadingSingle,
-    error,
-  } = useGetAnnouncementByIdQuery(selectedId, {
-    skip: !selectedId,
-  });
-  const [createAnnouncement, { isLoading: isSending }] =
-    useCreateAnnouncementMutation();
 
-  const [deleteNotification] = useDeleteAnnouncementMutation();
-
-  const notifications = data?.data?.announcements || [];
-  const pagination = data?.data?.pagination || {};
-
-  const totalCount = pagination.total || 0;
-  const totalPages = pagination.pages || 1;
-
-  const paginatedData = useMemo(() => {
-    return notifications;
-  }, [notifications]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setPage(1);
-    }, 500);
-
-    return () => clearTimeout(timer);
+  const filteredData = useMemo(() => {
+    return STATIC_NOTIFICATIONS.filter(
+      (n) =>
+        n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.message.toLowerCase().includes(search.toLowerCase()),
+    );
   }, [search]);
 
-  // SUBMIT
-  const handleSubmit = async () => {
-    if (!title.trim()) {
-      Swal.fire("Error", "Title is required", "error");
+  const handleSubmit = () => {
+    if (!title || !message || !notiType || !priorityType || !userGroup) {
+      Swal.fire("Error", "All fields are required", "error");
       return;
     }
 
-    if (!message.trim()) {
-      Swal.fire("Error", "Message is required", "error");
-      return;
-    }
+    Swal.fire({
+      title: "Success!",
+      text: "Notification sent successfully!",
+      icon: "success",
+      timer: 2500,
+      showConfirmButton: true,
+    });
 
-    if (!notiType) {
-      Swal.fire("Error", "Please select notification type", "error");
-      return;
-    }
-
-    if (!prorityType) {
-      Swal.fire("Error", "Please select priority type", "error");
-      return;
-    }
-    try {
-      await createAnnouncement({
-        title,
-        message,
-        type: notiType,
-        priority: prorityType,
-      }).unwrap();
-
-      Swal.fire({
-        title: "Success!",
-        text: "Notification sent successfully!",
-        icon: "success",
-        timer: 3000, // ⏱ auto close in 3 sec
-        showConfirmButton: true,
-        timerProgressBar: true,
-      });
-      // Reset form
-      setTitle("");
-      setMessage("");
-      setNotiType("");
-      SetProrityType("");
-    } catch (error) {
-      Swal.fire("Error", "Failed to send notification", "error");
-    }
+    setTitle("");
+    setMessage("");
+    setNotiType("");
+    setPriorityType("");
+    setUserGroup("");
   };
 
-  const handleDelete = async (id) => {
-    if (!id) {
-      Swal.fire("Error", "Invalid event ID", "error");
-      return;
-    }
-
-    const result = await Swal.fire({
+  const handleDelete = (id) => {
+    Swal.fire({
       title: "Delete Announcement?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-    });
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Here you would call your delete API or remove item
+        // Example: deleteAnnouncement(id);
 
-    if (result.isConfirmed) {
-      try {
-        await deleteNotification(id).unwrap();
-        Swal.fire("Deleted!", "Announcement removed successfully.", "success");
-      } catch (err) {
-        Swal.fire("Error", "Failed to delete event", "error");
+        // Show success alert
+        Swal.fire({
+          title: "Deleted!",
+          text: "The announcement has been deleted.",
+          icon: "success",
+          confirmButtonColor: "#a99068",
+        });
       }
+    });
+  };
+
+  const StatusBadge = ({ status }) => {
+    let bgColor = "#6c757d"; // default gray
+    let color = "#fff"; // default white
+
+    if (status === "sent") {
+      bgColor = "#d1fae5";
+      color = "#065f46";
+    } else if (status === "failed") {
+      bgColor = "#fee2e2"; // red
+      color = "#991b1b";
+    } else if (status === "draft") {
+      bgColor = "#fff6d9"; // gray
+      color = "#dda200";
     }
-  };
 
-  const handleClose = () => {
-    setOpenModal(false);
-    setSelectedId(null);
-  };
-
-  const statusStyles = {
-    sent: {
-      background: "#DCFCE7",
-      color: "#166534",
-    },
-    scheduled: {
-      background: "#DBEAFE",
-      color: "#1E40AF",
-    },
+    return (
+      <span
+        style={{
+          backgroundColor: bgColor,
+          color: color,
+          padding: "5px 15px",
+          borderRadius: "50px",
+          textTransform: "capitalize",
+          fontSize: "12px",
+        }}
+      >
+        {status}
+      </span>
+    );
   };
 
   const columnDefs = useMemo(
     () => [
       {
         headerName: "S.NO.",
-        minWidth: 100,
-        flex: 1,
-        valueGetter: (p) => p.node.rowIndex + 1 + (page - 1) * pageSize,
+        valueGetter: (p) => p.node.rowIndex + 1,
+        width: 80,
       },
       {
         headerName: "Title",
         field: "title",
         flex: 1,
         minWidth: 200,
-        flex: 1,
-        wrapText: true,
-        autoHeight: true,
         cellRenderer: ReadMoreCell,
       },
-
-      { headerName: "Type", field: "type", minWidth: 200, flex: 1 },
+      { headerName: "Type", field: "type", flex: 1 },
       {
         headerName: "Target Audience",
         field: "targetAudience",
-        minWidth: 200,
         flex: 1,
       },
-      { headerName: "Priority", field: "priority", minWidth: 200, flex: 1 },
+      { headerName: "Priority", field: "priority", flex: 1 },
       {
         headerName: "Status",
         field: "status",
-        minWidth: 160,
         flex: 1,
-        cellRenderer: (params) => {
-          const status = params.value?.toLowerCase();
-          const style = statusStyles[status] || {
-            background: "#E5E7EB",
-            color: "#374151",
-          };
-
-          return (
-            <span
-              style={{
-                backgroundColor: style.background,
-                color: style.color,
-                padding: "4px 12px",
-                borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: 600,
-                textTransform: "capitalize",
-                display: "inline-block",
-                minWidth: "90px",
-                textAlign: "center",
-              }}
-            >
-              {status}
-            </span>
-          );
-        },
-      },
-
-      {
-        headerName: "Scheduled For",
-        field: "scheduledFor",
-        minWidth: 200,
-        flex: 1,
-        valueFormatter: (p) =>
-          p.value ? new Date(p.value).toLocaleDateString("en-GB") : "N/A",
+        cellRenderer: (params) => <StatusBadge status={params.value} />,
       },
       {
         headerName: "Sent At",
         field: "sentAt",
-        minWidth: 200,
         flex: 1,
-        valueFormatter: (p) =>
-          p.value ? new Date(p.value).toLocaleDateString("en-GB") : "N/A",
       },
       {
         headerName: "Action",
-        minWidth: 120,
-        flex: 1,
         cellRenderer: (params) => (
           <div className="d-flex gap-3">
-            <button className="border-0 bg-transparent" title="View">
-              <Eye
-                size={18}
-                style={{ cursor: "pointer" }}
-                title="View"
-                onClick={() => {
-                  setSelectedId(params.data.id);
-                  setOpenModal(true);
-                }}
-              />
-            </button>
+            <Eye
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setSelectedNotification(params.data);
+                setOpenModal(true);
+              }}
+            />
             |
-            <button className="border-0 bg-transparent" title="Delete">
-              <Trash2
-                size={18}
-                className="text-danger"
-                title="Delete"
-                style={{ cursor: "pointer" }}
-                onClick={() => handleDelete(params.data.id)}
-              />
-            </button>
+            <Trash2
+              size={18}
+              className="text-danger"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleDelete(params.data.id)}
+            />
           </div>
         ),
       },
     ],
-    [page, pageSize]
+    [],
   );
-
-  if (isLoading) {
-    return (
-      <section className="app-content h-full overflow-auto">
-        <div
-          className="container d-flex justify-content-center align-items-center"
-          style={{ height: "70vh" }}
-        >
-          <Loader size="lg" color="logo" />
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="app-content">
-        <div className="container">
-          <NoData
-            text="Notifications not found"
-            imageWidth={300}
-            showImage={true}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="d-flex justify-content-between mb-4">
-          <div>
-            <div className="title-heading mb-2">
-              Notification & Communication
-            </div>
-            <p className="title-sub-heading">
-              Send in-app notifications and view recent communication
-            </p>
-          </div>
-        </div>
+        <div className="title-heading mb-2">Notification & Communication</div>
+        <p className="title-sub-heading">
+          Send platform-wide or targeted notifications to keep users informed
+        </p>
 
         <Breadcrumbs />
 
-        {/* FORM CARD */}
+        {/* FORM */}
         <div className="custom-card bg-white p-4 mb-4">
           <div className="row">
-            {/* title */}
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">
-                Title <span className="text-danger">*</span>
-              </label>
+              <label className="form-label fw-semibold">Title *</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Type your title..."
+                placeholder="Enter notification title"
                 value={title}
-                autoFocus
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-            {/* Custom Dropdown */}
+
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">
-                Notification Type <span className="text-danger">*</span>
+                Notification Type *
               </label>
-
               <CustomDropdown
                 options={notiTypeOptions}
                 placeholder="Select notification type"
@@ -348,50 +262,55 @@ const NotificationCommunication = () => {
                 onChange={setNotiType}
               />
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">
-                Priority <span className="text-danger">*</span>
-              </label>
 
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Priority *</label>
               <CustomDropdown
                 options={prioritytyOptions}
                 placeholder="Select priority"
-                value={prorityType}
-                onChange={SetProrityType}
+                value={priorityType}
+                onChange={setPriorityType}
               />
             </div>
-            {/* Message */}
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">User Group *</label>
+              <CustomDropdown
+                options={userGroupOptions}
+                placeholder="Select target audience"
+                value={userGroup}
+                onChange={setUserGroup}
+              />
+            </div>
+
             <div className="col-md-12 mb-3">
-              <label className="form-label fw-semibold">
-                Message <span className="text-danger">*</span>
-              </label>
+              <label className="form-label fw-semibold">Message *</label>
               <textarea
                 className="form-control"
                 rows={4}
-                placeholder="Type your message..."
+                placeholder="Type notification message here..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-              ></textarea>
+              />
             </div>
 
             <div className="col-md-12">
               <button
                 className="primary-button card-btn"
                 onClick={handleSubmit}
-                disabled={isSending}
               >
-                {isSending ? "Sending..." : "Send Notification"}
+                Send Notification
               </button>
             </div>
           </div>
         </div>
 
         {/* SEARCH */}
-        <div className="search-bar mb-3">
+        <div className="search-bar mb-3 w-50">
           <input
             type="text"
             className="form-control ps-3"
-            placeholder="Search notifications..."
+            placeholder="Search by title..."
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -400,46 +319,41 @@ const NotificationCommunication = () => {
         <div className="custom-card bg-white p-3">
           <h5 className="mb-3">Recent Notifications</h5>
 
-          {isLoading ? (
-            <p className="text-center">Loading notifications...</p>
-          ) : notifications.length === 0 ? (
+          {filteredData.length === 0 ? (
             <NoData text="No notifications found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedData}
+                  rowData={filteredData}
                   columnDefs={columnDefs}
-                  headerHeight={40}
-                  rowHeight={50}
                   domLayout="autoHeight"
+                  headerHeight={40}
+                  rowHeight={48}
                   getRowStyle={(params) => ({
                     backgroundColor:
-                      params.node.rowIndex % 2 !== 0 ? "#0061ff10" : "white",
+                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
                   })}
                 />
               </div>
 
               <CustomPagination
                 currentPage={page}
-                totalPages={totalPages}
-                totalCount={totalCount}
+                totalPages={1}
+                totalCount={filteredData.length}
                 pageSize={pageSize}
-                onPageChange={(p) => setPage(p)}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setPage(1);
-                }}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
               />
             </>
           )}
         </div>
 
         {/* VIEW MODAL */}
-        <Modal show={openModal} onHide={handleClose} centered>
+        <Modal show={openModal} onHide={() => setOpenModal(false)} centered>
           <Modal.Body>
-            <Modal.Title className="title fw-light text-center mb-3">
-              {selectedNotification?.type || ""}
+            <Modal.Title className="fw-light text-center mb-3">
+              {selectedNotification?.title}
             </Modal.Title>
 
             <Form.Group>
@@ -447,8 +361,9 @@ const NotificationCommunication = () => {
               <Form.Control
                 as="textarea"
                 rows={4}
-                value={singleNotification?.data?.message || ""}
+                value={selectedNotification?.message || ""}
                 readOnly
+                disabled
               />
             </Form.Group>
 
@@ -457,8 +372,7 @@ const NotificationCommunication = () => {
                 className="button-secondary"
                 onClick={() => setOpenModal(false)}
               >
-                {" "}
-                Close{" "}
+                Close
               </button>
             </div>
           </Modal.Body>

@@ -17,6 +17,8 @@ import {
   Vote,
   Wallet,
   Power,
+  Building,
+  Building2,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -211,9 +213,9 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
           <li>
-            <NavLink className="app-menu__item" to="/firm-management">
-              <CalendarDays size={20} />
-              <span className="app-menu__label">Firms Management</span>
+            <NavLink className="app-menu__item" to="/property-management">
+              <Building2 size={20} />
+              <span className="app-menu__label">Property Management</span>
             </NavLink>
           </li>
           <li>

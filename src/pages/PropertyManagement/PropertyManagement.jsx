@@ -12,13 +12,13 @@ import FilterModal from "../../Components/FilterModal";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const FirmManagement = () => {
+const PropertyManagement = () => {
   const navigate = useNavigate();
 
   /* =======================
      STATIC DEMO DATA
   ======================= */
-  const demoFirms = [
+  const demoProperty = [
     {
       id: 1,
       propertyId: "PROP-001",
@@ -59,7 +59,7 @@ const FirmManagement = () => {
   /* =======================
      STATE
   ======================= */
-  const [allData, setAllData] = useState(demoFirms);
+  const [allData, setAllData] = useState(demoProperty);
   const [rowData, setRowData] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -86,7 +86,7 @@ const FirmManagement = () => {
      SEARCH + FILTER + PAGINATION LOGIC
   ======================= */
   useEffect(() => {
-    let filtered = [...demoFirms];
+    let filtered = [...demoProperty];
 
     // Search
     if (searchInput) {
@@ -132,7 +132,7 @@ const FirmManagement = () => {
   ======================= */
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Delete Firm?",
+      title: "Delete property?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
@@ -140,7 +140,7 @@ const FirmManagement = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setAllData((prev) => prev.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "Firm deleted successfully.", "success");
+        Swal.fire("Deleted!", "Property deleted successfully.", "success");
       }
     });
   };
@@ -197,8 +197,8 @@ const FirmManagement = () => {
         cellRenderer: (p) => (
           <span
             style={{
-              padding: "4px 10px",
-              borderRadius: "6px",
+              padding: "5px 15px",
+              borderRadius: "50px",
               fontSize: "12px",
               backgroundColor: p.value === "active" ? "#d1fae5" : "#fee2e2",
               color: p.value === "active" ? "#065f46" : "#991b1b",
@@ -216,7 +216,7 @@ const FirmManagement = () => {
             <button
               className="border-0 bg-transparent"
               onClick={() =>
-                navigate(`/firm-management/view-firm/${params.data.id}`)
+                navigate(`/property-management/view-property?id=${params.data.id}`)
               }
             >
               <Eye size={18} />
@@ -241,13 +241,13 @@ const FirmManagement = () => {
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <div className="title-heading mb-2">Firm Management</div>
+            <div className="title-heading mb-2">Property Management</div>
             <p className="title-sub-heading">
-              Monitor and manage registered firms
+              Monitor and manage registered Property
             </p>
           </div>
           <button
-            className="login-btn"
+            className="primary-button"
             onClick={() => setShowFilter(true)}
           >
             Filter
@@ -270,7 +270,7 @@ const FirmManagement = () => {
         {/* TABLE */}
         <div className="custom-card bg-white p-3">
           {rowData.length === 0 ? (
-            <NoData text="No firms found" />
+            <NoData text="No property found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
@@ -316,4 +316,4 @@ const FirmManagement = () => {
   );
 };
 
-export default FirmManagement;
+export default PropertyManagement;

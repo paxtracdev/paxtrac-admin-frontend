@@ -21,14 +21,14 @@ const Loader = ({
   };
 
   const loaderContent = (
-    <div className={`loader-container loader-fade-in ${className}`}>
+    <div className={`text-center loader-container loader-fade-in ${className}`}>
       <div
         className={`spinner-border ${sizeClasses[size]} ${colorClasses[color]}`}
         role="status"
         style={{
           borderWidth: size === "sm" ? "0.15em" : "0.25em",
           ...(color === "logo" && {
-            borderColor: "#166FFF",
+            borderColor: "#a99068",
             borderRightColor: "transparent",
           }),
         }}
