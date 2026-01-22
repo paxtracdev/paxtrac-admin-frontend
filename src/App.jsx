@@ -5,8 +5,7 @@ import LoginPage from "./pages/Login/LoginPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
-import UserManagement from "./pages/UserManagement/UserManagement";
-import EventManagement from "./pages/EventManagement/EventManagement";
+import UserManagement from "./pages/UserManagement/UserManagement"; 
 import VotingManagement from "./pages/VotingManagement/VotingManagement";
 import Cms from "./pages/CmsManagement/Cms";
 import CMSView from "./pages/CmsManagement/CMSView";
@@ -15,13 +14,14 @@ import MonetizationManagement from "./pages/MonetizationManagement/MonetizationM
 import Analytics from "./pages/Analytics/Analytics";
 import NotificationCommunication from "./pages/NotificationCommunication/NotificationCommunication";
 import UnderDevelopment from "./pages/UnderDevelopment";
-import AddUser from "./pages/UserManagement/AddUser";
-import AddEvent from "./pages/EventManagement/AddEvent";
-import ViewUser from "./pages/UserManagement/ViewUser";
-import ViewEvent from "./pages/EventManagement/ViewEvent";
+import AddUser from "./pages/UserManagement/AddUser"; 
+import ViewUser from "./pages/UserManagement/ViewUser"; 
 import ViewVoting from "./pages/VotingManagement/ViewVoting";
 import Legal from "./pages/legal";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import FirmManagement from "./pages/EventManagement/FirmManagement";
+import AddFirm from "./pages/EventManagement/AddEvent";
+import ViewFirm from "./pages/EventManagement/ViewEvent";
 
 export default function App() {
   return (
@@ -38,11 +38,11 @@ export default function App() {
           <Route path="/user-management/add-user" element={<AddUser />} />
           <Route path="/user-management/view-user/:id" element={<ViewUser />} />
 
-          <Route path="/event-management" element={<EventManagement />} />
-          <Route path="/event-management/add-event" element={<AddEvent />} />
+          <Route path="/firm-management" element={<FirmManagement />} />
+          <Route path="/firm-management/add-firm" element={<AddFirm />} />
           <Route
-            path="/event-management/view-event/:eventId"
-            element={<ViewEvent />}
+            path="/firm-management/view-firm/:firmId"
+            element={<ViewFirm />}
           />
 
           <Route path="/voting-management" element={<VotingManagement />} />

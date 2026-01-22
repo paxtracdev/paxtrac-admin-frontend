@@ -152,7 +152,7 @@ const UserManagement = () => {
             <Switch
               checked={Boolean(params.value)}
               onChange={handleToggle}
-              onColor="#166FFF"
+              onColor="#a99068"
               // offColor="#ef4444"
               checkedIcon={false}
               uncheckedIcon={false}
@@ -291,7 +291,7 @@ const UserManagement = () => {
                   domLayout="autoHeight"
                   getRowStyle={(params) => ({
                     backgroundColor:
-                      params.node.rowIndex % 2 !== 0 ? "#0061ff10" : "white",
+                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
                   })}
                 />
               </div>

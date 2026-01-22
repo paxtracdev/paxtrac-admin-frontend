@@ -60,19 +60,19 @@
 }
 
 .primary-text {
-  color: #166fff !important;
+  color: #a99068 !important;
 }
 
 .button-primary {
-  padding: 10px 25px;
-  border-radius: 5px;
-  background: #166fff;
-  color: #fff;
-  font-family: Montserrat;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
-  border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    background: #a99068;
+    color: #fff;
+    font-family: Montserrat;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    border: none;
 }
 
 .button-primary:hover {

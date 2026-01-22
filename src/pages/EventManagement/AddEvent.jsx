@@ -9,7 +9,7 @@ const genderOptions = [
   { label: "Ongoing", value: "Ongoing" },
   { label: "Completed", value: "Completed" },
 ];
-const AddEvent = () => {
+const AddFirm = () => {
   const navigate = useNavigate();
   const [gender, setGender] = useState("");
 
@@ -166,4 +166,4 @@ const AddEvent = () => {
   );
 };
 
-export default AddEvent;
+export default AddFirm;
