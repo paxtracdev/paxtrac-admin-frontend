@@ -20,14 +20,17 @@ import ViewVoting from "./pages/VotingManagement/ViewVoting";
 import Legal from "./pages/legal";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import PropertyManagement from "./pages/PropertyManagement/PropertyManagement";
-import ViewProperty from "./pages/PropertyManagement/ViewProperty";
-import ContentManagement from "./contentManagement/ContentManagement";
-import BlogView from "./ContentManagement/Blogs/BlogView";
-import VlogView from "./ContentManagement/Vlogs/VlogView";
-import FaqView from "./ContentManagement/Faqs/FaqView";
-import BlogAdd from "./ContentManagement/Blogs/BlogAdd";
-import VlogAdd from "./ContentManagement/Vlogs/VlogAdd";
-import FaqAdd from "./ContentManagement/Faqs/FaqAdd";
+import ViewProperty from "./pages/PropertyManagement/ViewProperty"; 
+import BlogList from "./pages/Blog/BlogList";
+import AddBlog from "./pages/Blog/AddBlog";
+import ViewBlog from "./pages/Blog/ViewBlog";
+import VlogList from "./pages/Vlog/VlogList";
+import AddVlog from "./pages/Vlog/AddVlog";
+import ViewVlog from "./pages/Vlog/ViewVlog";
+import FaqList from "./pages/FAQ/FaqList";
+import AddFaq from "./pages/FAQ/AddFaq";
+import ViewFaq from "./pages/FAQ/ViewFaq";
+import Setting from "./pages/AccountSettings/Setting";
 
 export default function App() {
   return (
@@ -42,22 +45,22 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/user-management/add-user" element={<AddUser />} />
           <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/user-management/view-user" element={<ViewUser />} />
+          <Route path="/user-management/view-user" element={<ViewUser />} /> 
+
+          <Route path="/blogs" element={<BlogList />} />
+          <Route path="/blogs/add" element={<AddBlog />} />
+          <Route path="/blogs/view" element={<ViewBlog />} />
+
+          <Route path="/vlogs" element={<VlogList />} />
+          <Route path="/vlogs/add" element={<AddVlog />} />
+          <Route path="/vlogs/view" element={<ViewVlog />} />
+          
+          <Route path="/faq" element={<FaqList />} />
+          <Route path="/faq/add" element={<AddFaq />} />
+          <Route path="/faq/view" element={<ViewFaq />} />
 
           
-<Route path="/content-management" element={<ContentManagement />} />
-
-{/* BLOGS */}
-<Route path="/content-management/blogs/add" element={<BlogAdd />} />
-<Route path="/content-management/blogs/view" element={<BlogView />} />
-
-{/* VLOGS */}
-<Route path="/content-management/vlogs/add" element={<VlogAdd />} />
-<Route path="/content-management/vlogs/view" element={<VlogView />} />
-
-{/* FAQs */}
-<Route path="/content-management/faqs/add" element={<FaqAdd />} />
-<Route path="/content-management/faqs/view" element={<FaqView />} />
+          <Route path="/settings" element={<Setting />} />
 
           <Route path="/property-management" element={<PropertyManagement />} />
           <Route

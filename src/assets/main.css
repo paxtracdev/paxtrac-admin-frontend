@@ -15593,7 +15593,7 @@ fieldset:disabled .btn {
 
 ::selection {
   color: #fff;
-  background-color: #2c7cff;
+  background-color: #a99068;
 }
 
 @media (min-width: 768px) {
@@ -16161,7 +16161,7 @@ fieldset:disabled .btn {
 }
 
 .app-menu__item.active .app-menu__label,
-.app-menu__item:hover .app-menu__label,
+/* .app-menu__item:hover .app-menu__label, */
 .app-menu__item:focus .app-menu__label {
   color: #ffffff;
 }
@@ -16229,25 +16229,23 @@ ul.app-menu li {
 }
 
 .treeview-item {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  padding: 10px 5px 10px 20px;
-  font-size: 1em;
-  text-decoration: none;
-  color: #000000;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 10px 5px 10px 20px;
+    font-size: 14px;
+    text-decoration: none;
+    color: #646464;
 }
 
-.treeview-item.active,
-.treeview-item:hover,
-.treeview-item:focus {
-  background: #da7f03 !important;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 10px 0px 0px 10px;
+.treeview-item.active, .treeview-item:hover, .treeview-item:focus {
+    background: #a99068 !important;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 10px;
 }
 
 .treeview-item .icon {
@@ -19067,11 +19065,10 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-
 .treeview.is-expanded [data-toggle="treeview"] {
-  border-left-color: transparent;
-  background: transparent;
-  border-radius: 10px 0px 0px 10px;
+    border-left-color: transparent;
+    background: transparent;
+    color: #646473;
 }
 
 .ag-cell-value {
@@ -19582,7 +19579,7 @@ div:where(.swal2-container) button:where(.swal2-close) {
 }
 
 /* Change text and icon color on hover */
-.app-menu__item:hover .app-menu__label,
+/* .app-menu__item:hover .app-menu__label, */
 .app-menu__item:hover .app-menu__icon {
   color: white; /* Change text color to white */
 }
@@ -23148,3 +23145,5 @@ button.delete-btn-icon {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
