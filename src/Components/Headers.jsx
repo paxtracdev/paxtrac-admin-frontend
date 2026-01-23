@@ -19,6 +19,10 @@ import {
   Power,
   Building,
   Building2,
+  Settings,
+  FileText,
+  Video,
+  HelpCircle,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -126,7 +130,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
         }
       });
     },
-    [navigate]
+    [navigate],
   );
 
   return (
@@ -164,7 +168,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           {/* USER DROPDOWN */}
           <div className="header d-flex justify-content-end align-items-center p-3 bg-white position-fixed ">
             {/* <Notification /> */}
-             {/* // notifications={headerNotifications} */}
+            {/* // notifications={headerNotifications} */}
             <div
               className="d-flex align-items-center gap-2 position-relative "
               // onClick={() => setIsProfileMenuOpen((prev) => !prev)}
@@ -219,12 +223,6 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
           <li>
-            <NavLink className="app-menu__item" to="/content-management">
-              <Building2 size={20} />
-              <span className="app-menu__label">Content Management</span>
-            </NavLink>
-          </li>
-          <li>
             <NavLink className="app-menu__item" to="/voting-management">
               <Vote size={20} />
               <span className="app-menu__label">Voting Management</span>
@@ -237,24 +235,58 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
           <li>
-            <NavLink
-              className="app-menu__item"
-              to="/announcements"
-            >
+            <NavLink className="app-menu__item" to="/announcements">
               <Bell size={20} />
               <span className="app-menu__label"> Announcements </span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink className="app-menu__item" to="/cms">
-              <ScrollText size={20} />
-              <span className="app-menu__label">CMS Page</span>
             </NavLink>
           </li>
           <li>
             <NavLink className="app-menu__item" to="/analytics">
               <TrendingUp size={20} />
               <span className="app-menu__label">Analytics</span>
+            </NavLink>
+          </li>
+
+          {/* CONTENT MANAGEMENT */} 
+          <li className="treeview">
+            <div
+              className="app-menu__item"
+              data-toggle="treeview"
+              style={{ cursor: "pointer", color: "" }}
+            >
+              <FileText size={20} />
+              <span className="app-menu__label">Content Management</span>
+            </div>
+
+            <ul className="treeview-menu mt-2">
+              <li>
+                <NavLink to="/cms" className="treeview-item">
+                  <span className="app-menu__label">Legal</span> 
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/blogs" className="treeview-item">
+                  <span className="app-menu__label">Blogs</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/vlogs" className="treeview-item">
+                  <span className="app-menu__label">Vlogs</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/faq" className="treeview-item">
+                  <span className="app-menu__label">FAQs</span>
+                </NavLink>
+              </li>
+            </ul>
+          </li>
+          {/* End CONTENT MANAGEMENT */}
+
+          <li>
+            <NavLink className="app-menu__item" to="/settings">
+              <Settings size={20} />
+              <span className="app-menu__label">Settings</span>
             </NavLink>
           </li>
 
