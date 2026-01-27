@@ -18,21 +18,21 @@ const baseQuery = fetchBaseQuery({
 export const baseQueryWithAuth = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
-  if (result?.error?.status === 401) {
-    Swal.fire({
-      icon: "warning",
-      title: "Session Expired",
-      text: "Your session has expired. Please login again.",
-      confirmButtonText: "OK",
-    }).then(() => {
-      // Clear auth
-      api.dispatch(logout());
-      localStorage.clear();
+  // if (result?.error?.status === 401) {
+  //   Swal.fire({
+  //     icon: "warning",
+  //     title: "Session Expired",
+  //     text: "Your session has expired. Please login again.",
+  //     confirmButtonText: "OK",
+  //   }).then(() => {
+  //     // Clear auth
+  //     api.dispatch(logout());
+  //     localStorage.clear();
 
-      // Redirect to login
-      window.location.href = "/login";
-    });
-  }
+  //     // Redirect to login
+  //     window.location.href = "/login";
+  //   });
+  // }
 
   return result;
 };

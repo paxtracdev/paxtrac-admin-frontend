@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import React from "react";
 
 const ItemPagination = ({ page, totalPages, onPageChange }) => {
@@ -6,7 +11,6 @@ const ItemPagination = ({ page, totalPages, onPageChange }) => {
 
   return (
     <div className="pagination-container">
-      {/* Previous Button */}
       <button
         className="pagination-icon-btn"
         disabled={page === 1}
@@ -15,7 +19,6 @@ const ItemPagination = ({ page, totalPages, onPageChange }) => {
         <ChevronsLeft size={20} />
       </button>
 
-      {/* Previous Page */}
       <button
         className="pagination-icon-btn"
         disabled={page === 1}
@@ -24,12 +27,10 @@ const ItemPagination = ({ page, totalPages, onPageChange }) => {
         <ChevronLeft size={20} />
       </button>
 
-      {/* Page Info */}
       <span className="pagination-info">
         Page {page} of {totalPages}
       </span>
 
-      {/* Next Page */}
       <button
         className="pagination-icon-btn"
         disabled={page === totalPages}
@@ -38,7 +39,6 @@ const ItemPagination = ({ page, totalPages, onPageChange }) => {
         <ChevronRight size={20} />
       </button>
 
-      {/* Last Page */}
       <button
         className="pagination-icon-btn"
         disabled={page === totalPages}

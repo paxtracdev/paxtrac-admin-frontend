@@ -31,6 +31,11 @@ import FaqList from "./pages/FAQ/FaqList";
 import AddFaq from "./pages/FAQ/AddFaq";
 import ViewFaq from "./pages/FAQ/ViewFaq";
 import Setting from "./pages/AccountSettings/Setting";
+import Support from "./pages/Support/Support";
+import PlatformSettings from "./pages/PlatformSettings/PlatformSettings";
+import Review from "./pages/Review/Review";
+import VendorManagement from "./pages/VendorManagement/VendorManagement";
+import VendorView from "./pages/VendorManagement/VendorView";
 
 export default function App() {
   return (
@@ -46,6 +51,9 @@ export default function App() {
           <Route path="/user-management/add-user" element={<AddUser />} />
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/user-management/view-user" element={<ViewUser />} /> 
+          
+          <Route path="/vendor-management" element={<VendorManagement />} />
+          <Route path="/vendor-management/view" element={<VendorView />} /> 
 
           <Route path="/blogs" element={<BlogList />} />
           <Route path="/blogs/add" element={<AddBlog />} />
@@ -59,8 +67,11 @@ export default function App() {
           <Route path="/faq/add" element={<AddFaq />} />
           <Route path="/faq/view" element={<ViewFaq />} />
 
+          <Route path="/reviews" element={<Review />} /> 
           
           <Route path="/settings" element={<Setting />} />
+          <Route path="/platform-settings" element={<PlatformSettings />} />
+          <Route path="/support" element={<Support />} />
 
           <Route path="/property-management" element={<PropertyManagement />} />
           <Route

@@ -1,28 +1,27 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/images/logos.png";
+import iconLogo from "../assets/paxtracFavicon.svg"; 
 import $ from "jquery";
 import noProfile from "../assets/images/noProfile.svg";
 import slideToggle from "../assets/images/slideToggle.svg";
 import Swal from "sweetalert2";
 import {
-  Bell,
-  CalendarDays,
+  Bell, 
   HomeIcon,
-  LogOut,
-  LogOutIcon,
-  ScrollText,
+  LogOut, 
   TrendingUp,
   UsersRound,
   Vote,
   Wallet,
-  Power,
-  Building,
+  Power, 
   Building2,
-  Settings,
-  FileText,
-  Video,
-  HelpCircle,
+  Settings, 
+  ChevronRight, 
+  MessageCircle,
+  ScrollText,
+  Star,
+  Handshake,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -114,7 +113,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
         showCancelButton: true,
         confirmButtonText: "Logout",
         cancelButtonText: "Cancel",
-        confirmButtonColor: "#166fff",
+        confirmButtonColor: "#a99068",
       }).then((result) => {
         if (result.isConfirmed) {
           localStorage.clear();
@@ -122,7 +121,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           Swal.fire({
             title: "Logged out!",
             icon: "success",
-            confirmButtonColor: "#166fff",
+            confirmButtonColor: "#a99068",
           }).then(() => {
             navigate("/");
             window.location.reload();
@@ -152,7 +151,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               </div>
             </div>
           ) : (
-            <img src={logo} alt="Logo" style={{ height: "46px" }} />
+            <img src={iconLogo} alt="Logo" style={{ height: "46px" }} />
           )}
         </Link>
 
@@ -167,7 +166,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
 
           {/* USER DROPDOWN */}
           <div className="header d-flex justify-content-end align-items-center p-3 bg-white position-fixed ">
-            {/* <Notification /> */}
+            <Notification />
             {/* // notifications={headerNotifications} */}
             <div
               className="d-flex align-items-center gap-2 position-relative "
@@ -216,6 +215,13 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <span className="app-menu__label">User Management</span>
             </NavLink>
           </li>
+          
+          <li>
+            <NavLink className="app-menu__item" to="/vendor-management">
+              <Handshake size={20} />
+              <span className="app-menu__label">Vendor Management</span>
+            </NavLink>
+          </li> 
           <li>
             <NavLink className="app-menu__item" to="/property-management">
               <Building2 size={20} />
@@ -248,35 +254,40 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           </li>
 
           {/* CONTENT MANAGEMENT */} 
-          <li className="treeview">
+          <li className="treeview mb-0">
             <div
               className="app-menu__item"
               data-toggle="treeview"
               style={{ cursor: "pointer", color: "" }}
             >
-              <FileText size={20} />
-              <span className="app-menu__label">Content Management</span>
+              <ScrollText size={20} />
+              <span className="app-menu__label">CMS</span>
+              <ChevronRight size={20} className="treeview-indicator" /> 
             </div>
 
             <ul className="treeview-menu mt-2">
               <li>
                 <NavLink to="/cms" className="treeview-item">
-                  <span className="app-menu__label">Legal</span> 
+                {/* <ShieldCheck size={18} /> */}
+                  <span className="app-menu__label px-2">Legal Policies</span> 
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/blogs" className="treeview-item">
-                  <span className="app-menu__label">Blogs</span>
+                {/* <FileText size={18} /> */}
+                  <span className="app-menu__label px-2">Blogs Management</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/vlogs" className="treeview-item">
-                  <span className="app-menu__label">Vlogs</span>
+                {/* <PlayCircle size={18} /> */}
+                  <span className="app-menu__label px-2">Vlogs Management</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/faq" className="treeview-item">
-                  <span className="app-menu__label">FAQs</span>
+                {/* <HelpCircle size={18} /> */}
+                  <span className="app-menu__label px-2">FAQs</span>
                 </NavLink>
               </li>
             </ul>
@@ -284,11 +295,45 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           {/* End CONTENT MANAGEMENT */}
 
           <li>
-            <NavLink className="app-menu__item" to="/settings">
+            <NavLink className="app-menu__item" to="/support">
+              <MessageCircle size={20} />
+              <span className="app-menu__label">Support</span>
+            </NavLink>
+          </li> 
+
+          <li>
+            <NavLink className="app-menu__item" to="/reviews">
+              <Star size={20} />
+              <span className="app-menu__label">Reviews</span>
+            </NavLink>
+          </li> 
+
+          {/* Settings*/} 
+          <li className="treeview mb-0">
+            <div
+              className="app-menu__item"
+              data-toggle="treeview"
+              style={{ cursor: "pointer", color: "" }}
+            >
               <Settings size={20} />
               <span className="app-menu__label">Settings</span>
-            </NavLink>
+              <ChevronRight size={20} className="treeview-indicator" /> 
+            </div>
+
+            <ul className="treeview-menu mt-2">
+              <li>
+                <NavLink to="/settings" className="treeview-item"> 
+                  <span className="app-menu__label px-2">Account Settings</span> 
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/platform-settings" className="treeview-item"> 
+                  <span className="app-menu__label px-2">Platform Settings</span>
+                </NavLink>
+              </li> 
+            </ul>
           </li>
+          {/* Settings */}
 
           {/* LOGOUT BUTTON */}
           <li className="sidebar-button mt-4">
@@ -320,4 +365,4 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
   );
 };
 
-export default Headers;
+export default Headers; 

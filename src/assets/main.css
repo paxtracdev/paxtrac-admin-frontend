@@ -16091,7 +16091,7 @@ fieldset:disabled .btn {
   font-weight: 500;
   padding: 12px 16px;
   font-weight: 500; 
-  font-size: 12px; 
+  font-size: 13px; 
   line-height: 20px;
   letter-spacing: 0%;
   display: flex;
@@ -16173,6 +16173,13 @@ fieldset:disabled .btn {
   stroke: #ffffff;
 }
 
+/* Change SVG stroke to white */
+.treeview.is-expanded .app-menu__item.active svg path,
+.treeview.is-expanded .app-menu__item:hover svg path,
+.treeview.is-expanded .app-menu__item:focus svg path {
+  stroke: #646464;
+}
+
 /* Default (gray) look */
 .app-menu__item img {
   filter: brightness(0) saturate(100%) invert(43%) sepia(0%) saturate(0%)
@@ -16195,7 +16202,7 @@ fieldset:disabled .btn {
 }
 
 ul.app-menu li {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .app-menu__label {
@@ -16236,7 +16243,7 @@ ul.app-menu li {
     -ms-flex-align: center;
     align-items: center;
     padding: 10px 5px 10px 20px;
-    font-size: 14px;
+    font-size: 12px;
     text-decoration: none;
     color: #646464;
 }
@@ -17456,6 +17463,16 @@ ul.app-menu li {
   background-color: #f7f7f7;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-stat {
+    background: #ffffff;
+    box-shadow: 2px 3px 4px #e6e6e6;
+    border-radius: 15px;
+}
+
+.card-title.dashboard{
+  font-weight: 600;
 }
 
 /* dashboard card design */
@@ -20460,7 +20477,8 @@ color: #FFF;
 .stat-icon { 
 border-radius: 10px;
 padding: 10px;
-background-color: #F1F6F533;
+background-color: #a99068;
+color: #ffffff;
 }
 
 .light-green-card .card-desc-text {  
@@ -20775,8 +20793,8 @@ line-height: 20px;
     height: 40;
     border-radius: 50px;
     padding: 10px;
-    background-color: #eff7ff;
-    color: #2a7bff;
+    background-color: rgb(251 250 249);
+    color: rgb(169 144 104);
 }
 
 .welcome-header img {
@@ -21543,7 +21561,7 @@ ul.custom-dropdown-menu {
     position: absolute;
     width: 100%;
     top: 50px;
-    z-index: 2;
+    z-index: 9999;
     max-height: 300px;
     overflow-y: auto;
 }
@@ -22568,7 +22586,7 @@ line-height: 24px; /* 150% */
 padding: 17px;
 gap: 10px;
 border-radius: 10px;
-background: var(--Foundation-Green-Light, #F1F6F5);
+background: var(--Foundation-Green-Light, #fcfbf9);
 }
 
 .review-header {
@@ -22776,7 +22794,7 @@ line-height: 20px; /* 142.857% */
     cursor: pointer;
     display: flex;
     align-items: center;
-    color: #71a99a;
+    color: #a99068;
 }
 
 .pagination-icon-btn:disabled {
@@ -23146,4 +23164,9 @@ button.delete-btn-icon {
   }
 }
 
-
+span.assign-badge {
+    background: #a99068;
+    color: #ffffff;
+    padding: 5px 15px;
+    border-radius: 50px;
+}

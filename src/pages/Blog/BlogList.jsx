@@ -6,6 +6,7 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { BLOG_DATA } from "./BlogStaticData";
+import Swal from "sweetalert2";
 
 const BlogList = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const BlogList = () => {
       headerName: "Title",
       field: "title",
       flex: 1.5,
-    }, 
+    },
     {
       headerName: "Status",
       field: "status",
@@ -68,9 +69,26 @@ const BlogList = () => {
       width: 140,
       cellRenderer: (params) => {
         const handleDelete = () => {
-          if (window.confirm(`Delete blog "${params.data.title}"?`)) {
-            setBlogs((prev) => prev.filter((b) => b.id !== params.data.id));
-          }
+          Swal.fire({
+            title: "Are you sure?",
+            text: `You want to delete blog "${params.data.title}"`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setBlogs((prev) => prev.filter((b) => b.id !== params.data.id));
+
+              Swal.fire({
+                title: "Deleted!",
+                text: "Blog has been deleted successfully",
+                icon: "success",
+                confirmButtonColor: "#a99068",
+              });
+            }
+          });
         };
 
         return (
@@ -84,7 +102,7 @@ const BlogList = () => {
             >
               <Eye size={18} />
             </button>
-              |
+            |
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               title="Delete"
@@ -119,9 +137,9 @@ const BlogList = () => {
         <Breadcrumbs />
 
         {/* 🔍 Search */}
-        <div className="mb-3">
+        <div className="search-bar mb-3">
           <input
-            className="form-control"
+            className="form-control w-50"
             placeholder="Search by blog title..."
             value={search}
             onChange={(e) => {

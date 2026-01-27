@@ -3,69 +3,66 @@ import { Eye, EyeClosed, ArrowLeft } from "lucide-react";
 import loginLleft from "../../assets/images/login-left.png";
 import logo from "../../assets/images/logos.png";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useLoginMutation, useForgotPasswordMutation } from "../../api/authApi";
-import { setUser } from "../../redux/slice/userSlice";
+import Swal from "sweetalert2";
+
 export default function LoginPage() {
   const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [step, setStep] = useState("login"); // "login" | "forgot"
+
+  const [step, setStep] = useState("login"); // login | forgot
   const [forgotEmail, setForgotEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
 
-  const [login, { isLoading }] = useLoginMutation();
-  const [forgotPassword] = useForgotPasswordMutation();
-
-  const dispatch = useDispatch();
-
   const togglePassword = () => setShowPassword((prev) => !prev);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const res = await login({
-        email,
-        password,
-      }).unwrap();
-
-      console.log("Login Response:", res);
-
-      dispatch(
-        setUser({
-          token: res.token,
-          user: res.data,
-        }),
-      );
-
-      // Optional: store token in localStorage
-      localStorage.setItem("token", res.token);
-
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error?.data?.message || "Login failed");
+    if (!email || !password) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Email and password are required",
+        confirmButtonColor: "#a99068",
+      });
+      return;
     }
+
+    // MOCK LOGIN SUCCESS
+    localStorage.setItem("token", "mock-token");
+
+    Swal.fire({
+      icon: "success",
+      title: "Login Successful",
+      text: "Welcome to Admin Dashboard",
+      confirmButtonColor: "#a99068",
+    }).then(() => navigate("/dashboard"));
   };
 
-  const handleSendReset = async () => {
-    if (!forgotEmail) return;
-
-    try {
-      await forgotPassword({ email: forgotEmail }).unwrap();
-      setEmailSent(true);
-    } catch (err) {
-      alert(err?.data?.message || "Failed to send reset link");
-    }
-  };
-
-  const handleForgotSubmit = (e) => {
+  const handleSendReset = (e) => {
     e.preventDefault();
 
-    if (!forgotEmail) return;
+    if (!forgotEmail) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Email is required",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
 
-    alert("Password reset link sent to your email."); // later replace with API
+    setEmailSent(true);
+
+    Swal.fire({
+      icon: "success",
+      title: "Email Sent",
+      text: "Password reset link has been sent to your email",
+      confirmButtonColor: "#a99068",
+    });
   };
 
   return (
@@ -86,16 +83,17 @@ export default function LoginPage() {
               <h2 className="login-heading">Access Your Admin Dashboard</h2>
             </div>
 
+            {/* LOGIN */}
             {step === "login" && (
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label input-label">
-                    Email Address:
+                    Email Address
                   </label>
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="Enter your email address"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -104,7 +102,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mb-3 position-relative pass-input">
-                  <label className="form-label input-label">Password:</label>
+                  <label className="form-label input-label">Password</label>
                   <input
                     type={showPassword ? "text" : "password"}
                     className="form-control pe-5"
@@ -125,24 +123,17 @@ export default function LoginPage() {
                   Forgot Password?
                 </div>
 
-                <div className="text-center mb-3">
-                  <button
-                    type="submit"
-                    className="login-btn"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Signing in..." : "Sign In"}
+                <div className="text-center mt-3">
+                  <button type="submit" className="login-btn">
+                    Sign In
                   </button>
                 </div>
               </form>
             )}
+
+            {/* FORGOT PASSWORD */}
             {step === "forgot" && !emailSent && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendReset();
-                }}
-              >
+              <form onSubmit={handleSendReset}>
                 <div className="mb-3">
                   <label className="form-label input-label">
                     Email Address
@@ -173,8 +164,9 @@ export default function LoginPage() {
               </form>
             )}
 
+            {/* EMAIL SENT */}
             {step === "forgot" && emailSent && (
-              <div className="reset-success-box text-center">
+              <div className="text-center">
                 <p className="reset-success-text">
                   Please check your email for the password reset link.
                 </p>

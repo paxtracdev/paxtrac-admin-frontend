@@ -6,6 +6,7 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { FAQ_DATA } from "./FaqStaticData";
+import Swal from "sweetalert2";
 
 const FaqList = () => {
   const navigate = useNavigate();
@@ -39,28 +40,53 @@ const FaqList = () => {
     {
       headerName: "Created At",
       flex: 1,
-      valueGetter: (p) =>
-        new Date(p.data.createdAt).toLocaleDateString(),
+      valueGetter: (p) => new Date(p.data.createdAt).toLocaleDateString(),
     },
     {
       headerName: "Action",
       width: 120,
-      cellRenderer: (params) => (
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn p-0 bg-transparent border-0"
-            onClick={() =>
-              navigate("/faq/view", { state: { faq: params.data } })
+      cellRenderer: (params) => {
+        const handleDelete = () => {
+          Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this FAQ",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              Swal.fire({
+                title: "Deleted!",
+                text: "FAQ deleted successfully",
+                icon: "success",
+                confirmButtonColor: "#a99068",
+              });
             }
-          >
-            <Eye size={18} />
-          </button>
-          |
-          <button className="btn p-0 bg-transparent border-0 text-danger">
-            <Trash2 size={18} />
-          </button>
-        </div>
-      ),
+          });
+        };
+
+        return (
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn p-0 bg-transparent border-0"
+              onClick={() =>
+                navigate("/faq/view", { state: { faq: params.data } })
+              }
+            >
+              <Eye size={18} />
+            </button>
+            |
+            <button
+              className="btn p-0 bg-transparent border-0 text-danger"
+              onClick={handleDelete}
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -83,9 +109,9 @@ const FaqList = () => {
 
         <Breadcrumbs />
 
-        <div className="mb-3">
+        <div className="search-bar mb-3">
           <input
-            className="form-control"
+            className="form-control w-50"
             placeholder="Search question..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -6,6 +6,7 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { VLOG_DATA } from "./VlogStaticData";
+import Swal from "sweetalert2";
 
 const VlogList = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const VlogList = () => {
 
   const filteredData = useMemo(() => {
     return vlogs.filter((v) =>
-      v.title.toLowerCase().includes(search.toLowerCase())
+      v.title.toLowerCase().includes(search.toLowerCase()),
     );
   }, [vlogs, search]);
 
@@ -51,11 +52,26 @@ const VlogList = () => {
       width: 140,
       cellRenderer: (params) => {
         const handleDelete = () => {
-          if (
-            window.confirm(`Delete vlog "${params.data.title}"?`)
-          ) {
-            setVlogs((prev) => prev.filter((v) => v.id !== params.data.id));
-          }
+          Swal.fire({
+            title: "Are you sure?",
+            text: `You want to delete vlog "${params.data.title}"`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setVlogs((prev) => prev.filter((v) => v.id !== params.data.id));
+
+              Swal.fire({
+                title: "Deleted!",
+                text: "Vlog has been deleted successfully",
+                icon: "success",
+                confirmButtonColor: "#a99068",
+              });
+            }
+          });
         };
 
         return (
@@ -101,9 +117,9 @@ const VlogList = () => {
 
         <Breadcrumbs />
 
-        <div className="mb-3">
+        <div className="search-bar mb-3">
           <input
-            className="form-control"
+            className="form-control w-50"
             placeholder="Search by vlog title..."
             value={search}
             onChange={(e) => {
@@ -127,9 +143,7 @@ const VlogList = () => {
                   domLayout="autoHeight"
                   getRowStyle={(params) => ({
                     backgroundColor:
-                      params.node.rowIndex % 2 !== 0
-                        ? "#e7e0d52b"
-                        : "white",
+                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
                   })}
                 />
               </div>

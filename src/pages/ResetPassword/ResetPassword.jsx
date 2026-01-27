@@ -1,20 +1,16 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
-import loginLleft from "../../assets/images/login-left.png";
-import logo from "../../assets/makeithappen-blue.png";
-import { useResetPasswordMutation } from "../../api/authApi";
+import { useNavigate } from "react-router-dom";
+import logo from "../../assets/images/logos.png";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const { token } = useParams();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [resetPassword] = useResetPasswordMutation();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!newPassword || !confirmPassword) {
@@ -27,32 +23,18 @@ export default function ResetPassword() {
       return;
     }
 
-    try {
-      await resetPassword({
-        token,
-        password: newPassword,
-      }).unwrap();
-
-      Swal.fire({
-        icon: "success",
-        title: "Password Updated",
-        text: "Your password has been updated successfully.",
-        confirmButtonText: "Go to Login",
-      }).then(() => navigate("/"));
-    } catch (err) {
-      setError(err?.data?.message || "Password reset failed");
-    }
+    Swal.fire({
+      icon: "success",
+      title: "Password Updated",
+      text: "Your password has been updated successfully.",
+      confirmButtonText: "Go to Login",
+      confirmButtonColor: "#a99068",
+    }).then(() => navigate("/"));
   };
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="login-card p-5 w-100" style={{ maxWidth: "420px" }}>
-        {/* Left Image */}
-        <div className="col-md-5 d-none p-0 dark-bg">
-          <div className="login-left">
-            <img src={loginLleft} alt="login" />
-          </div>
-        </div>
         <div className="text-center mb-4">
           <img src={logo} alt="Logo" className="logo-login w-max" />
           <p className="my-3 login-title">Reset Password</p>
@@ -83,7 +65,7 @@ export default function ResetPassword() {
             />
           </div>
 
-          {error && <p className="text-danger small mb-2">{error}</p>}
+          {error && <p className="text-danger small">{error}</p>}
 
           <div className="text-center mt-3">
             <button type="submit" className="login-btn">

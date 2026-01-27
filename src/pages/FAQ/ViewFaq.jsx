@@ -21,6 +21,7 @@ const ViewFaq = () => {
             <label className="form-label">Question</label>
             <input
               className="form-control"
+              placeholder="Enter question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
             />
