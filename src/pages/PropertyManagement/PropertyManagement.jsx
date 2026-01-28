@@ -93,7 +93,7 @@ const PropertyManagement = () => {
       filtered = filtered.filter(
         (item) =>
           item.propertyId.toLowerCase().includes(searchInput.toLowerCase()) ||
-          item.propertyType.toLowerCase().includes(searchInput.toLowerCase())
+          item.propertyType.toLowerCase().includes(searchInput.toLowerCase()),
       );
     }
 
@@ -104,7 +104,7 @@ const PropertyManagement = () => {
 
     if (filters.propertyType) {
       filtered = filtered.filter(
-        (i) => i.propertyType === filters.propertyType
+        (i) => i.propertyType === filters.propertyType,
       );
     }
 
@@ -151,7 +151,7 @@ const PropertyManagement = () => {
   const formatDate = (date) => {
     const d = new Date(date);
     return `${String(d.getDate()).padStart(2, "0")}/${String(
-      d.getMonth() + 1
+      d.getMonth() + 1,
     ).padStart(2, "0")}/${d.getFullYear()}`;
   };
 
@@ -194,20 +194,19 @@ const PropertyManagement = () => {
         headerName: "Status",
         field: "status",
         minWidth: 140,
-        cellRenderer: (p) => (
-          <span
-            style={{
-              padding: "5px 15px",
-              borderRadius: "50px",
-              fontSize: "12px",
-              backgroundColor: p.value === "active" ? "#d1fae5" : "#fee2e2",
-              color: p.value === "active" ? "#065f46" : "#991b1b",
-            }}
-          >
-            {p.value.charAt(0).toUpperCase() + p.value.slice(1)}
-          </span>
-        ),
+        cellRenderer: (p) => {
+          const isActive = p.value === "active";
+
+          return (
+            <span
+              className={`status-badge-table ${isActive ? "" : "inactive"}`}
+            >
+              {p.value.charAt(0).toUpperCase() + p.value.slice(1)}
+            </span>
+          );
+        },
       },
+
       {
         headerName: "Action",
         width: 140,
@@ -216,7 +215,9 @@ const PropertyManagement = () => {
             <button
               className="border-0 bg-transparent"
               onClick={() =>
-                navigate(`/property-management/view-property?id=${params.data.id}`)
+                navigate(
+                  `/property-management/view-property?id=${params.data.id}`,
+                )
               }
             >
               <Eye size={18} />
@@ -232,7 +233,7 @@ const PropertyManagement = () => {
         ),
       },
     ],
-    [currentPage, pageSize]
+    [currentPage, pageSize],
   );
 
   return (
@@ -284,7 +285,7 @@ const PropertyManagement = () => {
                     backgroundColor:
                       params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
                   })}
-                /> 
+                />
               </div>
 
               {/* ✅ CUSTOM PAGINATION */}
@@ -302,7 +303,7 @@ const PropertyManagement = () => {
       </section>
 
       {/* FILTER MODAL */}
-     <FilterModal
+      <FilterModal
         show={showFilter}
         initialFilters={filters}
         onClose={() => setShowFilter(false)}

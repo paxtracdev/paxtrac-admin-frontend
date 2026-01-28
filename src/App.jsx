@@ -10,8 +10,7 @@ import VotingManagement from "./pages/VotingManagement/VotingManagement";
 import Cms from "./pages/CmsManagement/Cms";
 import CMSView from "./pages/CmsManagement/CMSView";
 import AddCmsPage from "./pages/CmsManagement/AddCmsPage";
-import MonetizationManagement from "./pages/MonetizationManagement/MonetizationManagement";
-import Analytics from "./pages/Analytics/Analytics";
+import MonetizationManagement from "./pages/MonetizationManagement/MonetizationManagement"; 
 import NotificationCommunication from "./pages/Announcements/Announcements";
 import UnderDevelopment from "./pages/UnderDevelopment";
 import AddUser from "./pages/UserManagement/AddUser";
@@ -36,6 +35,9 @@ import PlatformSettings from "./pages/PlatformSettings/PlatformSettings";
 import Review from "./pages/Review/Review";
 import VendorManagement from "./pages/VendorManagement/VendorManagement";
 import VendorView from "./pages/VendorManagement/VendorView";
+import Analytics from "./pages/Analytics/Analytics";
+import IssueResolution from "./pages/IssueResolution/IssueResolution";
+import IssueResolutionView from "./pages/IssueResolution/IssueResolutionView";
 
 export default function App() {
   return (
@@ -84,6 +86,10 @@ export default function App() {
             path="/voting-management/view-vote/:voteId"
             element={<ViewVoting />}
           />
+
+          
+          <Route path="/issue-resolution" element={<IssueResolution />} />
+          <Route path="/issueresolution/view" element={<IssueResolutionView />} /> 
 
           <Route path="/cms" element={<Cms />} />
           <Route path="/cms/view" element={<CMSView />} />

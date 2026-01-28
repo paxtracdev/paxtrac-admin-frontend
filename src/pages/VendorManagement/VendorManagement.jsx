@@ -148,9 +148,9 @@ export default function VendorManagement() {
       flex: 1,
       cellRenderer: (params) =>
         params.data.businessDetails.propertyManagementLicense ? (
-          <span className="status-badge ">Yes</span>
+          <span className="status-badge-table ">Yes</span>
         ) : (
-          <span className="status-badge inactive ">No</span>
+          <span className="status-badge-table inactive ">No</span>
         ),
     },
     {
