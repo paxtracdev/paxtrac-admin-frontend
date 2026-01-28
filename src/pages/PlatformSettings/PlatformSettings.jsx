@@ -174,62 +174,7 @@ const PlatformSettings = () => {
                 ]}
               />
             </div>
-          </div>
-
-          {/* PAYMENTS */}
-          <div className="row mb-4">
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Currency</label>
-              <CustomDropdown
-                placeholder="Select currency"
-                value={settings.currency}
-                onChange={(val) => handleChange("currency", val)}
-                options={[
-                  { label: "INR", value: "INR" },
-                  { label: "USD", value: "USD" },
-                  { label: "SGD", value: "SGD" },
-                ]}
-              />
-            </div>
-
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">
-                Admin Commission (%)
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                placeholder="Enter commission percentage"
-                value={settings.commission}
-                onChange={(e) => handleChange("commission", e.target.value)}
-              />
-              {errors.commission && (
-                <div className="text-danger">{errors.commission}</div>
-              )}
-            </div>
-          </div>
-
-          {/* SECURITY */}
-          <div className="mb-4">
-            <div className="d-flex align-items-end">
-              <div className="form-check">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="enable2FA"
-                  checked={settings.enable2FA}
-                  onChange={(e) => handleChange("enable2FA", e.target.checked)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="enable2FA"
-                  style={{ cursor: "pointer" }}
-                >
-                  Enable 2FA for Admin
-                </label>
-              </div>
-            </div>
-          </div>
+          </div> 
 
           {/* ACTIONS */}
           <div className="d-flex gap-3 mt-4">

@@ -23170,3 +23170,19 @@ span.assign-badge {
     padding: 5px 15px;
     border-radius: 50px;
 }
+
+.status-badge-table {  
+  padding: 5px 15px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 50px;
+  color: #065f46;
+  text-transform: uppercase;
+  background-color: #d1fae5;
+}
+
+/* inactive style */
+.status-badge-table.inactive {
+  background-color: #fee2e2;
+  color: #991b1b; /* red for inactive */
+}

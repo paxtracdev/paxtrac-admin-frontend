@@ -228,7 +228,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <span className="app-menu__label">Property Management</span>
             </NavLink>
           </li>
-          <li>
+          {/* <li>
             <NavLink className="app-menu__item" to="/voting-management">
               <Vote size={20} />
               <span className="app-menu__label">Voting Management</span>
@@ -238,6 +238,12 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             <NavLink className="app-menu__item" to="/monetization">
               <Wallet size={20} />
               <span className="app-menu__label">Manage Monetization</span>
+            </NavLink>
+          </li> */}
+          <li>
+            <NavLink className="app-menu__item" to="/issue-resolution">
+              <Wallet size={20} />
+              <span className="app-menu__label">Issue Resolution</span>
             </NavLink>
           </li>
           <li>
@@ -249,7 +255,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           <li>
             <NavLink className="app-menu__item" to="/analytics">
               <TrendingUp size={20} />
-              <span className="app-menu__label">Analytics</span>
+              <span className="app-menu__label">Analytics and Reports</span>
             </NavLink>
           </li>
 
