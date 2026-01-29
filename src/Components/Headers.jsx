@@ -22,6 +22,7 @@ import {
   ScrollText,
   Star,
   Handshake,
+  Package,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -33,7 +34,36 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
   // Fake static values instead of API
   const userName = "Admin";
   const userImage = noProfile;
-  const headerNotifications = []; // no API → empty notifications
+  const headerNotifications = [
+  {
+    id: 1,
+    title: "Welcome!",
+    message: "Thanks for joining the platform.",
+    time: "2 mins ago",
+    link: "/dashboard",
+  },
+  {
+    id: 2,
+    title: "New Feature",
+    message: "Check out the new analytics feature.",
+    time: "1 hour ago",
+    link: "/analytics",
+  },
+  {
+    id: 3,
+    title: "Reminder",
+    message: "Complete your profile to unlock all features.",
+    time: "3 hours ago",
+    link: "/profile",
+  },
+  {
+    id: 4,
+    title: "Survey",
+    message: "Share your feedback with us to help improve services.",
+    time: "1 day ago",
+    link: "/survey",
+  },
+];  
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -166,7 +196,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
 
           {/* USER DROPDOWN */}
           <div className="header d-flex justify-content-end align-items-center p-3 bg-white position-fixed ">
-            <Notification />
+            <Notification notifications={headerNotifications}/>
             {/* // notifications={headerNotifications} */}
             <div
               className="d-flex align-items-center gap-2 position-relative "
@@ -216,18 +246,24 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
           
-          <li>
+          {/* <li>
             <NavLink className="app-menu__item" to="/vendor-management">
               <Handshake size={20} />
               <span className="app-menu__label">Vendor Management</span>
             </NavLink>
-          </li> 
+          </li>  */}
           <li>
             <NavLink className="app-menu__item" to="/property-management">
               <Building2 size={20} />
               <span className="app-menu__label">Property Management</span>
             </NavLink>
-          </li>
+          </li> 
+           <li>
+            <NavLink className="app-menu__item" to="/bid-management">
+              <Package size={20} />
+              <span className="app-menu__label">Bid Management</span>
+            </NavLink>
+          </li> 
           {/* <li>
             <NavLink className="app-menu__item" to="/voting-management">
               <Vote size={20} />
@@ -240,12 +276,12 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <span className="app-menu__label">Manage Monetization</span>
             </NavLink>
           </li> */}
-          <li>
+          {/* <li>
             <NavLink className="app-menu__item" to="/issue-resolution">
               <Wallet size={20} />
               <span className="app-menu__label">Issue Resolution</span>
             </NavLink>
-          </li>
+          </li> */}
           <li>
             <NavLink className="app-menu__item" to="/announcements">
               <Bell size={20} />
@@ -273,9 +309,9 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
 
             <ul className="treeview-menu mt-2">
               <li>
-                <NavLink to="/cms" className="treeview-item">
+                <NavLink to="/policies" className="treeview-item">
                 {/* <ShieldCheck size={18} /> */}
-                  <span className="app-menu__label px-2">Legal Policies</span> 
+                  <span className="app-menu__label px-2">Policies</span> 
                 </NavLink>
               </li>
               <li>
@@ -328,7 +364,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
 
             <ul className="treeview-menu mt-2">
               <li>
-                <NavLink to="/settings" className="treeview-item"> 
+                <NavLink to="/account-settings" className="treeview-item"> 
                   <span className="app-menu__label px-2">Account Settings</span> 
                 </NavLink>
               </li>

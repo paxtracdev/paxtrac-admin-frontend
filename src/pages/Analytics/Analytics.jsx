@@ -20,6 +20,7 @@ import {
   Briefcase,
   CheckCircle,
   DollarSign,
+  Download,
   TrendingUp,
   UserPlus,
   Users,
@@ -68,7 +69,7 @@ const STATIC_ANALYTICS = {
     previousRevenue: 102300,
     avgRevenuePerUser: 23.05,
     transactions: 3120,
-  }, 
+  },
 
   engagement: {
     avgJobsPerUser: 4.2,
@@ -81,7 +82,7 @@ const Analytics = () => {
   const [analytics, setAnalytics] = useState(STATIC_ANALYTICS);
 
   useEffect(() => {
-    // simulate filtered data
+    // simulate filtered chart data
     const multiplierMap = {
       last7days: 0.1,
       last30days: 0.3,
@@ -93,7 +94,6 @@ const Analytics = () => {
     const m = multiplierMap[dateRange];
 
     setAnalytics({
-      ...STATIC_ANALYTICS,
       jobStats: {
         totalJobs: Math.round(STATIC_ANALYTICS.jobStats.totalJobs * m),
         completedJobs: Math.round(STATIC_ANALYTICS.jobStats.completedJobs * m),
@@ -111,19 +111,21 @@ const Analytics = () => {
           STATIC_ANALYTICS.revenueMetrics.periodRevenue * m,
         ),
       },
+      engagement: STATIC_ANALYTICS.engagement,
     });
   }, [dateRange]);
 
   const downloadReport = () => {
+    // ---------- CSV GENERATION ----------
     const rows = [];
 
-    // ---------- HEADER ----------
+    // HEADER
     rows.push(["Analytics Report"]);
     rows.push([`Date Range: ${dateRange}`]);
     rows.push(["Generated On", new Date().toLocaleString()]);
     rows.push([]);
 
-    // ---------- JOB STATISTICS ----------
+    // JOB STATISTICS
     rows.push(["Job Statistics"]);
     rows.push(["Metric", "Value"]);
     rows.push(["Total Jobs", analytics.jobStats.totalJobs]);
@@ -132,16 +134,15 @@ const Analytics = () => {
     rows.push(["Cancelled Jobs", analytics.jobStats.cancelledJobs]);
     rows.push([]);
 
-    // ---------- USER METRICS ----------
+    // USER METRICS
     rows.push(["User Metrics"]);
     rows.push(["Metric", "Value"]);
-    rows.push(["Total Users", analytics.userMetrics.totalUsers]);
     rows.push(["Active Users", analytics.userMetrics.activeUsers]);
     rows.push(["New Signups", analytics.userMetrics.newSignups]);
     rows.push(["Retention Rate", analytics.userMetrics.retentionRate]);
     rows.push([]);
 
-    // ---------- REVENUE ANALYTICS ----------
+    // REVENUE ANALYTICS
     rows.push(["Revenue Analytics"]);
     rows.push(["Metric", "Value"]);
     rows.push([
@@ -159,12 +160,13 @@ const Analytics = () => {
     rows.push(["Transactions", analytics.revenueMetrics.transactions]);
     rows.push([]);
 
-    // ---------- PLATFORM ENGAGEMENT ----------
+    // PLATFORM ENGAGEMENT
     rows.push(["Platform Engagement"]);
     rows.push(["Metric", "Value"]);
     rows.push(["Avg Jobs Per User", analytics.engagement.avgJobsPerUser]);
     rows.push(["Avg Reviews Per User", analytics.engagement.avgReviewsPerUser]);
-    rows.push([]);  
+
+    rows.push([]);
 
     // ---------- CSV GENERATION ----------
     const csvContent =
@@ -178,36 +180,30 @@ const Analytics = () => {
   };
 
   /* ---------------- KPI CARDS ---------------- */
-
   const kpiStats = [
     {
       title: "Total Jobs",
-      value: analytics.jobStats.totalJobs,
+      value: STATIC_ANALYTICS.jobStats.totalJobs,
       icon: <Briefcase size={20} />,
     },
     {
       title: "Completed Jobs",
-      value: analytics.jobStats.completedJobs,
+      value: STATIC_ANALYTICS.jobStats.completedJobs,
       icon: <CheckCircle size={20} />,
     },
     {
       title: "Active Users",
-      value: analytics.userMetrics.activeUsers,
+      value: STATIC_ANALYTICS.userMetrics.activeUsers,
       icon: <Users size={20} />,
     },
     {
-      title: "New Signups",
-      value: analytics.userMetrics.newSignups,
-      icon: <UserPlus size={20} />,
-    },
-    {
       title: "Total Revenue",
-      value: `$${analytics.revenueMetrics.periodRevenue}`,
+      value: `$${STATIC_ANALYTICS.revenueMetrics.periodRevenue}`,
       icon: <DollarSign size={20} />,
     },
     {
       title: "Avg Revenue / User",
-      value: `$${analytics.revenueMetrics.avgRevenuePerUser}`,
+      value: `$${STATIC_ANALYTICS.revenueMetrics.avgRevenuePerUser}`,
       icon: <TrendingUp size={20} />,
     },
   ];
@@ -216,7 +212,7 @@ const Analytics = () => {
 
   // 📈 User Growth
   const userGrowthData = {
-    labels: ["Total Users", "Active Users", "New Signups"],
+    labels: ["Total Users", "Active Users"],
     datasets: [
       {
         label: "Users",
@@ -299,7 +295,7 @@ const Analytics = () => {
             onClick={downloadReport}
             disabled={!analytics}
           >
-            Generate Report
+            <Download size={18} /> Generate Report
           </button>
         </div>
 

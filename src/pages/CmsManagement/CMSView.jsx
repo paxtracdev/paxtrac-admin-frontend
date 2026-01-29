@@ -15,7 +15,7 @@ const CMSView = () => {
 
   useEffect(() => {
     if (!cmsItem) {
-      navigate("/cms");
+      navigate("/policies");
       return;
     }
 
@@ -33,10 +33,10 @@ const CMSView = () => {
       title: "Success",
       text: "CMS page updated successfully (static)",
       icon: "success",
-      confirmButtonColor: "#166fff",
+      confirmButtonColor: "#a99068",
     });
 
-    navigate("/cms");
+    navigate("/policies");
   };
 
   return (
@@ -87,7 +87,7 @@ const CMSView = () => {
           <div className="d-flex gap-3 mt-4">
             <button
               className="button-secondary"
-              onClick={() => navigate("/cms")}
+              onClick={() => navigate("/policies")}
             >
               Cancel
             </button>

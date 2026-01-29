@@ -38,6 +38,9 @@ import VendorView from "./pages/VendorManagement/VendorView";
 import Analytics from "./pages/Analytics/Analytics";
 import IssueResolution from "./pages/IssueResolution/IssueResolution";
 import IssueResolutionView from "./pages/IssueResolution/IssueResolutionView";
+import BidManagement from "./pages/BidManagement/BidManagement";
+import AccoountSetting from "./pages/AccountSettings/Setting";
+import AllNotification from "./Components/AllNotification";
 
 export default function App() {
   return (
@@ -57,6 +60,8 @@ export default function App() {
           <Route path="/vendor-management" element={<VendorManagement />} />
           <Route path="/vendor-management/view" element={<VendorView />} /> 
 
+          <Route path="/bid-management" element={<BidManagement />} /> 
+
           <Route path="/blogs" element={<BlogList />} />
           <Route path="/blogs/add" element={<AddBlog />} />
           <Route path="/blogs/view" element={<ViewBlog />} />
@@ -71,7 +76,7 @@ export default function App() {
 
           <Route path="/reviews" element={<Review />} /> 
           
-          <Route path="/settings" element={<Setting />} />
+          <Route path="/account-settings" element={<AccoountSetting />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />
           <Route path="/support" element={<Support />} />
 
@@ -91,11 +96,12 @@ export default function App() {
           <Route path="/issue-resolution" element={<IssueResolution />} />
           <Route path="/issueresolution/view" element={<IssueResolutionView />} /> 
 
-          <Route path="/cms" element={<Cms />} />
-          <Route path="/cms/view" element={<CMSView />} />
-          <Route path="/cms/add" element={<AddCmsPage />} />
+          <Route path="/policies" element={<Cms />} />
+          <Route path="/policies/view" element={<CMSView />} />
+          <Route path="/policies/add" element={<AddCmsPage />} />
           <Route path="/monetization" element={<MonetizationManagement />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics" element={<Analytics />} /> 
+          <Route path="/all-notification" element={<AllNotification />} />
           <Route
             path="/announcements"
             element={<NotificationCommunication />}

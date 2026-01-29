@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Eye, EyeClosed, Pencil } from "lucide-react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import noProfile from "../../assets/images/noProfile.svg";
 
-const Setting = () => {
-const navigate = useNavigate();
+const AccoountSetting = () => {
+  const navigate = useNavigate();
+  const fileRef = useRef(null);
+  const [avatar, setAvatar] = useState(noProfile);
 
   const [show, setShow] = useState({
     current: false,
@@ -100,7 +103,32 @@ const navigate = useNavigate();
           <form onSubmit={handleSubmit}>
             <div className="row ">
               {/* Current Password */}
-              <div className="mb-3  col-md-6">
+              <div className="mb-3">
+                <div className="image-wrapper">
+                  <img src={avatar} alt="User Avatar" className="blog-image" />
+
+                  {/* Edit Button */}
+                  <div
+                    className="image-action edit-icon"
+                    onClick={() => fileRef.current.click()}
+                  >
+                    <Pencil size={16} />
+                  </div>
+                </div>
+
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) setAvatar(URL.createObjectURL(file));
+                  }}
+                />
+              </div>
+
+              <div className="mb-3 col-md-6">
                 <div className="position-relative pass-input">
                   <label className="form-label input-label">
                     Current Password
@@ -180,4 +208,4 @@ const navigate = useNavigate();
   );
 };
 
-export default Setting;
+export default AccoountSetting;

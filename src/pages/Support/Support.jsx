@@ -7,7 +7,8 @@ import NoData from "../../Components/NoData";
 import { Modal, Form } from "react-bootstrap";
 import { Eye, Search } from "lucide-react";
 import Loader from "../../Components/Loader";
-import StatusDropdownCell from "../../Components/StatusDropdownCell";
+import Swal from "sweetalert2";
+import SupportStatusDropdown from "../../Components/SupportStatusDropdown";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -16,7 +17,6 @@ const STATIC_SUPPORT_DATA = [
     id: "1",
     userName: "John Doe",
     userEmail: "john@example.com",
-    subject: "Login Issue",
     message: "I am unable to login with my credentials.",
     status: "pending",
   },
@@ -24,7 +24,6 @@ const STATIC_SUPPORT_DATA = [
     id: "2",
     userName: "Jane Smith",
     userEmail: "jane@example.com",
-    subject: "Payment Failed",
     message: "My payment failed but amount was deducted.",
     status: "resolved",
   },
@@ -32,7 +31,6 @@ const STATIC_SUPPORT_DATA = [
     id: "3",
     userName: "Alex Brown",
     userEmail: "alex@example.com",
-    subject: "App Crash",
     message: "App crashes when opening dashboard.",
     status: "pending",
   },
@@ -46,6 +44,10 @@ const Support = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedSupport, setSelectedSupport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [replyModal, setReplyModal] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [statusRow, setStatusRow] = useState(null);
+  const [replyError, setReplyError] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,8 +62,7 @@ const Support = () => {
     return STATIC_SUPPORT_DATA.filter(
       (item) =>
         item.userName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        item.userEmail.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        item.subject.toLowerCase().includes(debouncedSearch.toLowerCase()),
+        item.userEmail.toLowerCase().includes(debouncedSearch.toLowerCase()),
     );
   }, [debouncedSearch]);
 
@@ -72,6 +73,20 @@ const Support = () => {
     const start = (page - 1) * pageSize;
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, page, pageSize]);
+
+  const handleCloseReplyModal = () => {
+    setReplyModal(false);
+    setReplyText("");
+    setReplyError("");
+    setStatusRow(null);
+  };
+
+  useEffect(() => {
+    if (replyModal) {
+      setReplyText("");
+      setReplyError("");
+    }
+  }, [replyModal]);
 
   const columnDefs = useMemo(
     () => [
@@ -93,22 +108,22 @@ const Support = () => {
         flex: 1,
       },
       {
-        headerName: "Subject",
-        field: "subject",
-        minWidth: 250,
-        flex: 1,
-      },
-      {
         headerName: "Status",
         field: "status",
         minWidth: 160,
-        cellRenderer: StatusDropdownCell,
+        cellRenderer: SupportStatusDropdown,
         cellRendererParams: {
           options: [
             { value: "pending", label: "Pending" },
             { value: "resolved", label: "Resolved" },
           ],
           lockAfter: "resolved",
+          onChange: (value, rowData, node) => {
+            if (value === "resolved") {
+              setStatusRow({ rowData, node });
+              setReplyModal(true);
+            }
+          },
         },
       },
       {
@@ -140,7 +155,7 @@ const Support = () => {
 
         <Breadcrumbs />
 
-        {/* Search */} 
+        {/* Search */}
         <div className="search-bar mb-4 position-relative">
           <input
             type="text"
@@ -214,6 +229,64 @@ const Support = () => {
                 onClick={() => setOpenModal(false)}
               >
                 Close
+              </button>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+        {/* reply modal  */}
+        <Modal show={replyModal} onHide={handleCloseReplyModal} centered>
+          <Modal.Body className="p-3">
+            <h5 className="text-center">Reply to User</h5>
+            <Form.Group className="py-3">
+              <Form.Label className="fw-semibold">
+                Reply <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                placeholder="Enter reply..."
+                value={replyText}
+                onChange={(e) => {
+                  setReplyText(e.target.value);
+                  if (replyError) setReplyError("");
+                }}
+                isInvalid={!!replyError}
+              />
+              {replyError && (
+                <div className="text-danger mt-1">{replyError}</div>
+              )}
+            </Form.Group>
+            <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
+              <button
+                className="button-secondary"
+                onClick={handleCloseReplyModal}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="button-primary"
+                onClick={() => {
+                  if (!replyText.trim()) {
+                    setReplyError("Reply is required");
+                    return;
+                  }
+
+                  // update grid value safely
+                  statusRow.node.setDataValue("status", "resolved");
+
+                  Swal.fire({
+                    title: "Resolved",
+                    text: "Support resolved successfully",
+                    icon: "success",
+                    confirmButtonColor: "#a99068",
+                  });
+
+                  handleCloseReplyModal();
+                }}
+              >
+                Mark Resolved
               </button>
             </div>
           </Modal.Body>

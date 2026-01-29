@@ -43,9 +43,9 @@ const AddCmsPage = () => {
       title: "Page Created",
       text: "CMS page added successfully!",
       icon: "success",
-      confirmButtonColor: "#166fff",
+      confirmButtonColor: "#a99068",
     }).then(() => {
-      navigate("/cms");
+      navigate("/policies");
     });
   };
 
@@ -118,7 +118,7 @@ const AddCmsPage = () => {
           <div className="d-flex gap-3 mt-4">
             <button
               className="button-secondary"
-              onClick={() => navigate("/cms")}
+              onClick={() => navigate("/policies")}
             >
               Cancel
             </button>

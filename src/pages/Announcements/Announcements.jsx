@@ -44,7 +44,7 @@ const STATIC_NOTIFICATIONS = [
     type: "maintenance",
     priority: "high",
     targetAudience: "all",
-    status: "sent",
+
     sentAt: "2026-01-20",
   },
   {
@@ -54,7 +54,7 @@ const STATIC_NOTIFICATIONS = [
     type: "system_update",
     priority: "medium",
     targetAudience: "vendors",
-    status: "failed",
+
     sentAt: "2026-01-18",
   },
   {
@@ -64,7 +64,7 @@ const STATIC_NOTIFICATIONS = [
     type: "general",
     priority: "medium",
     targetAudience: "owners",
-    status: "draft",
+
     sentAt: "2026-01-15", // draft hasn’t been sent yet
   },
 ];
@@ -150,37 +150,6 @@ const Announcements = () => {
     });
   };
 
-  const StatusBadge = ({ status }) => {
-    let bgColor = "#6c757d"; // default gray
-    let color = "#fff"; // default white
-
-    if (status === "sent") {
-      bgColor = "#d1fae5";
-      color = "#065f46";
-    } else if (status === "failed") {
-      bgColor = "#fee2e2"; // red
-      color = "#991b1b";
-    } else if (status === "draft") {
-      bgColor = "#fff6d9"; // gray
-      color = "#dda200";
-    }
-
-    return (
-      <span
-        style={{
-          backgroundColor: bgColor,
-          color: color,
-          padding: "5px 15px",
-          borderRadius: "50px",
-          textTransform: "capitalize",
-          fontSize: "12px",
-        }}
-      >
-        {status}
-      </span>
-    );
-  };
-
   const columnDefs = useMemo(
     () => [
       {
@@ -200,13 +169,6 @@ const Announcements = () => {
         headerName: "Target Audience",
         field: "targetAudience",
         flex: 1,
-      },
-      // { headerName: "Priority", field: "priority", flex: 1 },
-      {
-        headerName: "Status",
-        field: "status",
-        flex: 1,
-        cellRenderer: (params) => <StatusBadge status={params.value} />,
       },
       {
         headerName: "Sent At",
@@ -292,7 +254,9 @@ const Announcements = () => {
             </div> */}
 
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Target Audience *</label>
+              <label className="form-label fw-semibold">
+                Target Audience *
+              </label>
               <CustomDropdown
                 options={userGroupOptions}
                 placeholder="Select target audience"

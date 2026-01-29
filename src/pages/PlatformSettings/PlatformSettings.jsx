@@ -1,24 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Pencil } from "lucide-react";
-import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
-import defaultLogo from "../../assets/paxtracFavicon.svg";
+import Swal from "sweetalert2";
 
 const PlatformSettings = () => {
   const navigate = useNavigate();
-  const fileRef = useRef(null);
-  const [logo, setLogo] = useState(defaultLogo);
 
   const [settings, setSettings] = useState({
-    platformName: "My Platform",
+    platformName: "Paxtrac",
     timezone: "asia_kolkata",
     language: "en",
-    currency: "INR",
-    commission: 10,
-    sessionTimeout: 30,
-    enable2FA: true,
+    preRegistrationAmount: 250, // NEW FIELD
   });
 
   const [errors, setErrors] = useState({});
@@ -28,20 +21,17 @@ const PlatformSettings = () => {
     setErrors((prev) => ({ ...prev, [key]: "" })); // Clear error on change
   };
 
-  const handleLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setLogo(URL.createObjectURL(file));
-    }
-  };
-
   const validate = () => {
     const newErrors = {};
     if (!settings.platformName.trim()) {
       newErrors.platformName = "Platform name is required";
     }
-    if (!settings.commission || settings.commission < 0) {
-      newErrors.commission = "Commission must be a positive number";
+    if (
+      settings.preRegistrationAmount === "" ||
+      settings.preRegistrationAmount < 0
+    ) {
+      newErrors.preRegistrationAmount =
+        "Pre-registration amount must be 0 or more";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -74,80 +64,25 @@ const PlatformSettings = () => {
 
         <Breadcrumbs />
 
-        {/* SINGLE CARD */}
         <div className="custom-card bg-white p-4 mt-3">
-          {/* BRANDING */}
-          {/* <h5 className="fw-semibold mb-4">Branding</h5> */}
-          <div className="row align-items-center mb-4">
-            <div className="col-md-12 text-start">
-              <div className="position-relative w-max mb-3">
-                <div
-                  style={{
-                    width: 120,
-                    height: 120,
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    border: "1px solid #a99068",
-                  }}
-                >
-                  <img
-                    src={logo}
-                    alt="Platform Logo"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
-
-                <div
-                  onClick={() => fileRef.current.click()}
-                  style={{
-                    position: "absolute",
-                    bottom: 6,
-                    right: 6,
-                    background: "#a99068",
-                    borderRadius: "50%",
-                    padding: 6,
-                    cursor: "pointer",
-                    height: 30,
-                    width: 30,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Pencil size={14} color="#fff" />
-                </div>
-              </div>
-
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleLogoChange}
-              />
-            </div>
-
-            <div className="col-md-6">
+          {/* PLATFORM SETTINGS */}
+          <div className="row">
+            <div className="col-md-6 mb-4">
               <label className="form-label fw-semibold">Platform Name</label>
               <input
-                className="form-control "
+                className="form-control"
                 placeholder="Enter platform name"
                 value={settings.platformName}
-                onChange={(e) => handleChange("platformName", e.target.value)}
+                onChange={(e) =>
+                  handleChange("platformName", e.target.value)
+                }
               />
               {errors.platformName && (
                 <div className="text-danger">{errors.platformName}</div>
               )}
             </div>
-          </div>
 
-          {/* LOCALIZATION */}
-          <div className="row mb-4">
-            <div className="col-md-6">
+            <div className="col-md-6 mb-4">
               <label className="form-label fw-semibold">Timezone</label>
               <CustomDropdown
                 placeholder="Select timezone"
@@ -161,7 +96,7 @@ const PlatformSettings = () => {
               />
             </div>
 
-            <div className="col-md-6">
+            <div className="col-md-6 mb-4">
               <label className="form-label fw-semibold">Language</label>
               <CustomDropdown
                 placeholder="Select language"
@@ -174,7 +109,28 @@ const PlatformSettings = () => {
                 ]}
               />
             </div>
-          </div> 
+
+            <div className="col-md-6 mb-4">
+              <label className="form-label fw-semibold">
+                Pre-registration Amount
+              </label>
+              <input
+                type="number"
+                min="0"
+                className="form-control"
+                placeholder="Enter pre-registration amount"
+                value={settings.preRegistrationAmount}
+                onChange={(e) =>
+                  handleChange("preRegistrationAmount", Number(e.target.value))
+                }
+              />
+              {errors.preRegistrationAmount && (
+                <div className="text-danger">
+                  {errors.preRegistrationAmount}
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* ACTIONS */}
           <div className="d-flex gap-3 mt-4">

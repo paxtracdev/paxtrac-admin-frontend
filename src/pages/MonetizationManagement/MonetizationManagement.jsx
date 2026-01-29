@@ -103,7 +103,7 @@ const MonetizationManagement = () => {
       inputLabel: "Enter new monthly price",
       inputPlaceholder: "e.g. 9.99",
       showCancelButton: true,
-      confirmButtonColor: "#166fff",
+      confirmButtonColor: "#a99068",
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire("Updated!", "Pricing updated successfully.", "success");
@@ -118,7 +118,7 @@ const MonetizationManagement = () => {
       text: `Resolve billing issue for ${row.userName}?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#166fff",
+      confirmButtonColor: "#a99068",
     }).then((res) => {
       if (res.isConfirmed) {
         const update = subscriptions.map((s) =>

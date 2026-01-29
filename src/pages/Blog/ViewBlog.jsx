@@ -4,8 +4,10 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
+import defaultImage from "../../assets/images/businessImg3.png";
+import { Pencil } from "lucide-react";
 
-const BlogViewEdit = () => {
+const ViewBlog = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const blog = state?.blog;
@@ -13,9 +15,8 @@ const BlogViewEdit = () => {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("");
   const [content, setContent] = useState("");
-  const [imagePreview, setImagePreview] = useState(
-    blog?.image || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-  );
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(blog?.image || defaultImage);
 
   // Validation errors
   const [errors, setErrors] = useState({});
@@ -32,8 +33,14 @@ const BlogViewEdit = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(defaultImage);
   };
 
   const handleSave = () => {
@@ -52,7 +59,7 @@ const BlogViewEdit = () => {
       title: "Success",
       text: "Blog updated successfully",
       icon: "success",
-      confirmButtonColor: "#166fff", // custom confirm button color
+      confirmButtonColor: "#a99068", // custom confirm button color
     }).then(() => navigate("/blogs"));
   };
 
@@ -70,34 +77,36 @@ const BlogViewEdit = () => {
         <div className="custom-card bg-white p-4 mt-3">
           {/* Title */}
           <div className="mb-3">
-            <label className="form-label fw-semibold">Blog Title</label>
-            <input
-              type="text"
-              className={`form-control ${errors.title ? "is-invalid" : ""}`}
-              placeholder="Enter blog title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            {errors.title && (
-              <div className="text-danger mt-1">{errors.title}</div>
-            )}
+            <label className="form-label fw-semibold">Blog Image</label>
+
+            <div className="image-wrapper position-relative">
+              <img src={imagePreview} alt="Blog" className="blog-image" />
+
+              <label className="image-action edit-icon">
+                <Pencil size={18} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageChange}
+                />
+              </label>
+            </div>
           </div>
 
           <div className="row">
-            {/* Image */}
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Blog Image</label>
+              <label className="form-label fw-semibold">Blog Title</label>
               <input
-                type="file"
-                className="form-control"
-                onChange={handleImageChange}
+                type="text"
+                className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                placeholder="Enter blog title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-              <img
-                src={imagePreview}
-                alt="preview"
-                className="mt-3 rounded"
-                style={{ width: "250px", height: "150px", objectFit: "cover" }}
-              />
+              {errors.title && (
+                <div className="text-danger mt-1">{errors.title}</div>
+              )}
             </div>
 
             {/* Status */}
@@ -147,4 +156,4 @@ const BlogViewEdit = () => {
   );
 };
 
-export default BlogViewEdit;
+export default ViewBlog;
