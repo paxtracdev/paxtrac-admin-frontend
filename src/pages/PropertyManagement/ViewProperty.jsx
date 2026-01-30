@@ -12,7 +12,7 @@ import lgZoom from "lightgallery/plugins/zoom";
 import "lightgallery/css/lightgallery.css";
 import "lightgallery/css/lg-thumbnail.css";
 import "lightgallery/css/lg-zoom.css";
-import { CirclePlay, Play } from "lucide-react";
+import { CirclePlay, File, Play } from "lucide-react";
 
 const ViewProperty = () => {
   const navigate = useNavigate();
@@ -172,7 +172,7 @@ const ViewProperty = () => {
                     rel="noopener noreferrer"
                     className="document-item"
                   >
-                    <DocIcon />
+                    <File size={18} />
                     <span className="ms-2">{doc.name}</span>
                   </a>
                 ))}
@@ -208,7 +208,7 @@ const ViewProperty = () => {
                   className="fd-inline-flex align-items-center me-3 mb-2 text-decoration-none"
                   style={{ color: "#7f6c4d" }}
                 >
-                  <DocIcon />{" "}
+                  <File size={18} />{" "}
                   <span className="ms-1">{property.contractFile.name}</span>
                 </a>
               </div>
@@ -313,17 +313,4 @@ const FullDetail = ({ label, value }) => (
     />
   </div>
 );
-
-const DocIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    fill="currentColor"
-    className="bi bi-file-earmark-word"
-    viewBox="0 0 16 16"
-  >
-    <path d="M6.5 8.995v-1h3v1h-3z" />
-    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zM13.5 5H9a.5.5 0 0 0-.5.5V6h4.5v-.5a.5.5 0 0 0-.5-.5z" />
-  </svg>
-);
+ 

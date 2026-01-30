@@ -55,10 +55,22 @@ const BlogList = () => {
       flex: 1.5,
     },
     {
-      headerName: "Status",
-      field: "status",
-      flex: 1,
-    },
+  headerName: "Status",
+  field: "status",
+  flex: 1,
+  cellRenderer: (params) => {
+    const isDraft = params.value === "Draft";
+
+    return (
+      <span
+        className={`status-badge-table ${isDraft ? "pending" : ""}`}
+      >
+        {params.value}
+      </span>
+    );
+  },
+},
+
     {
       headerName: "Created At",
       flex: 1.2,

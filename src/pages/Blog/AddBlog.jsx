@@ -4,6 +4,8 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
+import defaultImage from "../../assets/images/blogimg.png"; 
+import { Pencil, Trash2 } from "lucide-react";
 
 const AddBlog = () => {
   const navigate = useNavigate();
@@ -11,7 +13,8 @@ const AddBlog = () => {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("Draft");
   const [content, setContent] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(defaultImage);
 
   // Errors state
   const [errors, setErrors] = useState({});
@@ -19,8 +22,14 @@ const AddBlog = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(defaultImage);
   };
 
   const statusOptions = [
@@ -56,37 +65,46 @@ const AddBlog = () => {
         <div className="custom-card bg-white p-4 mt-3">
           {/* Title */}
           <div className="mb-3">
-            <label className="form-label fw-semibold">Blog Title</label>
-            <input
-              type="text"
-              className={`form-control ${errors.title ? "is-invalid" : ""}`}
-              placeholder="Enter blog title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            {errors.title && <div className="text-danger mt-1">{errors.title}</div>}
+            <label className="form-label fw-semibold">Blog Image</label>
+
+            <div className="image-wrapper position-relative">
+              <img src={imagePreview} alt="Blog" className="blog-image" />
+
+              {/* Image action  */}
+              {imageFile ? (
+                <button
+                  type="button"
+                  className="image-action remove-icon"
+                  onClick={handleRemoveImage}
+                >
+                  <Trash2 size={18} />
+                </button>
+              ) : (
+                <label className="image-action edit-icon">
+                  <Pencil size={18} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleImageChange}
+                  />
+                </label>
+              )}
+            </div>
           </div>
 
           <div className="row">
-            {/* Image Upload */}
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Blog Image</label>
+              <label className="form-label fw-semibold">Blog Title</label>
               <input
-                type="file"
-                className="form-control"
-                onChange={handleImageChange}
+                type="text"
+                className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                placeholder="Enter blog title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="preview"
-                  className="mt-3 rounded"
-                  style={{
-                    width: "250px",
-                    height: "150px",
-                    objectFit: "cover",
-                  }}
-                />
+              {errors.title && (
+                <div className="text-danger mt-1">{errors.title}</div>
               )}
             </div>
 
@@ -99,7 +117,9 @@ const AddBlog = () => {
                 value={status}
                 onChange={(val) => setStatus(val)}
               />
-              {errors.status && <div className="text-danger mt-1">{errors.status}</div>}
+              {errors.status && (
+                <div className="text-danger mt-1">{errors.status}</div>
+              )}
             </div>
           </div>
 
@@ -111,7 +131,9 @@ const AddBlog = () => {
               init={{ height: 300, menubar: false }}
               onEditorChange={(v) => setContent(v)}
             />
-            {errors.content && <div className="text-danger mt-1">{errors.content}</div>}
+            {errors.content && (
+              <div className="text-danger mt-1">{errors.content}</div>
+            )}
           </div>
 
           {/* Buttons */}

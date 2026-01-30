@@ -66,7 +66,7 @@ const Cms = () => {
             className="btn p-0 bg-transparent border-0 text-start"
             title="View"
             onClick={() =>
-              navigate("/cms/view", {
+              navigate("/policies/view", {
                 state: { cmsItem: params.data },
               })
             }

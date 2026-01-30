@@ -1,18 +1,54 @@
 import React, { useState, useEffect, useRef } from "react";
 import Breadcrumbs from "./Breadcrumbs";
-import { LoadingComponent } from "./LoadingComponent";
-import { useGetNotificationsQuery } from "../Api/notificationApi";
 import NoData from "../Components/NoData";
 import { useNavigate } from "react-router-dom";
 
 export default function AllNotification() {
-  const { data, isLoading } = useGetNotificationsQuery({ page: 1, limit: 10 });
-  const notifications = data?.data || [];
   const navigate = useNavigate();
+
+  // Static notifications
+  const notifications = [
+    {
+      id: 1,
+      title: "Welcome!",
+      message: "Thanks for joining our platform. Get started by exploring the dashboard.",
+      createdAt: "2026-01-28T10:30:00Z",
+      link: "/dashboard",
+    },
+    {
+      id: 2,
+      title: "New Feature Released",
+      message: "We've added a new analytics tool to help you track your progress.",
+      createdAt: "2026-01-27T14:15:00Z",
+      link: "/features",
+    },
+    {
+      id: 3,
+      title: "System Maintenance",
+      message: "Scheduled maintenance will occur on Feb 1, 2026, from 1 AM to 3 AM UTC.",
+      createdAt: "2026-01-26T09:00:00Z",
+      link: "/maintenance-info",
+    },
+    {
+      id: 4,
+      title: "Reminder",
+      message: "Don't forget to complete your profile to unlock all features.",
+      createdAt: "2026-01-25T12:45:00Z",
+      link: "/profile",
+    },
+    {
+      id: 5,
+      title: "Survey",
+      message: "Share your feedback with us to help improve our services.",
+      createdAt: "2026-01-24T08:20:00Z",
+      link: "/survey",
+    },
+  ];
 
   const [expanded, setExpanded] = useState({});
   const [isOverflowing, setIsOverflowing] = useState({});
   const refs = useRef({});
+
   useEffect(() => {
     notifications.forEach((n) => {
       const el = refs.current[n.id];
@@ -21,12 +57,12 @@ export default function AllNotification() {
         setIsOverflowing((prev) => ({ ...prev, [n.id]: hasOverflow }));
       }
     });
-  }, [notifications]);
+  }, []);
 
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="d-flex  mb-4 justify-content-between">
+        <div className="d-flex mb-4 justify-content-between">
           <div>
             <div className="title-heading mb-2">All Notifications</div>
             <p className="title-sub-heading">
@@ -37,13 +73,16 @@ export default function AllNotification() {
         <Breadcrumbs />
 
         <div>
-          {isLoading ? (
-            <LoadingComponent isLoading={isLoading} fullScreen />
-          ) : notifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <NoData text="No notifications found" />
           ) : (
             notifications.map((n) => (
-              <div key={n.id} className="custom-card mb-3 shadow-sm" onClick={() => navigate(n.link || "/")} style={{ cursor: "pointer" }}>
+              <div
+                key={n.id}
+                className="custom-card mb-3 shadow-sm"
+                onClick={() => navigate(n.link || "/")}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="d-flex align-items-start justify-content-between">
                   <div>
                     <h5 className="form-title-basic mb-1">{n.title}</h5>
@@ -60,16 +99,16 @@ export default function AllNotification() {
                     </small>
                   </div>
                 </div>
-                <div className=" " style={{ maxWidth: "90%" }}>
+                <div style={{ maxWidth: "90%" }}>
                   <p
                     ref={(el) => (refs.current[n.id] = el)}
                     className="text-desc-common mb-1"
                     style={{
-                      maxWidth: "100%", 
+                      maxWidth: "100%",
                       whiteSpace: expanded[n.id] ? "normal" : "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      display: "inline-block", 
+                      display: "inline-block",
                     }}
                   >
                     {n.message}
