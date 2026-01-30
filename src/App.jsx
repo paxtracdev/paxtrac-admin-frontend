@@ -41,13 +41,15 @@ import IssueResolutionView from "./pages/IssueResolution/IssueResolutionView";
 import BidManagement from "./pages/BidManagement/BidManagement";
 import AccoountSetting from "./pages/AccountSettings/Setting";
 import AllNotification from "./Components/AllNotification";
+import BidView from "./pages/BidManagement/BidView";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route path="*" element={<NotFound />} />
 
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="/vendor-management/view" element={<VendorView />} /> 
 
           <Route path="/bid-management" element={<BidManagement />} /> 
+          <Route path="/bid-management/view" element={<BidView />} />
 
           <Route path="/blogs" element={<BlogList />} />
           <Route path="/blogs/add" element={<AddBlog />} />
@@ -110,6 +113,7 @@ export default function App() {
           <Route path="/legal" element={<Legal />} />
         </Route>
       </Routes>
+      <Toaster position="bottom-right" richColors />
     </BrowserRouter>
   );
 }

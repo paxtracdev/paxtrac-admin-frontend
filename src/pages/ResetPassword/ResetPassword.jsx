@@ -2,39 +2,57 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logos.png";
+import showToast from "../../utils/showToast";
+import { Eye, EyeClosed } from "lucide-react";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = React.useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const validatePassword = (value) => {
+    if (!value) return "Password is required";
+    return "";
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!newPassword || !confirmPassword) {
-      setError("Both fields are required.");
-      return;
-    }
+    const newPasswordError = validatePassword(newPassword);
+    const confirmPasswordError =
+      confirmPassword !== newPassword ? "Passwords do not match" : "";
 
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    setErrors({
+      newPassword: newPasswordError,
+      confirmPassword: confirmPasswordError,
+    });
 
-    Swal.fire({
-      icon: "success",
-      title: "Password Updated",
-      text: "Your password has been updated successfully.",
-      confirmButtonText: "Go to Login",
-      confirmButtonColor: "#a99068",
-    }).then(() => navigate("/"));
+    if (newPasswordError || confirmPasswordError) return;
+
+    // Mock successful update
+    showToast("Your password has been updated successfully.", "success");
+
+    navigate("/");
+  };
+
+  const toggleNewPassword = () => {
+    setShowNewPassword((prev) => !prev);
+  };
+
+  const toggleConfirmPassword = () => {
+    setShowConfirmPassword((prev) => !prev);
   };
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="login-card p-5 w-100" style={{ maxWidth: "420px" }}>
+      <div className="login-card p-4 w-100" style={{ maxWidth: "420px" }}>
         <div className="text-center mb-4">
           <img src={logo} alt="Logo" className="logo-login w-max" />
           <p className="my-3 login-title">Reset Password</p>
@@ -42,30 +60,69 @@ export default function ResetPassword() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label input-label">New Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
+            <div className="position-relative pass-input">
+              <label className="form-label input-label">New Password</label>
+              <input
+                type={showNewPassword ? "text" : "password"}
+                className="form-control pe-5"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    newPassword: validatePassword(e.target.value),
+                    confirmPassword:
+                      confirmPassword && e.target.value !== confirmPassword
+                        ? "Passwords do not match"
+                        : "",
+                  }));
+                }}
+              />
+
+              <span onClick={toggleNewPassword}>
+                {showNewPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+              </span>
+            </div>
+
+            {errors.newPassword && (
+              <div className="text-danger">{errors.newPassword}</div>
+            )}
           </div>
 
           <div className="mb-3">
-            <label className="form-label input-label">Confirm Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="position-relative pass-input">
+              <label className="form-label input-label">Confirm Password</label>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                className="form-control pe-5"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    confirmPassword:
+                      e.target.value !== newPassword
+                        ? "Passwords do not match"
+                        : "",
+                  }));
+                }}
+              />
 
-          {error && <p className="text-danger small">{error}</p>}
+              <span onClick={toggleConfirmPassword}>
+                {showConfirmPassword ? (
+                  <Eye size={20} />
+                ) : (
+                  <EyeClosed size={20} />
+                )}
+              </span>
+            </div>
+
+            {errors.confirmPassword && (
+              <div className="text-danger">{errors.confirmPassword}</div>
+            )}
+          </div>
 
           <div className="text-center mt-3">
             <button type="submit" className="login-btn">

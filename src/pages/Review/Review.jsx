@@ -12,7 +12,8 @@ const mockReviews = [
     customerName: "Alice Johnson",
     customerImage: "https://randomuser.me/api/portraits/women/11.jpg",
     rating: 5,
-    feedback: "The bidding process was smooth and transparent. Highly recommended!",
+    feedback:
+      "The bidding process was smooth and transparent. Highly recommended!",
     jobDetails: "Property Bidding Assistance",
     responseTime: "20 mins",
     jobCompletionRate: "100%",
@@ -24,7 +25,8 @@ const mockReviews = [
     customerName: "Michael Lee",
     customerImage: "https://randomuser.me/api/portraits/men/32.jpg",
     rating: 4,
-    feedback: "Good support during property evaluation, but response could be faster.",
+    feedback:
+      "Good support during property evaluation, but response could be faster.",
     jobDetails: "Property Valuation & Bidding",
     responseTime: "45 mins",
     jobCompletionRate: "95%",
@@ -153,7 +155,6 @@ const mockReviews = [
   },
 ];
 
-
 const Review = () => {
   const [page, setPage] = React.useState(1);
 
@@ -164,6 +165,7 @@ const Review = () => {
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentReviews = mockReviews.slice(startIndex, endIndex);
+  const [flaggedReviews, setFlaggedReviews] = React.useState(new Set());
 
   const handleFlag = (reviewId) => {
     Swal.fire({
@@ -177,6 +179,7 @@ const Review = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         // Call backend API here
+        setFlaggedReviews((prev) => new Set(prev).add(reviewId)); // add to flagged set
         Swal.fire({
           title: "Flagged!",
           text: `Review ID ${reviewId} has been flagged.`,
@@ -248,28 +251,28 @@ const Review = () => {
                   <p>{item.feedback}</p>
                 </div>
 
-                
-
                 {/* Flag button */}
                 <div className="mt-3 text-end d-flex align-items-end justify-content-between">
-
                   {/* Stats */}
-                <div className="d-flex gap-4 mt-2">
-                  <span className="small">
-                    <strong>Response Time:</strong> {item.responseTime}
-                  </span>
-                  <span className="small">
-                    <strong>Completion Rate:</strong> {item.jobCompletionRate}
-                  </span>
-                  <span className="small">
-                    <strong>Winner:</strong> {item.winnerName || "N/A"}
-                  </span>
-                </div>
+                  <div className="d-flex gap-4 mt-2">
+                    <span className="small">
+                      <strong>Response Time:</strong> {item.responseTime}
+                    </span>
+                    <span className="small">
+                      <strong>Completion Rate:</strong> {item.jobCompletionRate}
+                    </span>
+                    <span className="small">
+                      <strong>Winner:</strong> {item.winnerName || "N/A"}
+                    </span>
+                  </div>
                   <button
                     className="login-btn gap-1"
                     onClick={() => handleFlag(item.id)}
+                    disabled={flaggedReviews.has(item.id)}
+                    style={{ opacity: flaggedReviews.has(item.id) ? 0.5 : 1 }}
                   >
-                    <Flag size={16} /> Flag
+                    <Flag size={16} />{" "}
+                    {flaggedReviews.has(item.id) ? "Flagged" : "Flag"}
                   </button>
                 </div>
               </div>
