@@ -17,11 +17,11 @@ const NotFound = () => {
           Go Home
         </button>
       </div>
-      <img
+      {/* <img
         src="https://cdn-icons-png.flaticon.com/512/7486/7486802.png"
         alt="Not Found"
         className="notfound-img"
-      />
+      /> */}
     </div>
   );
 };
