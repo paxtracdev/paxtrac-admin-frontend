@@ -19192,6 +19192,9 @@ div:where(.swal2-container) button:where(.swal2-close) {
   max-height: 100vh;
   margin-left: 50px;
 }
+.treeview .treeview-menu{
+  margin-left: 50px;
+}
 .notify-header {
   color: #414141;
   font-family: Poppins;
@@ -23191,6 +23194,11 @@ span.assign-badge {
 .status-badge-table.pending  {
   background-color: #fff6d9;
   color: #dda200; /* red for inactive */
+}
+
+.status-badge-table.info {
+  background-color: #e0f2fe;
+  color: #0b5ed7;
 }
 
 

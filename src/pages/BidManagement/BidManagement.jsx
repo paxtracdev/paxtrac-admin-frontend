@@ -1,53 +1,48 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Eye, Pencil } from "lucide-react";
-import Swal from "sweetalert2";
+import { Eye } from "lucide-react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useNavigate } from "react-router-dom";
 
-const initialBids = [
+const initialProperties = [
   {
-    id: "BID-2026-0001",
-    bidAmount: 5000,
-    firmName: "Sunrise Realty Group",
+    id: "PROP-2026-001",
     propertyType: "Commercial",
-    status: "Pending",
-    bidTime: "2026-01-28 10:30",
+    listerName: "Sarah Williams",
+    status: "active",
+    totalBidders: 5,
+    email: "sarah.williams@prestigevacation.com",
+    address: "123 Market Street, New York, NY",
   },
   {
-    id: "BID-2026-0002",
-    bidAmount: 7500,
-    firmName: "Prestige Vacation Homes",
-    propertyType: "Vacation Rentals",
-    status: "Flagged",
-    bidTime: "2026-01-28 11:15",
+    id: "PROP-2026-002",
+    propertyType: "Vacation Rental",
+    listerName: "John Doe",
+    status: "Inactive",
+    totalBidders: 2,
+    email: "john.doe@sunriserealty.com",
+    address: "45 Ocean Drive, Miami, FL",
   },
   {
-    id: "BID-2026-0003",
-    bidAmount: 3200,
-    firmName: "Crestpoint Realty",
-    propertyType: "Other",
-    status: "Approved",
-    bidTime: "2026-01-28 09:45",
-  },
-  {
-    id: "BID-2026-0004",
-    bidAmount: 9000,
-    firmName: "Diamond REO Solutions",
-    propertyType: "REO",
-    status: "Pending",
-    bidTime: "2026-01-27 16:30",
-  },
-  {
-    id: "BID-2026-0005",
-    bidAmount: 4500,
-    firmName: "Evergreen Multifamily LLC",
+    id: "PROP-2026-003",
     propertyType: "Multi Family",
-    status: "Flagged",
-    bidTime: "2026-01-26 14:00",
+    listerName: "Michael Johnson",
+    status: "active",
+    totalBidders: 8,
+    email: "michael.johnson@evergreenmf.com",
+    address: "890 Pine Avenue, Seattle, WA",
+  },
+  {
+    id: "PROP-2026-004",
+    propertyType: "Office Space",
+    listerName: "Emma Thompson",
+    status: "request re-open",
+    totalBidders: 4,
+    email: "emma.thompson@skyline.com",
+    address: "77 Broadway, San Francisco, CA",
   },
 ];
 
@@ -57,19 +52,19 @@ const BidManagement = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [properties, setProperties] = useState(initialProperties);
 
   // Data state (for flag toggle)
-  const [bids, setBids] = useState(initialBids);
   const navigate = useNavigate();
 
-  const totalCount = bids.length;
+  const totalCount = properties.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Paginate bids
-  const paginatedBids = useMemo(() => {
+  // Paginate Properties
+  const paginatedProperties = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return bids.slice(startIndex, startIndex + pageSize);
-  }, [bids, currentPage, pageSize]);
+    return properties.slice(startIndex, startIndex + pageSize);
+  }, [properties, currentPage, pageSize]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -80,32 +75,16 @@ const BidManagement = () => {
     setCurrentPage(1);
   };
 
-  // Flag/unflag bid with notification
-  const toggleFlag = useCallback(
-    (id) => {
-      setBids((prev) =>
-        prev.map((bid) => {
-          if (bid.id === id) {
-            const newStatus = bid.status === "Flagged" ? "Pending" : "Flagged";
-            Swal.fire({
-              icon: "info",
-              title: `Bid ${newStatus === "Flagged" ? "flagged" : "unflagged"}`,
-              text: `Bid from ${bid.firmName} is now ${newStatus}.`,
-              timer: 1500,
-              showConfirmButton: false,
-            });
-            return { ...bid, status: newStatus };
-          }
-          return bid;
-        }),
-      );
-    },
-    [setBids],
-  );
-
   // Edit handler (for demo just show alert)
   const handleViewBid = (bid) => {
-    navigate("/bid-management/view", { state: { bid } });
+    navigate("/bid-management/view", {
+      state: {
+        bid: {
+          ...bid,
+          bidTime: bid.bidTime ?? "2026-01-01 10:00",
+        },
+      },
+    });
   };
 
   const columnDefs = useMemo(
@@ -117,63 +96,87 @@ const BidManagement = () => {
           (currentPage - 1) * pageSize + params.node.rowIndex + 1,
         sortable: false,
       },
-      { headerName: "Bid ID", field: "id" },
       {
-        headerName: "Bid Amount",
-        field: "bidAmount",
+        headerName: "Property ID",
+        field: "id",
         flex: 1,
-        cellRenderer: (params) => `$${params.value.toLocaleString()}`,
+        minWidth: 200,
       },
-      { headerName: "Firm Name", field: "firmName", flex: 1, minWidth: 250 },
-      { headerName: "Property Type", field: "propertyType", flex: 1.5 },
-      // {
-      //   headerName: "Status",
-      //   field: "status",
-      //   flex: 1,
-      //   cellRenderer: (params) => {
-      //     const isFlagged = params.value === "Flagged";
-      //     return (
-      //       <button
-      //         style={{
-      //           backgroundColor: isFlagged ? "#f44336" : "#4caf50",
-      //           color: "white",
-      //           border: "none",
-      //           borderRadius: "4px",
-      //           padding: "4px 10px",
-      //           cursor: "pointer",
-      //         }}
-      //         onClick={() => toggleFlag(params.data.id)}
-      //         title={isFlagged ? "Unflag bid" : "Flag bid"}
-      //       >
-      //         {params.value}
-      //       </button>
-      //     );
-      //   },
-      // },
-      { headerName: "Bid Time", field: "bidTime", flex: 1, minWidth: 200 },
       {
-        headerName: "Actions",
+        headerName: "Property Type",
+        field: "propertyType",
+        flex: 1,
+        minWidth: 200,
+      },
+      {
+        headerName: "Property Lister Name",
+        field: "listerName",
+        flex: 1.5,
+        minWidth: 250,
+      },
+      {
+        headerName: "Bidding Status",
+        field: "status",
+        flex: 1,
+        minWidth: 200,
+        cellRenderer: (params) => {
+          const status = params.value?.toLowerCase();
+
+          const statusClass =
+            status === "active"
+              ? ""
+              : status === "request re-open"
+                ? "pending"
+                : "inactive";
+
+          return (
+            <span className={`status-badge-table ${statusClass}`}>
+              {params.value}
+            </span>
+          );
+        },
+      },
+      {
+        headerName: "Total Bidders",
+        field: "totalBidders",
+        flex: 1,
+        minWidth: 150,
+      },
+      {
+        headerName: "Email",
+        field: "email",
+        flex: 1.5,
+        minWidth:300,
+        cellStyle: {
+          textTransform: "lowercase",
+        },
+      },
+      {
+        headerName: "Action",
         flex: 0.5,
-        minWidth: 0,
+        minWidth: 100,
         cellRenderer: (params) => (
           <Eye
-            style={{ cursor: "pointer" }}
-            onClick={() => handleViewBid(params.data)}
             size={18}
-            color="#333"
+            style={{ cursor: "pointer" }}
             title="View Bid"
+            onClick={() => handleViewBid(params.data)}
           />
         ),
       },
     ],
-    [toggleFlag, handleViewBid],
+    [currentPage, pageSize, navigate],
   );
 
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="title-heading mb-2">Bid Management</div>
-        <p className="title-sub-heading">Manage bids</p>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <div className="title-heading mb-2">Bid Management</div>
+            <p className="title-sub-heading"> Manage bids</p>
+          </div>
+        </div>
 
         <Breadcrumbs />
 
@@ -183,7 +186,7 @@ const BidManagement = () => {
             style={{ width: "100%", overflowX: "auto" }}
           >
             <AgGridReact
-              rowData={paginatedBids}
+              rowData={paginatedProperties}
               columnDefs={columnDefs}
               domLayout="autoHeight"
               headerHeight={40}
