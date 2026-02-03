@@ -219,3 +219,29 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+// if (!email) {
+//       newErrors.email = "Email is required";
+//     } else if (
+//       !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
+//     ) {
+//       newErrors.email = "Enter a valid email address (e.g. user@example.com)";
+//     }
+
+//     if (!password) {
+//       newErrors.password = "Password is required";
+//     } else if (password.length < 8) {
+//       newErrors.password = "Password must be at least 8 characters";
+//     } else if (!/[A-Z]/.test(password)) {
+//       newErrors.password =
+//         "Password must include at least one uppercase letter";
+//     } else if (!/[a-z]/.test(password)) {
+//       newErrors.password =
+//         "Password must include at least one lowercase letter";
+//     } else if (!/\d/.test(password)) {
+//       newErrors.password = "Password must include at least one number";
+//     } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
+//       newErrors.password =
+//         "Password must include at least one special character";
+//     }

@@ -9,8 +9,7 @@ import Swal from "sweetalert2";
 const mockReviews = [
   {
     id: 1,
-    customerName: "Alice Johnson",
-    customerImage: "https://randomuser.me/api/portraits/women/11.jpg",
+    customerName: "Alice Johnson", 
     rating: 5,
     feedback:
       "The bidding process was smooth and transparent. Highly recommended!",
@@ -22,8 +21,7 @@ const mockReviews = [
   },
   {
     id: 2,
-    customerName: "Michael Lee",
-    customerImage: "https://randomuser.me/api/portraits/men/32.jpg",
+    customerName: "Michael Lee", 
     rating: 4,
     feedback:
       "Good support during property evaluation, but response could be faster.",
@@ -35,8 +33,7 @@ const mockReviews = [
   },
   {
     id: 3,
-    customerName: "Sophia Brown",
-    customerImage: "https://randomuser.me/api/portraits/women/44.jpg",
+    customerName: "Sophia Brown", 
     rating: 3,
     feedback: "Some issues with document verification, but overall okay.",
     jobDetails: "Property Documentation",
@@ -47,8 +44,7 @@ const mockReviews = [
   },
   {
     id: 4,
-    customerName: "Daniel Carter",
-    customerImage: "https://randomuser.me/api/portraits/men/45.jpg",
+    customerName: "Daniel Carter", 
     rating: 5,
     feedback: "Excellent service and very professional team.",
     jobDetails: "Residential Property Search",
@@ -59,8 +55,7 @@ const mockReviews = [
   },
   {
     id: 5,
-    customerName: "Emma Wilson",
-    customerImage: "https://randomuser.me/api/portraits/women/68.jpg",
+    customerName: "Emma Wilson", 
     rating: 4,
     feedback: "Smooth experience overall, paperwork took a bit longer.",
     jobDetails: "Commercial Property Leasing",
@@ -71,8 +66,7 @@ const mockReviews = [
   },
   {
     id: 6,
-    customerName: "James Anderson",
-    customerImage: "https://randomuser.me/api/portraits/men/61.jpg",
+    customerName: "James Anderson", 
     rating: 5,
     feedback: "Outstanding attention to detail and fast communication.",
     jobDetails: "Luxury Property Consulting",
@@ -83,8 +77,7 @@ const mockReviews = [
   },
   {
     id: 7,
-    customerName: "Olivia Martinez",
-    customerImage: "https://randomuser.me/api/portraits/women/72.jpg",
+    customerName: "Olivia Martinez", 
     rating: 4,
     feedback: "Very knowledgeable agents and helpful throughout.",
     jobDetails: "Land Purchase Assistance",
@@ -95,8 +88,7 @@ const mockReviews = [
   },
   {
     id: 8,
-    customerName: "William Turner",
-    customerImage: "https://randomuser.me/api/portraits/men/78.jpg",
+    customerName: "William Turner", 
     rating: 2,
     feedback: "Communication gaps caused delays.",
     jobDetails: "Rental Property Management",
@@ -107,8 +99,7 @@ const mockReviews = [
   },
   {
     id: 9,
-    customerName: "Ava Thompson",
-    customerImage: "https://randomuser.me/api/portraits/women/25.jpg",
+    customerName: "Ava Thompson", 
     rating: 5,
     feedback: "Fantastic experience from start to finish.",
     jobDetails: "Apartment Purchase",
@@ -119,8 +110,7 @@ const mockReviews = [
   },
   {
     id: 10,
-    customerName: "Noah Harris",
-    customerImage: "https://randomuser.me/api/portraits/men/19.jpg",
+    customerName: "Noah Harris", 
     rating: 3,
     feedback: "Average service, expected quicker updates.",
     jobDetails: "Property Resale",
@@ -131,8 +121,7 @@ const mockReviews = [
   },
   {
     id: 11,
-    customerName: "Isabella Moore",
-    customerImage: "https://randomuser.me/api/portraits/women/39.jpg",
+    customerName: "Isabella Moore", 
     rating: 4,
     feedback: "Helpful team and clear pricing structure.",
     jobDetails: "First-Time Buyer Support",
@@ -143,8 +132,7 @@ const mockReviews = [
   },
   {
     id: 12,
-    customerName: "Liam Walker",
-    customerImage: "https://randomuser.me/api/portraits/men/88.jpg",
+    customerName: "Liam Walker", 
     rating: 5,
     feedback: "Quick turnaround and excellent market knowledge.",
     jobDetails: "Investment Property Advisory",
@@ -218,11 +206,11 @@ const Review = () => {
                 {/* Header */}
                 <div className="d-flex justify-content-between">
                   <div className="d-flex gap-3">
-                    <img
-                      src={item.customerImage || noProfile} // customer image fallback
+                    {/* <img
+                      src={item.customerImage || noProfile}  
                       alt={item.customerName}
                       className="review-avatar"
-                    />
+                    /> */}
                     <div>
                       <h6 className="mb-1">{item.customerName}</h6>
                       <div className="d-flex align-items-center gap-2">

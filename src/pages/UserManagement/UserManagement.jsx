@@ -6,8 +6,6 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Eye, Trash2 } from "lucide-react";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
-import FilterModal from "../../Components/FilterModal";
-import Switch from "react-switch"; // import react-switch
 import { useNavigate } from "react-router-dom";
 import FilterUserModal from "../../Components/FilterUserModal";
 import Swal from "sweetalert2";
@@ -17,6 +15,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const STATIC_USERS = [
   {
     _id: "1",
+    userId: "USR-001",
     first_name: "Amit ",
     last_name: "Sharma",
     email: "john@amit.owner@example.com",
@@ -27,6 +26,7 @@ const STATIC_USERS = [
   },
   {
     _id: "2",
+    userId: "USR-002",
     first_name: "John ",
     last_name: "Doe",
     email: "john.vendor@example.com",
@@ -37,6 +37,7 @@ const STATIC_USERS = [
   },
   {
     _id: "3",
+    userId: "USR-003",
     first_name: "Jane ",
     last_name: "Smith",
     email: "jane.manager@example.com",
@@ -55,7 +56,7 @@ const UserManagement = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [filters, setFilters] = useState({ status: "", role: "" });
+  const [filters, setFilters] = useState({ role: "" });
 
   // Use userData state so we can update status locally
   const [userData, setUserData] = useState(STATIC_USERS);
@@ -66,26 +67,21 @@ const UserManagement = () => {
       const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
       const email = user.email.toLowerCase();
       const phone = user.phone.toLowerCase();
+      const userId = user.userId.toLowerCase();  
       const searchLower = search.toLowerCase();
 
       const matchesSearch =
         fullName.includes(searchLower) ||
         email.includes(searchLower) ||
-        phone.includes(searchLower);
-
-      const matchesStatus =
-        filters.status === ""
-          ? true
-          : filters.status === "active"
-            ? user.status === true
-            : user.status === false;
+        phone.includes(searchLower) ||
+        userId.includes(searchLower);  
 
       const matchesRole =
         !filters.role || filters.role === ""
           ? true
-          : user.role === filters.role;
+          : user.role.toLowerCase() === filters.role.toLowerCase();
 
-      return matchesSearch && matchesStatus && matchesRole;
+      return matchesSearch && matchesRole;
     });
   }, [search, filters, userData]);
 
@@ -95,35 +91,6 @@ const UserManagement = () => {
   }, [filteredUsers, page, pageSize]);
 
   const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
-
-  // Toggle status locally
-  const toggleStatus = (id) => {
-    const user = userData.find((u) => u._id === id);
-    if (!user) return;
-
-    Swal.fire({
-      title: `Change status for ${user.first_name} ${user.last_name}?`,
-      text: `This will ${user.status ? "deactivate" : "activate"} the user.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, change it",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#a99068",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setUserData((prev) =>
-          prev.map((u) => (u._id === id ? { ...u, status: !u.status } : u)),
-        );
-        Swal.fire({
-          icon: "success",
-          title: "Updated!",
-          text: `User status has been ${user.status ? "deactivated" : "activated"}.`,
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-    });
-  };
 
   const handleDelete = (id) => {
     const user = userData.find((u) => u._id === id);
@@ -162,6 +129,12 @@ const UserManagement = () => {
         cellStyle: { textAlign: "center" },
       },
       {
+        headerName: "User ID",
+        field: "userId", // NEW COLUMN
+        minWidth: 120,
+        flex: 1,
+      },
+      {
         headerName: "Name",
         valueGetter: (p) => `${p.data.first_name} ${p.data.last_name}`,
         minWidth: 200,
@@ -172,7 +145,7 @@ const UserManagement = () => {
         field: "email",
         minWidth: 250,
         flex: 1,
-        cellStyle: { textTransform: "lowerCase"}
+        cellStyle: { textTransform: "lowerCase" },
       },
       {
         headerName: "Phone Number",
@@ -189,23 +162,6 @@ const UserManagement = () => {
           p.value
             ? p.value.charAt(0).toUpperCase() + p.value.slice(1).toLowerCase()
             : "",
-      },
-      {
-        headerName: "Status",
-        field: "status",
-        minWidth: 120,
-        flex: 1,
-        cellRenderer: (params) => (
-          <Switch
-            onChange={() => toggleStatus(params.data._id)}
-            checked={Boolean(params.value)}
-            onColor="#a99068"
-            uncheckedIcon={false}
-            checkedIcon={false}
-            height={20}
-            width={40}
-          />
-        ),
       },
       {
         headerName: "Registration Date",

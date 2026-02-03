@@ -3,12 +3,12 @@ import CustomDropdown from "./CustomDropdown";
 
 const FilterUserModal = ({ show, onClose, onApply, initialFilters }) => {
   const [localFilters, setLocalFilters] = useState(
-    initialFilters || { status: "" },
+    initialFilters || { role: "" },
   );
   const modalRef = useRef(null);
 
   useEffect(() => {
-    setLocalFilters(initialFilters || { status: "" });
+    setLocalFilters(initialFilters || { role: "" });
   }, [initialFilters]);
 
   useEffect(() => {
@@ -40,61 +40,10 @@ const FilterUserModal = ({ show, onClose, onApply, initialFilters }) => {
             onClick={onClose}
           />
 
-          <div className="modal-body p-2">
-            {/* Status Radio */}
-            <div>
-              <p className="mb-2 fw-semibold">Status</p>
-              <div className="d-flex align-items-center gap-4">
-                <div className="form-check">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    id="status-all"
-                    name="status"
-                    checked={localFilters.status === ""}
-                    onChange={() =>
-                      setLocalFilters({ ...localFilters, status: "" })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="status-all">
-                    All
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    id="status-active"
-                    name="status"
-                    checked={localFilters.status === "active"}
-                    onChange={() =>
-                      setLocalFilters({ ...localFilters, status: "active" })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="status-active">
-                    Active
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    id="status-inactive"
-                    name="status"
-                    checked={localFilters.status === "inactive"}
-                    onChange={() =>
-                      setLocalFilters({ ...localFilters, status: "inactive" })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="status-inactive">
-                    Inactive
-                  </label>
-                </div>
-              </div>
-            </div>
+          <div className="modal-body p-2"> 
 
             {/* Role Filter */}
-            <div className="mt-3">
+            <div className="">
               <p className="mb-2 fw-semibold">Role</p>
               <CustomDropdown
                 placeholder="All"
@@ -116,8 +65,8 @@ const FilterUserModal = ({ show, onClose, onApply, initialFilters }) => {
             <button
               className="button-secondary"
               onClick={() => {
-                setLocalFilters({ status: "", role: "" });
-                onApply({ status: "", role: "" });
+                setLocalFilters({ role: "" });
+                onApply({ role: "" });
               }}
             >
               Clear

@@ -43,6 +43,7 @@ import AccoountSetting from "./pages/AccountSettings/Setting";
 import AllNotification from "./Components/AllNotification";
 import BidView from "./pages/BidManagement/BidView";
 import { Toaster } from "sonner";
+import Payments from "./pages/Payments/Payments";
 
 export default function App() {
   return (
@@ -78,6 +79,8 @@ export default function App() {
           <Route path="/faq/view" element={<ViewFaq />} />
 
           <Route path="/reviews" element={<Review />} /> 
+
+          <Route path="/payment" element={<Payments />} /> 
           
           <Route path="/account-settings" element={<AccoountSetting />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />

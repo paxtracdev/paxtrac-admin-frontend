@@ -10,6 +10,7 @@ const STATIC_USERS = [
   // ===== OWNER =====
   {
     _id: "1",
+    userId: "USR-001",
     first_name: "Amit",
     last_name: "Sharma",
     email: "amit.owner@example.com",
@@ -17,6 +18,11 @@ const STATIC_USERS = [
     role: "owner",
     status: "active",
     registrationDate: "2025-12-01",
+    planDetails: {
+      planName: "Foundation", // Foundation | Pillar | Empire
+      billingType: "Annually", // Annually | One Time
+      purchaseDate: "2025-11-20",
+    },
     businessDetails: {
       ownerName: "Sharma Properties Pvt Ltd",
       ownerAddress: "123 MG Road, Mumbai",
@@ -34,6 +40,7 @@ const STATIC_USERS = [
   // ===== VENDOR =====
   {
     _id: "2",
+    userId: "USR-002",
     first_name: "John",
     last_name: "Doe",
     email: "john.vendor@example.com",
@@ -41,6 +48,11 @@ const STATIC_USERS = [
     role: "vendor",
     status: "active",
     registrationDate: "2026-01-10",
+    planDetails: {
+      planName: "Pillar", // Foundation | Pillar | Empire
+      billingType: "One-Time", // Annually | One Time
+      purchaseDate: "2026-01-20",
+    },
     businessDetails: {
       businessName: "Doe Infrastructure Services",
       businessAddress: "45 Industrial Area, Delhi",
@@ -59,8 +71,28 @@ const STATIC_USERS = [
         "We provide end-to-end infrastructure and construction support services.",
       experience:
         "Completed over 150 commercial and residential projects across North India.",
-      uploadedFiles: ["company-profile.pdf", "service-brochure.pdf"],
-      documents: ["gst-certificate.pdf", "trade-license.pdf"],
+      uploadedFiles: [
+        {
+          name: "company-profile.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+        {
+          name: "service-brochure.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+      ],
+
+      documents: [
+        {
+          name: "gst-certificate.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+        {
+          name: "trade-license.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+      ],
+
       keyTeamMembers: [
         { name: "Rohit Verma", position: "Project Manager" },
         { name: "Ankit Jain", position: "Site Supervisor" },
@@ -74,12 +106,13 @@ const STATIC_USERS = [
   // ===== MANAGER =====
   {
     _id: "3",
+    userId: "USR-003",
     first_name: "Jane",
     last_name: "Smith",
     email: "jane.manager@example.com",
     phone: "9123456789",
     role: "manager",
-    status: "inactive",
+    status: "active",
     registrationDate: "2026-01-15",
     businessDetails: {
       companyName: "Smith Property Management",
@@ -96,7 +129,16 @@ const STATIC_USERS = [
         "Currently managing 25+ residential societies with 3000+ units.",
       successStories:
         "Improved tenant retention by 35% and reduced maintenance costs by 20%.",
-      documents: ["property-management-license.pdf", "iso-certification.pdf"],
+      documents: [
+        {
+          name: "gst-certificate.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+        {
+          name: "trade-license.pdf",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+      ],
       keyTeamMembers: [
         { name: "Karan Mehta", position: "Senior Manager" },
         { name: "Pooja Nair", position: "Accounts Lead" },
@@ -125,6 +167,7 @@ const ViewUser = () => {
   if (!user) return;
 
   const {
+    userId,
     first_name,
     last_name,
     email,
@@ -133,6 +176,7 @@ const ViewUser = () => {
     status,
     registrationDate,
     businessDetails,
+    planDetails,
   } = user;
 
   const renderOwnerDetails = () => (
@@ -375,12 +419,13 @@ const ViewUser = () => {
             {(businessDetails.uploadedFiles || []).map((file, i) => (
               <a
                 key={i}
-                href={`/pdfs/${file}`}
+                href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="document-item"
               >
-                <File size={18} /> <span className="ms-2">{file}</span>
+                <File size={18} />
+                <span className="ms-2">{file.name}</span>
               </a>
             ))}
           </div>
@@ -394,12 +439,13 @@ const ViewUser = () => {
             {(businessDetails.documents || []).map((doc, i) => (
               <a
                 key={i}
-                href={`/pdfs/${doc}`}
+                href={doc.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="document-item"
               >
-                <File size={18} /> <span className="ms-2">{doc}</span>
+                <File size={18} />
+                <span className="ms-2">{doc.name}</span>
               </a>
             ))}
           </div>
@@ -559,12 +605,13 @@ const ViewUser = () => {
             {(businessDetails.documents || []).map((doc, i) => (
               <a
                 key={i}
-                href={`/pdfs/${doc}`}
+                href={doc.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="document-item"
               >
-                <File size={18} /> <span className="ms-2">{doc}</span>
+                <File size={18} />
+                <span className="ms-2">{doc.name}</span>
               </a>
             ))}
           </div>
@@ -618,6 +665,16 @@ const ViewUser = () => {
 
           {/* User Details */}
           <div className="row mb-4">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">User ID</label>
+              <input
+                type="text"
+                className="form-control"
+                value={userId}
+                disabled
+                readOnly
+              />
+            </div>
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Name</label>
               <input
@@ -674,6 +731,50 @@ const ViewUser = () => {
                 className="form-control"
                 placeholder="Select registration date"
                 value={new Date(registrationDate).toLocaleDateString("en-GB")}
+                disabled
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Plan Details */}
+          <h4 className="mb-3">Plan Details</h4>
+
+          <div className="row mb-4">
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">Plan Name</label>
+              <input
+                type="text"
+                className="form-control bg-light"
+                value={planDetails?.planName || "N/A"}
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">Billing Type</label>
+              <input
+                type="text"
+                className="form-control bg-light"
+                value={planDetails?.billingType || "N/A"}
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">Purchase Date</label>
+              <input
+                type="text"
+                className="form-control bg-light"
+                value={
+                  planDetails?.purchaseDate
+                    ? new Date(planDetails.purchaseDate).toLocaleDateString(
+                        "en-GB",
+                      )
+                    : "N/A"
+                }
                 disabled
                 readOnly
               />
