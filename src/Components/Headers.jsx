@@ -1,28 +1,26 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/images/logos.png";
-import iconLogo from "../assets/paxtracFavicon.svg"; 
+import iconLogo from "../assets/paxtracFavicon.svg";
 import $ from "jquery";
 import noProfile from "../assets/images/noProfile.svg";
 import slideToggle from "../assets/images/slideToggle.svg";
 import Swal from "sweetalert2";
 import {
-  Bell, 
+  Bell,
   HomeIcon,
-  LogOut, 
+  LogOut,
   TrendingUp,
   UsersRound,
-  Vote,
-  Wallet,
-  Power, 
+  Power,
   Building2,
-  Settings, 
-  ChevronRight, 
+  Settings,
+  ChevronRight,
   MessageCircle,
   ScrollText,
   Star,
-  Handshake,
   Package,
+  CircleDollarSign,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -35,35 +33,35 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
   const userName = "Admin";
   const userImage = noProfile;
   const headerNotifications = [
-  {
-    id: 1,
-    title: "Welcome!",
-    message: "Thanks for joining the platform.",
-    time: "2 mins ago",
-    link: "/dashboard",
-  },
-  {
-    id: 2,
-    title: "New Feature",
-    message: "Check out the new analytics feature.",
-    time: "1 hour ago",
-    link: "/analytics",
-  },
-  {
-    id: 3,
-    title: "Reminder",
-    message: "Complete your profile to unlock all features.",
-    time: "3 hours ago",
-    link: "/profile",
-  },
-  {
-    id: 4,
-    title: "Survey",
-    message: "Share your feedback with us to help improve services.",
-    time: "1 day ago",
-    link: "/survey",
-  },
-];  
+    {
+      id: 1,
+      title: "Welcome!",
+      message: "Thanks for joining the platform.",
+      time: "2 mins ago",
+      link: "/dashboard",
+    },
+    {
+      id: 2,
+      title: "New Feature",
+      message: "Check out the new analytics feature.",
+      time: "1 hour ago",
+      link: "/analytics",
+    },
+    {
+      id: 3,
+      title: "Reminder",
+      message: "Complete your profile to unlock all features.",
+      time: "3 hours ago",
+      link: "/profile",
+    },
+    {
+      id: 4,
+      title: "Survey",
+      message: "Share your feedback with us to help improve services.",
+      time: "1 day ago",
+      link: "/survey",
+    },
+  ];
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -196,7 +194,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
 
           {/* USER DROPDOWN */}
           <div className="header d-flex justify-content-end align-items-center p-3 bg-white position-fixed ">
-            <Notification notifications={headerNotifications}/>
+            <Notification notifications={headerNotifications} />
             {/* // notifications={headerNotifications} */}
             <div
               className="d-flex align-items-center gap-2 position-relative "
@@ -245,7 +243,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <span className="app-menu__label">User Management</span>
             </NavLink>
           </li>
-          
+
           {/* <li>
             <NavLink className="app-menu__item" to="/vendor-management">
               <Handshake size={20} />
@@ -257,13 +255,13 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <Building2 size={20} />
               <span className="app-menu__label">Property Management</span>
             </NavLink>
-          </li> 
-           <li>
+          </li>
+          <li>
             <NavLink className="app-menu__item" to="/bid-management">
               <Package size={20} />
               <span className="app-menu__label">Bid Management</span>
             </NavLink>
-          </li> 
+          </li>
           {/* <li>
             <NavLink className="app-menu__item" to="/voting-management">
               <Vote size={20} />
@@ -295,7 +293,14 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>
 
-          {/* CONTENT MANAGEMENT */} 
+          <li>
+            <NavLink className="app-menu__item" to="/payment">
+              <CircleDollarSign size={20} />
+              <span className="app-menu__label">Payments</span>
+            </NavLink>
+          </li>
+
+          {/* CONTENT MANAGEMENT */}
           <li className="treeview mb-0">
             <div
               className="app-menu__item"
@@ -304,31 +309,31 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             >
               <ScrollText size={20} />
               <span className="app-menu__label">CMS</span>
-              <ChevronRight size={20} className="treeview-indicator" /> 
+              <ChevronRight size={20} className="treeview-indicator" />
             </div>
 
             <ul className="treeview-menu mt-2">
               <li>
                 <NavLink to="/policies" className="treeview-item">
-                {/* <ShieldCheck size={18} /> */}
-                  <span className="app-menu__label px-2">Policies</span> 
+                  {/* <ShieldCheck size={18} /> */}
+                  <span className="app-menu__label px-2">Policies</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/blogs" className="treeview-item">
-                {/* <FileText size={18} /> */}
+                  {/* <FileText size={18} /> */}
                   <span className="app-menu__label px-2">Blogs Management</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/vlogs" className="treeview-item">
-                {/* <PlayCircle size={18} /> */}
+                  {/* <PlayCircle size={18} /> */}
                   <span className="app-menu__label px-2">Vlogs Management</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/faq" className="treeview-item">
-                {/* <HelpCircle size={18} /> */}
+                  {/* <HelpCircle size={18} /> */}
                   <span className="app-menu__label px-2">FAQs</span>
                 </NavLink>
               </li>
@@ -341,16 +346,16 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
               <MessageCircle size={20} />
               <span className="app-menu__label">Support</span>
             </NavLink>
-          </li> 
+          </li>
 
           <li>
             <NavLink className="app-menu__item" to="/reviews">
               <Star size={20} />
               <span className="app-menu__label">Reviews</span>
             </NavLink>
-          </li> 
+          </li>
 
-          {/* Settings*/} 
+          {/* Settings*/}
           <li className="treeview mb-0">
             <div
               className="app-menu__item"
@@ -359,20 +364,22 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             >
               <Settings size={20} />
               <span className="app-menu__label">Settings</span>
-              <ChevronRight size={20} className="treeview-indicator" /> 
+              <ChevronRight size={20} className="treeview-indicator" />
             </div>
 
             <ul className="treeview-menu mt-2">
               <li>
-                <NavLink to="/account-settings" className="treeview-item"> 
-                  <span className="app-menu__label px-2">Account Settings</span> 
+                <NavLink to="/account-settings" className="treeview-item">
+                  <span className="app-menu__label px-2">Account Settings</span>
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/platform-settings" className="treeview-item"> 
-                  <span className="app-menu__label px-2">Platform Settings</span>
+                <NavLink to="/platform-settings" className="treeview-item">
+                  <span className="app-menu__label px-2">
+                    Platform Settings
+                  </span>
                 </NavLink>
-              </li> 
+              </li>
             </ul>
           </li>
           {/* Settings */}
@@ -407,4 +414,4 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
   );
 };
 
-export default Headers; 
+export default Headers;

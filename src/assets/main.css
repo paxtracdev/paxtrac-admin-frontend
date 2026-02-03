@@ -23149,6 +23149,16 @@ button.delete-btn-icon {
   color: #991b1b; /* red for inactive */
 }
 
+.status-badge.pending {
+  background-color: #fff6d9;
+  color: #dda200;
+}
+
+.status-badge.info {
+  background-color: #e0f2fe;
+  color: #0b5ed7;
+}
+
 @media (max-width: 1200px) {
   .video-gallery {
     grid-template-columns: repeat(4, 1fr);

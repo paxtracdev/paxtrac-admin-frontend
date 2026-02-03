@@ -53,18 +53,32 @@ const BidManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [properties, setProperties] = useState(initialProperties);
+  const [searchInput, setSearchInput] = useState("");
 
   // Data state (for flag toggle)
   const navigate = useNavigate();
 
-  const totalCount = properties.length;
-  const totalPages = Math.ceil(totalCount / pageSize);
-
   // Paginate Properties
+  const filteredProperties = useMemo(() => {
+    if (!searchInput) return properties;
+    
+    const query = searchInput.toLowerCase();
+    return properties.filter(
+      (item) =>
+        item.id.toLowerCase().includes(query) ||
+        item.propertyType.toLowerCase().includes(query) ||
+        item.listerName.toLowerCase().includes(query) ||
+        item.email.toLowerCase().includes(query),
+    );
+  }, [properties, searchInput]);
+
   const paginatedProperties = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return properties.slice(startIndex, startIndex + pageSize);
-  }, [properties, currentPage, pageSize]);
+    return filteredProperties.slice(startIndex, startIndex + pageSize);
+  }, [filteredProperties, currentPage, pageSize]);
+
+  const totalCount = filteredProperties.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -146,7 +160,7 @@ const BidManagement = () => {
         headerName: "Email",
         field: "email",
         flex: 1.5,
-        minWidth:300,
+        minWidth: 300,
         cellStyle: {
           textTransform: "lowercase",
         },
@@ -179,6 +193,20 @@ const BidManagement = () => {
         </div>
 
         <Breadcrumbs />
+
+        {/* SEARCH */}
+        <div className="search-bar mb-4">
+          <input
+            type="text"
+            className="form-control w-50"
+            placeholder="Search by property ID, type, lister, or email..."
+            value={searchInput}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
 
         <div className="custom-card bg-white p-4 mt-3">
           <div

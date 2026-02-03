@@ -19,6 +19,9 @@ const ViewProperty = () => {
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get("id");
   const [activeVideo, setActiveVideo] = useState(null);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approveDateTime, setApproveDateTime] = useState("");
+  const [approveError, setApproveError] = useState("");
 
   // 🔒 STATIC DATA (NO API)
   const property = {
@@ -35,7 +38,7 @@ const ViewProperty = () => {
     bidDuration: "30 Days",
     additionalRequirements:
       "All vendors must provide valid insurance and licenses.",
-    status: "active",
+    status: "under-review",
     documents: [
       {
         name: "Property_Deed.pdf",
@@ -72,15 +75,26 @@ const ViewProperty = () => {
   };
 
   const handleApprove = () => {
+    setApproveDateTime("");
+    setApproveError("");
+    setShowApproveModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    if (!approveDateTime) {
+      setApproveError("Date & time is required");
+      return;
+    }
+
+    setShowApproveModal(false);
+
     Swal.fire({
       title: "Approved",
       text: "Property has been approved",
       icon: "success",
       confirmButtonColor: "#a99068",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/property-management");
-      }
+    }).then(() => {
+      navigate("/property-management");
     });
   };
 
@@ -110,7 +124,21 @@ const ViewProperty = () => {
           <h2 className="title text-black mb-4">Property Details</h2>
 
           {/* Status badge */}
-          <div className={`status-badge ${property.status === "inactive" ? "inactive" : ""}`}>{property.status}</div>
+          {(() => {
+            const statusMap = {
+              "under-review": { label: "Under review", className: "pending" },
+              approved: { label: "Approved", className: "info" },
+              dealSealed: { label: "Deal sealed", className: "" },
+              rejected: { label: "Rejected", className: "inactive" },
+            };
+
+            const status = statusMap[property.status] || {};
+            return (
+              <div className={`status-badge ${status.className}`}>
+                {status.label}
+              </div>
+            );
+          })()}
 
           <div className="row">
             <Detail label="Property ID" value={property.propertyId} />
@@ -257,16 +285,20 @@ const ViewProperty = () => {
             <button className="button-secondary" onClick={() => navigate(-1)}>
               Back
             </button>
-            <button className="primary-button" onClick={handleApprove}>
-              Approve
-            </button>
-            <button
-              className="primary-button"
-              style={{ background: "#e83f3f" }}
-              onClick={handleReject}
-            >
-              Reject
-            </button>
+            {property.status === "under-review" && (
+              <>
+                <button className="primary-button" onClick={handleApprove}>
+                  Approve
+                </button>
+                <button
+                  className="primary-button"
+                  style={{ background: "#e83f3f" }}
+                  onClick={handleReject}
+                >
+                  Reject
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -279,6 +311,69 @@ const ViewProperty = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <video src={activeVideo} controls autoPlay />
+          </div>
+        </div>
+      )}
+
+      {showApproveModal && (
+        <div
+          className="modal fade show d-block"
+          style={{ background: "#00000080" }}
+          onClick={() => {
+            // Clicking outside modal closes it
+            setShowApproveModal(false);
+            setApproveDateTime(""); // reset input
+            setApproveError("");
+          }}
+        >
+          <div
+            className="modal-dialog modal-md modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content p-3">
+              <div className="modal-body">
+                <h5 className="text-center">Select Start Date & Time</h5>
+
+                <div className="my-4">
+                  <label className="form-label fw-semibold">
+                    Date & Time <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="form-control"
+                    value={approveDateTime}
+                    onChange={(e) => {
+                      setApproveDateTime(e.target.value);
+                      setApproveError("");
+                    }}
+                    onClick={(e) => e.target.showPicker?.()}
+                    onFocus={(e) => e.target.showPicker?.()}
+                  />
+                  {approveError && (
+                    <div className="text-danger mt-1">{approveError}</div>
+                  )}
+                </div>
+
+                <div className="d-flex align-items-center gap-2 justify-content-center">
+                  <button
+                    className="button-secondary"
+                    onClick={() => {
+                      setShowApproveModal(false);
+                      setApproveDateTime(""); // reset input
+                      setApproveError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="primary-button"
+                    onClick={handleApproveConfirm}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -313,4 +408,3 @@ const FullDetail = ({ label, value }) => (
     />
   </div>
 );
- 

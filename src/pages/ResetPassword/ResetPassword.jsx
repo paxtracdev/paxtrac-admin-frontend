@@ -99,7 +99,7 @@ export default function ResetPassword() {
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => {
-                  setConfirmPassword(e.target.value);
+                  setConfirmPassword(e.target.value);   
                   setErrors((prev) => ({
                     ...prev,
                     confirmPassword:
@@ -109,7 +109,7 @@ export default function ResetPassword() {
                   }));
                 }}
               />
-
+   
               <span onClick={toggleConfirmPassword}>
                 {showConfirmPassword ? (
                   <Eye size={20} />

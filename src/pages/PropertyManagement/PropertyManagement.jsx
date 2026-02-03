@@ -24,35 +24,35 @@ const PropertyManagement = () => {
       propertyId: "PROP-001",
       propertyType: "Multi-Family",
       companyName: "Palm Residency Pvt Ltd",
-      status: "active",
+      status: "under-review",
     },
     {
       id: 2,
       propertyId: "PROP-002",
       propertyType: "Vacation Rentals",
       companyName: "Goa Holiday Homes LLP",
-      status: "inactive",
+      status: "approved",
     },
     {
       id: 3,
       propertyId: "PROP-003",
       propertyType: "Apartment Building",
       companyName: "Whitefield Tech Park Estates",
-      status: "active",
+      status: "dealSealed",
     },
     {
       id: 4,
       propertyId: "PROP-004",
       propertyType: "Single Family",
       companyName: "Baner Realty Group",
-      status: "active",
+      status: "rejected",
     },
     {
       id: 5,
       propertyId: "PROP-005",
       propertyType: "Condominium",
       companyName: "Mumbai Sea View Condos",
-      status: "inactive",
+      status: "dealSealed",
     },
   ];
 
@@ -195,13 +195,18 @@ const PropertyManagement = () => {
         field: "status",
         minWidth: 140,
         cellRenderer: (p) => {
-          const isActive = p.value === "active";
+          const statusMap = {
+            "under-review": { label: "Under review", className: "pending" },
+            approved: { label: "Approved", className: "info" },
+            dealSealed: { label: "Deal sealed", className: "" },
+            rejected: { label: "Rejected", className: "inactive" },
+          };
+
+          const status = statusMap[p.value] || {};
 
           return (
-            <span
-              className={`status-badge-table ${isActive ? "" : "inactive"}`}
-            >
-              {p.value.charAt(0).toUpperCase() + p.value.slice(1)}
+            <span className={`status-badge-table ${status.className || ""}`}>
+              {status.label}
             </span>
           );
         },
