@@ -9,6 +9,7 @@ const AccoountSetting = () => {
   const navigate = useNavigate();
   const fileRef = useRef(null);
   const [avatar, setAvatar] = useState(noProfile);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
 
   const [show, setShow] = useState({
     current: false,
@@ -31,26 +32,49 @@ const AccoountSetting = () => {
 
     setForm((prev) => ({ ...prev, [name]: value }));
 
-    // Live validations
     setErrors((prev) => {
       const updated = { ...prev };
 
-      if (name === "currentPassword" && !value) {
-        updated.currentPassword = "Current password is required";
-      } else if (name === "currentPassword") {
-        delete updated.currentPassword;
+      // Current password required
+      if (name === "currentPassword") {
+        if (!value) updated.currentPassword = "Current password is required";
+        else delete updated.currentPassword;
       }
 
+      // New password validations
       if (name === "newPassword") {
-        if (value.length < 8) {
+        if (!value) {
+          updated.newPassword = "New password is required";
+        } else if (value.length < 8) {
           updated.newPassword = "Password must be at least 8 characters";
+        } else if (!/[A-Z]/.test(value)) {
+          updated.newPassword =
+            "Password must include at least one uppercase letter";
+        } else if (!/[a-z]/.test(value)) {
+          updated.newPassword =
+            "Password must include at least one lowercase letter";
+        } else if (!/\d/.test(value)) {
+          updated.newPassword = "Password must include at least one number";
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+          updated.newPassword =
+            "Password must include at least one special character";
         } else {
           delete updated.newPassword;
         }
+
+        // Also update confirmPassword error live if confirmPassword exists
+        if (form.confirmPassword && form.confirmPassword !== value) {
+          updated.confirmPassword = "Passwords do not match";
+        } else {
+          delete updated.confirmPassword;
+        }
       }
 
+      // Confirm password validations
       if (name === "confirmPassword") {
-        if (value !== form.newPassword) {
+        if (!value) {
+          updated.confirmPassword = "Confirm password is required";
+        } else if (value !== form.newPassword) {
           updated.confirmPassword = "Passwords do not match";
         } else {
           delete updated.confirmPassword;
@@ -66,29 +90,59 @@ const AccoountSetting = () => {
 
     const newErrors = {};
 
-    if (!form.currentPassword)
-      newErrors.currentPassword = "Current password is required";
+    if (isEditingPassword) {
+      if (!form.currentPassword)
+        newErrors.currentPassword = "Current password is required";
 
-    if (!form.newPassword || form.newPassword.length < 8)
-      newErrors.newPassword = "Password must be at least 8 characters";
+      // Reuse new password validations (same rules)
+      if (!form.newPassword) {
+        newErrors.newPassword = "New password is required";
+      } else if (form.newPassword.length < 8) {
+        newErrors.newPassword = "Password must be at least 8 characters";
+      } else if (!/[A-Z]/.test(form.newPassword)) {
+        newErrors.newPassword =
+          "Password must include at least one uppercase letter";
+      } else if (!/[a-z]/.test(form.newPassword)) {
+        newErrors.newPassword =
+          "Password must include at least one lowercase letter";
+      } else if (!/\d/.test(form.newPassword)) {
+        newErrors.newPassword = "Password must include at least one number";
+      } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.newPassword)) {
+        newErrors.newPassword =
+          "Password must include at least one special character";
+      }
 
-    if (form.confirmPassword !== form.newPassword)
-      newErrors.confirmPassword = "Passwords do not match";
+      if (!form.confirmPassword) {
+        newErrors.confirmPassword = "Confirm password is required";
+      } else if (form.confirmPassword !== form.newPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+    }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
 
+    // If all validations pass
     console.log("Change Password Payload:", form);
 
-    // SweetAlert2
     Swal.fire({
       icon: "success",
-      title: "Password Changed",
-      text: "Your password has been changed successfully!",
+      title: "Success",
+      text: "Changes saved successfully!",
       confirmButtonColor: "#a99068",
     }).then(() => {
-      navigate("/dashboard"); // <-- navigate to dashboard
+      navigate("/dashboard");
+      if (isEditingPassword) {
+        setIsEditingPassword(false);
+        setForm((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+        setErrors({});
+      }
     });
   };
 
@@ -119,13 +173,35 @@ const AccoountSetting = () => {
                 <input
                   ref={fileRef}
                   type="file"
-                  accept="image/*"
+                  accept=".jpg, .jpeg, .png"
                   hidden
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) setAvatar(URL.createObjectURL(file));
                   }}
                 />
+              </div>
+
+              <div className="d-flex justify-content-between align-items-center ">
+                <h5 className="mb-0">Change Password</h5>
+                <button
+                  type="button"
+                  className="login-btn"
+                  style={{ opacity: isEditingPassword ? 0.5 : 1 }}
+                  disabled={isEditingPassword}
+                  onClick={() => {
+                    Swal.fire({
+                      icon: "success",
+                      title: "Edit Password",
+                      text: "You can now change your password.",
+                      confirmButtonColor: "#a99068",
+                    });
+
+                    setIsEditingPassword(true);
+                  }}
+                >
+                  Edit Password
+                </button>
               </div>
 
               <div className="mb-3 col-md-6">
@@ -140,6 +216,7 @@ const AccoountSetting = () => {
                     placeholder="Enter current password"
                     value={form.currentPassword}
                     onChange={handleChange}
+                    disabled={!isEditingPassword}
                   />
                   <span onClick={() => toggle("current")}>
                     {show.current ? <Eye size={20} /> : <EyeClosed size={20} />}
@@ -161,6 +238,7 @@ const AccoountSetting = () => {
                     placeholder="Enter new password"
                     value={form.newPassword}
                     onChange={handleChange}
+                    disabled={!isEditingPassword}
                   />
                   <span onClick={() => toggle("new")}>
                     {show.new ? <Eye size={20} /> : <EyeClosed size={20} />}
@@ -184,6 +262,7 @@ const AccoountSetting = () => {
                     placeholder="Confirm new password"
                     value={form.confirmPassword}
                     onChange={handleChange}
+                    disabled={!isEditingPassword}
                   />
                   <span onClick={() => toggle("confirm")}>
                     {show.confirm ? <Eye size={20} /> : <EyeClosed size={20} />}

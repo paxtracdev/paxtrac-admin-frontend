@@ -73,9 +73,7 @@ const PlatformSettings = () => {
                 className="form-control"
                 placeholder="Enter platform name"
                 value={settings.platformName}
-                onChange={(e) =>
-                  handleChange("platformName", e.target.value)
-                }
+                onChange={(e) => handleChange("platformName", e.target.value)}
               />
               {errors.platformName && (
                 <div className="text-danger">{errors.platformName}</div>
@@ -89,9 +87,11 @@ const PlatformSettings = () => {
                 value={settings.timezone}
                 onChange={(val) => handleChange("timezone", val)}
                 options={[
-                  { label: "Asia / Kolkata", value: "asia_kolkata" },
+                  { label: "Eastern Time (ET)", value: "america_new_york" },
+                  { label: "Central Time (CT)", value: "america_chicago" },
+                  { label: "Mountain Time (MT)", value: "america_denver" },
+                  { label: "Pacific Time (PT)", value: "america_los_angeles" },
                   { label: "UTC", value: "utc" },
-                  { label: "Asia / Singapore", value: "asia_singapore" },
                 ]}
               />
             </div>
@@ -104,7 +104,7 @@ const PlatformSettings = () => {
                 onChange={(val) => handleChange("language", val)}
                 options={[
                   { label: "English", value: "en" },
-                  { label: "Hindi", value: "hi" },
+                  { label: "Spanish", value: "es" },
                   { label: "French", value: "fr" },
                 ]}
               />
@@ -118,7 +118,7 @@ const PlatformSettings = () => {
                 type="number"
                 min="0"
                 className="form-control"
-                placeholder="Enter pre-registration amount"
+                placeholder="Enter pre-registration amount (USD)"
                 value={settings.preRegistrationAmount}
                 onChange={(e) =>
                   handleChange("preRegistrationAmount", Number(e.target.value))

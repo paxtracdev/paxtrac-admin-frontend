@@ -130,6 +130,10 @@ const FaqList = () => {
                   rowHeight={48}
                   domLayout="autoHeight"
                   headerHeight={40}
+                  getRowStyle={(params) => ({
+                    backgroundColor:
+                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
+                  })}
                 />
               </div>
 

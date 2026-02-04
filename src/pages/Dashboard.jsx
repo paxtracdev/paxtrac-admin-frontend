@@ -24,7 +24,7 @@ function Dashboard() {
       icon: <CalendarCheck size={22} />,
       title: "Total Jobs",
       value: statsData.total_events,
-      path: "/analytics",
+      path: "/bid-management",
     },
     // {
     //   icon: <TrendingUp size={22} />,
@@ -36,7 +36,7 @@ function Dashboard() {
       icon: <DollarSign size={22} />,
       title: "Revenue",
       value: `$${statsData.total_revenue}`,
-      path: "/analytics",
+      path: "/payment",
     },
   ];
 
