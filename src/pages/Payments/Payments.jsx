@@ -11,71 +11,33 @@ const demoPayments = [
     id: 1,
     transactionId: "TXN-2026-001",
     propertyId: "PROP-2026-001",
-    subscription: "Plan A",
-    preRegistration: 250,
-    successFee: 500,
+    paymentType: "pre registration",
+    amount: 250,
     status: "paid",
-    adminAmount: 100,
-    backgroundCheck: 50,
-    preRegistrationStatus: "paid",
-    successFeeStatus: "paid",
-    backgroundCheckStatus: "paid",
   },
   {
     id: 2,
     transactionId: "TXN-2026-002",
     propertyId: "PROP-2026-002",
-    subscription: "Plan B",
-    preRegistration: 250,
-    successFee: 400,
+    paymentType: "success fee",
+    amount: 500,
     status: "failed",
-    adminAmount: 90,
-    backgroundCheck: 50,
-    preRegistrationStatus: "paid",
-    successFeeStatus: "paid",
-    backgroundCheckStatus: "paid",
   },
   {
     id: 3,
     transactionId: "TXN-2026-003",
     propertyId: "PROP-2026-003",
-    subscription: "Plan C",
-    preRegistration: 250,
-    successFee: 600,
+    paymentType: "subscription plan",
+    amount: 999,
     status: "refund",
-    adminAmount: 120,
-    backgroundCheck: 50,
-    preRegistrationStatus: "paid",
-    successFeeStatus: "paid",
-    backgroundCheckStatus: "paid",
   },
   {
     id: 4,
     transactionId: "TXN-2026-004",
     propertyId: "PROP-2026-004",
-    subscription: "Plan A",
-    preRegistration: 250,
-    successFee: 300,
+    paymentType: "background check",
+    amount: 50,
     status: "paid",
-    adminAmount: 80,
-    backgroundCheck: 50,
-    preRegistrationStatus: "paid",
-    successFeeStatus: "failed",
-    backgroundCheckStatus: "paid",
-  },
-  {
-    id: 5,
-    transactionId: "TXN-2026-005",
-    propertyId: "PROP-2026-005",
-    subscription: "Plan B",
-    preRegistration: 250,
-    successFee: 450,
-    status: "paid",
-    adminAmount: 110,
-    backgroundCheck: 50,
-    preRegistrationStatus: "paid",
-    successFeeStatus: "paid",
-    backgroundCheckStatus: "paid",
   },
 ];
 
@@ -118,34 +80,12 @@ const Payments = () => {
   // AG-GRID COLUMNS
   const columnDefs = useMemo(
     () => [
-      // {
-      //   headerName: "S.No",
-      //   valueGetter: (params) =>
-      //     (currentPage - 1) * pageSize + params.node.rowIndex + 1,
-      //   width: 80,
-      // },
       {
-        headerName: "Status",
-        field: "status",
-        width: 120,
-        cellRenderer: (params) => {
-          const value = params.value?.toLowerCase();
-
-          const isSuccess = value === "paid";
-          const isRefund = value === "refund" || value === "failed";
-
-          return (
-            <span
-              style={{
-                color: isSuccess ? "#16a34a" : "#dc2626",
-                textTransform: "capitalize",
-              }}
-            >
-              {isSuccess ? "Success" : "Refund"}
-            </span>
-          );
-        },
-      },
+        headerName: "S.No",
+        valueGetter: (params) =>
+          (currentPage - 1) * pageSize + params.node.rowIndex + 1,
+        width: 80,
+      }, 
       {
         headerName: "Transaction ID",
         field: "transactionId",
@@ -159,100 +99,44 @@ const Payments = () => {
         flex: 1,
         minWidth: 200,
       },
-      //   {
-      //     headerName: "Subscription",
-      //     field: "subscription",
-      //     flex: 1,
-      //     minWidth: 200,
-      //   },
       {
-        headerName: "Pre Registration ",
-        field: "preRegistration",
+        headerName: "Payment Type",
+        field: "paymentType",
         flex: 1,
         minWidth: 200,
-        cellRenderer: (params) => {
-          if (!params.value) return "-";
-
-          const status = params.data.preRegistrationStatus ;
-
-          const color =
-            status === "paid"
-              ? "#16a34a"
-              : status === "pending"
-                ? "#ca8a04"
-                : "#dc2626";
-
-          return (
-            <span style={{ color, fontWeight: 500 }}>${params.value}</span>
-          );
-        },
+        cellRenderer: (params) => (
+          <span style={{ textTransform: "capitalize" }}>
+            {params.value || "-"}
+          </span>
+        ),
       },
       {
-        headerName: "Success Fee ",
-        field: "successFee",
+        headerName: "Amount",
+        field: "amount",
         flex: 1,
-        minWidth: 200,
-        cellRenderer: (params) => {
-          if (params.value == null || params.value === "") return "-";
-
-          const status = params.data.successFeeStatus;
-
-          const color =
-            status === "paid"
-              ? "#16a34a"
-              : status === "pending"
-                ? "#ca8a04"
-                : "#dc2626";
-
-          return (
-            <span style={{ color, fontWeight: 500 }}>${params.value}</span>
-          );
-        },
+        minWidth: 150,
+        cellRenderer: (params) =>
+          params.value != null ? `$${params.value}` : "-",
       },
-      // {
-      //   headerName: "Status",
-      //   field: "status",
-      //   flex: 1,
-      //   minWidth: 200,
-      //   cellRenderer: (params) => {
-      //     const statusClass =
-      //       params.value.toLowerCase() === "paid"
-      //         ? ""
-      //         : params.value.toLowerCase() === "failed"
-      //           ? "inactive"
-      //           : "pending";
-      //     return (
-      //       <span className={`status-badge-table ${statusClass}`}>
-      //         {params.value}
-      //       </span>
-      //     );
-      //   },
-      // },
-      //   {
-      //     headerName: "Admin Amount ($)",
-      //     field: "adminAmount",
-      //     flex: 1,
-      //     minWidth: 200,
-      //   },
       {
-        headerName: "Background Check ",
-        field: "backgroundCheck",
+        headerName: "Status",
+        field: "status",
         flex: 1,
-        minWidth: 200,
+        minWidth: 160,
         cellRenderer: (params) => {
-          if (params.value == null || params.value === "") return "-";
+          const value = params.value?.toLowerCase();
 
-          const status = params.data.backgroundCheckStatus ;
-
-          const color =
-            status === "paid"
-              ? "#16a34a"
-              : status === "pending"
-                ? "#ca8a04"
-                : "#dc2626";
+          const statusClass =
+            value === "paid"
+              ? ""
+              : value === "failed"
+                ? "inactive"
+                : value === "refund"
+                  ? "pending"
+                  : "";
 
           return (
-            <span style={{ color, fontWeight: 500 }}>${params.value}</span>
+            <span className={`status-badge-table ${statusClass}`}>{value}</span>
           );
         },
       },

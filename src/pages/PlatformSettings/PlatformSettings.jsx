@@ -11,7 +11,8 @@ const PlatformSettings = () => {
     platformName: "Paxtrac",
     timezone: "asia_kolkata",
     language: "en",
-    preRegistrationAmount: 250, // NEW FIELD
+    preRegistrationAmount: 250,
+    promoCode: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -23,9 +24,11 @@ const PlatformSettings = () => {
 
   const validate = () => {
     const newErrors = {};
+
     if (!settings.platformName.trim()) {
       newErrors.platformName = "Platform name is required";
     }
+
     if (
       settings.preRegistrationAmount === "" ||
       settings.preRegistrationAmount < 0
@@ -33,6 +36,11 @@ const PlatformSettings = () => {
       newErrors.preRegistrationAmount =
         "Pre-registration amount must be 0 or more";
     }
+
+    if (settings.promoCode && settings.promoCode.length > 20) {
+      newErrors.promoCode = "Promo code must be 20 characters or less";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -81,36 +89,6 @@ const PlatformSettings = () => {
             </div>
 
             <div className="col-md-6 mb-4">
-              <label className="form-label fw-semibold">Timezone</label>
-              <CustomDropdown
-                placeholder="Select timezone"
-                value={settings.timezone}
-                onChange={(val) => handleChange("timezone", val)}
-                options={[
-                  { label: "Eastern Time (ET)", value: "america_new_york" },
-                  { label: "Central Time (CT)", value: "america_chicago" },
-                  { label: "Mountain Time (MT)", value: "america_denver" },
-                  { label: "Pacific Time (PT)", value: "america_los_angeles" },
-                  { label: "UTC", value: "utc" },
-                ]}
-              />
-            </div>
-
-            <div className="col-md-6 mb-4">
-              <label className="form-label fw-semibold">Language</label>
-              <CustomDropdown
-                placeholder="Select language"
-                value={settings.language}
-                onChange={(val) => handleChange("language", val)}
-                options={[
-                  { label: "English", value: "en" },
-                  { label: "Spanish", value: "es" },
-                  { label: "French", value: "fr" },
-                ]}
-              />
-            </div>
-
-            <div className="col-md-6 mb-4">
               <label className="form-label fw-semibold">
                 Pre-registration Amount
               </label>
@@ -128,6 +106,21 @@ const PlatformSettings = () => {
                 <div className="text-danger">
                   {errors.preRegistrationAmount}
                 </div>
+              )}
+            </div>
+
+            <div className="col-md-6 mb-4">
+              <label className="form-label fw-semibold">Promo Code</label>
+              <input
+                className="form-control"
+                placeholder="Enter promo code (optional)"
+                value={settings.promoCode}
+                onChange={(e) =>
+                  handleChange("promoCode", e.target.value.toUpperCase())
+                }
+              />
+              {errors.promoCode && (
+                <div className="text-danger">{errors.promoCode}</div>
               )}
             </div>
           </div>

@@ -69,7 +69,7 @@ const FaqList = () => {
 
         return (
           <div className="d-flex align-items-center gap-2">
-            <button
+            {/* <button
               className="btn p-0 bg-transparent border-0"
               onClick={() =>
                 navigate("/faq/view", { state: { faq: params.data } })
@@ -77,7 +77,7 @@ const FaqList = () => {
             >
               <Eye size={18} />
             </button>
-            |
+            | */}
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               onClick={handleDelete}
