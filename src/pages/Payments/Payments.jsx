@@ -11,56 +11,33 @@ const demoPayments = [
     id: 1,
     transactionId: "TXN-2026-001",
     propertyId: "PROP-2026-001",
-    subscription: "Plan A",
-    preRegistration: 250,
-    successFee: 500,
+    paymentType: "pre registration",
+    amount: 250,
     status: "paid",
-    adminAmount: 100,
-    backgroundCheck: 50,
   },
   {
     id: 2,
     transactionId: "TXN-2026-002",
     propertyId: "PROP-2026-002",
-    subscription: "Plan B",
-    preRegistration: 250,
-    successFee: 400,
+    paymentType: "success fee",
+    amount: 500,
     status: "failed",
-    adminAmount: 90,
-    backgroundCheck: 50,
   },
   {
     id: 3,
     transactionId: "TXN-2026-003",
     propertyId: "PROP-2026-003",
-    subscription: "Plan C",
-    preRegistration: 250,
-    successFee: 600,
+    paymentType: "subscription plan",
+    amount: 999,
     status: "refund",
-    adminAmount: 120,
-    backgroundCheck: 50,
   },
   {
     id: 4,
     transactionId: "TXN-2026-004",
     propertyId: "PROP-2026-004",
-    subscription: "Plan A",
-    preRegistration: 250,
-    successFee: 300,
+    paymentType: "background check",
+    amount: 50,
     status: "paid",
-    adminAmount: 80,
-    backgroundCheck: 50,
-  },
-  {
-    id: 5,
-    transactionId: "TXN-2026-005",
-    propertyId: "PROP-2026-005",
-    subscription: "Plan B",
-    preRegistration: 250,
-    successFee: 450,
-    status: "paid",
-    adminAmount: 110,
-    backgroundCheck: 50,
   },
 ];
 
@@ -108,7 +85,7 @@ const Payments = () => {
         valueGetter: (params) =>
           (currentPage - 1) * pageSize + params.node.rowIndex + 1,
         width: 80,
-      },
+      }, 
       {
         headerName: "Transaction ID",
         field: "transactionId",
@@ -122,73 +99,45 @@ const Payments = () => {
         flex: 1,
         minWidth: 200,
       },
-      //   {
-      //     headerName: "Subscription",
-      //     field: "subscription",
-      //     flex: 1,
-      //     minWidth: 200,
-      //   },
       {
-        headerName: "Pre Registration ",
-        field: "preRegistration",
+        headerName: "Payment Type",
+        field: "paymentType",
         flex: 1,
         minWidth: 200,
-        cellRenderer: (params) => {
-          if (!params.value) return "-";
-
-          return (
-            <div
-              className="d-flex align-items-center gap-2"
-              style={{ color: "#16a34a", fontWeight: 500 }}
-            >
-              <span>${params.value}</span>
-            </div>
-          );
-        },
+        cellRenderer: (params) => (
+          <span style={{ textTransform: "capitalize" }}>
+            {params.value || "-"}
+          </span>
+        ),
       },
       {
-        headerName: "Success Fee ",
-        field: "successFee",
+        headerName: "Amount",
+        field: "amount",
         flex: 1,
-        minWidth: 200,
-        cellRenderer: (params) => {
-          if (params.value == null || params.value === "") return "-";
-          return `$${params.value}`;
-        },
+        minWidth: 150,
+        cellRenderer: (params) =>
+          params.value != null ? `$${params.value}` : "-",
       },
       {
         headerName: "Status",
         field: "status",
         flex: 1,
-        minWidth: 200,
+        minWidth: 160,
         cellRenderer: (params) => {
+          const value = params.value?.toLowerCase();
+
           const statusClass =
-            params.value.toLowerCase() === "paid"
+            value === "paid"
               ? ""
-              : params.value.toLowerCase() === "failed"
+              : value === "failed"
                 ? "inactive"
-                : "pending";
+                : value === "refund"
+                  ? "pending"
+                  : "";
+
           return (
-            <span className={`status-badge-table ${statusClass}`}>
-              {params.value}
-            </span>
+            <span className={`status-badge-table ${statusClass}`}>{value}</span>
           );
-        },
-      },
-      //   {
-      //     headerName: "Admin Amount ($)",
-      //     field: "adminAmount",
-      //     flex: 1,
-      //     minWidth: 200,
-      //   },
-      {
-        headerName: "Background Check ",
-        field: "backgroundCheck",
-        flex: 1,
-        minWidth: 200,
-        cellRenderer: (params) => {
-          if (params.value == null || params.value === "") return "-";
-          return `$${params.value}`;
         },
       },
     ],

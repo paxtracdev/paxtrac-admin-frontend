@@ -54,23 +54,22 @@ const BlogList = () => {
       field: "title",
       flex: 1.5,
     },
-    {
-  headerName: "Status",
-  field: "status",
-  flex: 1,
-  cellRenderer: (params) => {
-    const isDraft = params.value === "Draft";
+//     {
+//   headerName: "Status",
+//   field: "status",
+//   flex: 1,
+//   cellRenderer: (params) => {
+//     const isDraft = params.value === "Draft";
 
-    return (
-      <span
-        className={`status-badge-table ${isDraft ? "pending" : ""}`}
-      >
-        {params.value}
-      </span>
-    );
-  },
-},
-
+//     return (
+//       <span
+//         className={`status-badge-table ${isDraft ? "pending" : ""}`}
+//       >
+//         {params.value}
+//       </span>
+//     );
+//   },
+// },
     {
       headerName: "Created At",
       flex: 1.2,
@@ -105,7 +104,7 @@ const BlogList = () => {
 
         return (
           <div className="d-flex align-items-center gap-2">
-            <button
+            {/* <button
               className="btn p-0 bg-transparent border-0"
               title="View / Edit"
               onClick={() =>
@@ -114,7 +113,7 @@ const BlogList = () => {
             >
               <Eye size={18} />
             </button>
-            |
+            | */}
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               title="Delete"

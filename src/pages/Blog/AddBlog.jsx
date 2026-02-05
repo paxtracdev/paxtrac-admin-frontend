@@ -41,7 +41,7 @@ const AddBlog = () => {
     const newErrors = {};
 
     if (!title.trim()) newErrors.title = "Title is required.";
-    if (!status) newErrors.status = "Status is required.";
+    // if (!status) newErrors.status = "Status is required.";
     if (!content.trim()) newErrors.content = "Content cannot be empty.";
 
     setErrors(newErrors);
@@ -109,7 +109,7 @@ const AddBlog = () => {
             </div>
 
             {/* Status */}
-            <div className="col-md-6 mb-3">
+            {/* <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Status</label>
               <CustomDropdown
                 options={statusOptions}
@@ -120,7 +120,7 @@ const AddBlog = () => {
               {errors.status && (
                 <div className="text-danger mt-1">{errors.status}</div>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Content */}

@@ -385,7 +385,7 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
           {/* Settings */}
 
           {/* LOGOUT BUTTON */}
-          <li className="sidebar-button mt-4">
+          <li className="sidebar-button mt-4 pb-3">
             <div
               className="app-menu__item sidebar-logout cursor-pointer"
               onClick={handleLogoutClick}

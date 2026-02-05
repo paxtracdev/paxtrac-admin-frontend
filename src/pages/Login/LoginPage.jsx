@@ -24,14 +24,30 @@ export default function LoginPage() {
 
   const validateEmail = (value) => {
     if (!value) return "Email is required";
-    // Simple email regex check (optional)
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(value)) return "Enter a valid email";
+
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(value)) {
+      return "Enter a valid email address (e.g. user@example.com)";
+    }
+
     return "";
   };
 
   const validatePassword = (value) => {
     if (!value) return "Password is required";
+
+    if (value.length < 8) {
+      return "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(value)) {
+      return "Password must include at least one uppercase letter";
+    } else if (!/[a-z]/.test(value)) {
+      return "Password must include at least one lowercase letter";
+    } else if (!/\d/.test(value)) {
+      return "Password must include at least one number";
+    } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(value)) {
+      return "Password must include at least one special character";
+    }
+
     return "";
   };
 
@@ -56,7 +72,7 @@ export default function LoginPage() {
   const handleSendReset = (e) => {
     e.preventDefault();
 
-    const forgotEmailError = validateEmail(forgotEmail);
+    const forgotEmailError = validateEmail(forgotEmail.trim());
     setErrors((prev) => ({ ...prev, forgotEmail: forgotEmailError }));
 
     if (forgotEmailError) return;
@@ -78,120 +94,142 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="col-12 d-flex align-items-center justify-content-center">
           <div className="login-card p-5 w-75">
-            <div className="text-center mb-4">
-              <img src={logo} alt="Logo" className="logo-login w-max mb-3" />
-              <h2 className="login-heading">Access Your Admin Dashboard</h2>
-            </div>
-
             {/* LOGIN */}
             {step === "login" && (
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label className="form-label input-label">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setErrors((prev) => ({
-                        ...prev,
-                        email: validateEmail(e.target.value),
-                      }));
-                    }}
-                    autoFocus
+              <>
+                <div className="text-center mb-4">
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="logo-login w-max mb-3"
                   />
-                  {errors.email && (
-                    <div className="text-danger">{errors.email}</div>
-                  )}
+                  <h2 className="login-heading">Access Your Admin Dashboard</h2>
                 </div>
 
-                <div className="mb-3 ">
-                  <div className="position-relative pass-input">
-                    <label className="form-label input-label">Password</label>
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label input-label">
+                      Email Address
+                    </label>
                     <input
-                      type={showPassword ? "text" : "password"}
-                      className="form-control pe-5"
-                      placeholder="Enter your password"
-                      value={password}
+                      type="email"
+                      className="form-control"
+                      placeholder="Enter your email"
+                      value={email}
                       onChange={(e) => {
-                        setPassword(e.target.value);
+                        const value = e.target.value;
+                        setEmail(value);
                         setErrors((prev) => ({
                           ...prev,
-                          password: validatePassword(e.target.value),
+                          email: validateEmail(value),
                         }));
                       }}
+                      autoFocus
                     />
-                    <span onClick={togglePassword}>
-                      {showPassword ? (
-                        <Eye size={20} />
-                      ) : (
-                        <EyeClosed size={20} />
-                      )}
+                    {errors.email && (
+                      <div className="text-danger small">{errors.email}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-3 ">
+                    <div className="position-relative pass-input">
+                      <label className="form-label input-label">Password</label>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="form-control pe-5"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setPassword(value);
+                          setErrors((prev) => ({
+                            ...prev,
+                            password: validatePassword(value),
+                          }));
+                        }}
+                      />
+                      <span onClick={togglePassword}>
+                        {showPassword ? (
+                          <Eye size={20} />
+                        ) : (
+                          <EyeClosed size={20} />
+                        )}
+                      </span>
+                    </div>
+
+                    {errors.password && (
+                      <div className="text-danger small">{errors.password}</div>
+                    )}
+                  </div>
+
+                  <div className="form-label input-label text-end">
+                    <span
+                      className="c-pointer"
+                      onClick={() => setStep("forgot")}
+                    >
+                      Forgot Password?
                     </span>
                   </div>
 
-                  {errors.password && (
-                    <div className="text-danger">{errors.password}</div>
-                  )}
-                </div>
-
-                <div
-                  className="form-label input-label text-end" 
-                >
-                  <span className="c-pointer" onClick={() => setStep("forgot")}>Forgot Password?</span>
-                </div>
-
-                <div className="text-center mt-3">
-                  <button type="submit" className="login-btn">
-                    Sign In
-                  </button>
-                </div>
-              </form>
+                  <div className="text-center mt-3">
+                    <button type="submit" className="login-btn">
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              </>
             )}
 
             {/* FORGOT PASSWORD */}
             {step === "forgot" && !emailSent && (
-              <form onSubmit={handleSendReset}>
-                <div className="mb-3">
-                  <label className="form-label input-label">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter your registered email"
-                    value={forgotEmail}
-                    onChange={(e) => {
-                      setForgotEmail(e.target.value);
-                      setErrors((prev) => ({
-                        ...prev,
-                        forgotEmail: validateEmail(e.target.value),
-                      }));
-                    }}
-                    autoFocus
+              <>
+                <div className="text-center mb-4">
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="logo-login w-max mb-3"
                   />
-                  {errors.forgotEmail && (
-                    <div className="text-danger">{errors.forgotEmail}</div>
-                  )}
+                  <h2 className="login-heading">Forgot Password</h2>
                 </div>
 
-                <div className="text-center mb-3">
-                  <button type="submit" className="login-btn">
-                    Send Reset Link
-                  </button>
-                </div>
+                <form onSubmit={handleSendReset}>
+                  <div className="mb-3">
+                    <label className="form-label input-label">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="Enter your registered email"
+                      value={forgotEmail}
+                      onChange={(e) => {
+                        setForgotEmail(e.target.value);
+                        setErrors((prev) => ({
+                          ...prev,
+                          forgotEmail: validateEmail(e.target.value),
+                        }));
+                      }}
+                      autoFocus
+                    />
+                    {errors.forgotEmail && (
+                      <div className="text-danger small">{errors.forgotEmail}</div>
+                    )}
+                  </div>
 
-                <div
-                  className="form-label input-label c-pointer text-center"
-                  onClick={() => setStep("login")}
-                >
-                  <ArrowLeft size={16} /> Back to Login
-                </div>
-              </form>
+                  <div className="text-center mb-3">
+                    <button type="submit" className="login-btn">
+                      Send Reset Link
+                    </button>
+                  </div>
+
+                  <div
+                    className="form-label input-label c-pointer text-center"
+                    onClick={() => setStep("login")}
+                  >
+                    <ArrowLeft size={16} /> Back to Login
+                  </div>
+                </form>
+              </>
             )}
 
             {/* EMAIL SENT */}
@@ -219,7 +257,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
 
 // if (!email) {
 //       newErrors.email = "Email is required";

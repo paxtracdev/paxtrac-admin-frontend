@@ -19,6 +19,19 @@ export default function ResetPassword() {
 
   const validatePassword = (value) => {
     if (!value) return "Password is required";
+
+    if (value.length < 8) {
+      return "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(value)) {
+      return "Password must include at least one uppercase letter";
+    } else if (!/[a-z]/.test(value)) {
+      return "Password must include at least one lowercase letter";
+    } else if (!/\d/.test(value)) {
+      return "Password must include at least one number";
+    } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(value)) {
+      return "Password must include at least one special character";
+    }
+
     return "";
   };
 
@@ -26,8 +39,11 @@ export default function ResetPassword() {
     e.preventDefault();
 
     const newPasswordError = validatePassword(newPassword);
-    const confirmPasswordError =
-      confirmPassword !== newPassword ? "Passwords do not match" : "";
+    const confirmPasswordError = !confirmPassword
+      ? "Confirm password is required"
+      : confirmPassword !== newPassword
+        ? "Passwords do not match"
+        : "";
 
     setErrors({
       newPassword: newPasswordError,
@@ -99,17 +115,18 @@ export default function ResetPassword() {
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => {
-                  setConfirmPassword(e.target.value);   
+                  setConfirmPassword(e.target.value);
                   setErrors((prev) => ({
                     ...prev,
-                    confirmPassword:
-                      e.target.value !== newPassword
+                    confirmPassword: !e.target.value
+                      ? "Confirm password is required"
+                      : e.target.value !== newPassword
                         ? "Passwords do not match"
                         : "",
                   }));
                 }}
               />
-   
+
               <span onClick={toggleConfirmPassword}>
                 {showConfirmPassword ? (
                   <Eye size={20} />

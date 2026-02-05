@@ -243,12 +243,12 @@ const Review = () => {
                 <div className="mt-3 text-end d-flex align-items-end justify-content-between">
                   {/* Stats */}
                   <div className="d-flex gap-4 mt-2">
-                    <span className="small">
+                    {/* <span className="small">
                       <strong>Response Time:</strong> {item.responseTime}
                     </span>
                     <span className="small">
                       <strong>Completion Rate:</strong> {item.jobCompletionRate}
-                    </span>
+                    </span> */}
                     <span className="small">
                       <strong>Winner:</strong> {item.winnerName || "N/A"}
                     </span>

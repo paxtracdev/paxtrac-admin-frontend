@@ -185,7 +185,7 @@ const UserManagement = () => {
               }
               style={{ cursor: "pointer" }}
             >
-              <Eye size={20} />
+              <Eye size={18} />
             </button>
             <span>|</span>
             <button
@@ -194,7 +194,7 @@ const UserManagement = () => {
               onClick={() => handleDelete(params.data._id)}
               style={{ cursor: "pointer" }}
             >
-              <Trash2 size={20} />
+              <Trash2 size={18} />
             </button>
           </div>
         ),
