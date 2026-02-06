@@ -12,7 +12,7 @@ import FilterModal from "../../Components/FilterModal";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const PropertyManagement = () => {
+const ListingManagement = () => {
   const navigate = useNavigate();
 
   /* =======================
@@ -21,36 +21,36 @@ const PropertyManagement = () => {
   const demoProperty = [
     {
       id: 1,
-      propertyId: "PROP-001",
-      propertyType: "Multi-Family",
+      listingId: "PROP-001",
+      listingType: "Multi-Family",
       companyName: "Palm Residency Pvt Ltd",
       status: "under-review",
     },
     {
       id: 2,
-      propertyId: "PROP-002",
-      propertyType: "Vacation Rentals",
+      listingId: "PROP-002",
+      listingType: "Vacation Rentals",
       companyName: "Goa Holiday Homes LLP",
       status: "approved",
     },
     {
       id: 3,
-      propertyId: "PROP-003",
-      propertyType: "Apartment Building",
+      listingId: "PROP-003",
+      listingType: "Apartment Building",
       companyName: "Whitefield Tech Park Estates",
       status: "dealSealed",
     },
     {
       id: 4,
-      propertyId: "PROP-004",
-      propertyType: "Single Family",
+      listingId: "PROP-004",
+      listingType: "Single Family",
       companyName: "Baner Realty Group",
       status: "rejected",
     },
     {
       id: 5,
-      propertyId: "PROP-005",
-      propertyType: "Condominium",
+      listingId: "PROP-005",
+      listingType: "Condominium",
       companyName: "Mumbai Sea View Condos",
       status: "dealSealed",
     },
@@ -66,7 +66,7 @@ const PropertyManagement = () => {
 
   const [filters, setFilters] = useState({
     status: "",
-    propertyType: "",
+    listingType: "",
   });
 
   const [query, setQuery] = useState({
@@ -92,8 +92,8 @@ const PropertyManagement = () => {
     if (searchInput) {
       filtered = filtered.filter(
         (item) =>
-          item.propertyId.toLowerCase().includes(searchInput.toLowerCase()) ||
-          item.propertyType.toLowerCase().includes(searchInput.toLowerCase()),
+          item.listingId.toLowerCase().includes(searchInput.toLowerCase()) ||
+          item.listingType.toLowerCase().includes(searchInput.toLowerCase()),
       );
     }
 
@@ -102,9 +102,9 @@ const PropertyManagement = () => {
       filtered = filtered.filter((i) => i.status === filters.status);
     }
 
-    if (filters.propertyType) {
+    if (filters.listingType) {
       filtered = filtered.filter(
-        (i) => i.propertyType === filters.propertyType,
+        (i) => i.listingType === filters.listingType,
       );
     }
 
@@ -167,14 +167,14 @@ const PropertyManagement = () => {
         width: 80,
       },
       {
-        headerName: "Property ID",
-        field: "propertyId",
+        headerName: "Listing ID",
+        field: "listingId",
         flex: 1,
         minWidth: 160,
       },
       {
-        headerName: "Property Type",
-        field: "propertyType",
+        headerName: "Listing Type",
+        field: "listingType",
         flex: 1,
         minWidth: 200,
       },
@@ -220,9 +220,8 @@ const PropertyManagement = () => {
             <button
               className="border-0 bg-transparent"
               onClick={() =>
-                navigate(
-                  `/property-management/view-property?id=${params.data.id}`,
-                )
+                navigate(`/listing-management/view-listing?id=${params.data.id}`)
+
               }
             >
               <Eye size={18} />
@@ -247,9 +246,9 @@ const PropertyManagement = () => {
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <div className="title-heading mb-2">Property Management</div>
+            <div className="title-heading mb-2">Listing Management</div>
             <p className="title-sub-heading">
-              Monitor and manage registered Property
+              Monitor and manage registered listings
             </p>
           </div>
           <button
@@ -267,7 +266,7 @@ const PropertyManagement = () => {
           <input
             type="text"
             className="form-control w-50"
-            placeholder="Search by property ID or type..."
+            placeholder="Search by listing ID or type..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
           />
@@ -276,7 +275,7 @@ const PropertyManagement = () => {
         {/* TABLE */}
         <div className="custom-card bg-white p-3">
           {rowData.length === 0 ? (
-            <NoData text="No property found" />
+            <NoData text="No listing found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
@@ -322,4 +321,4 @@ const PropertyManagement = () => {
   );
 };
 
-export default PropertyManagement;
+export default ListingManagement;

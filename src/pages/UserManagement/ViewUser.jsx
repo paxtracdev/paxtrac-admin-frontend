@@ -22,6 +22,8 @@ const STATIC_USERS = [
       planName: "Foundation", // Foundation | Pillar | Empire
       billingType: "Annually", // Annually | One Time
       purchaseDate: "2025-11-20",
+      backgroundCheckUsed: "4",
+      propertyUsed: "2",
     },
     businessDetails: {
       ownerName: "Sharma Properties Pvt Ltd",
@@ -52,6 +54,8 @@ const STATIC_USERS = [
       planName: "Pillar", // Foundation | Pillar | Empire
       billingType: "One-Time", // Annually | One Time
       purchaseDate: "2026-01-20",
+      backgroundCheckUsed: "4",
+      propertyUsed: "2",
     },
     businessDetails: {
       businessName: "Doe Infrastructure Services",
@@ -775,6 +779,30 @@ const ViewUser = () => {
                       )
                     : "N/A"
                 }
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">Property Used</label>
+              <input
+                type="number"
+                className="form-control bg-light"
+                value={planDetails?.propertyUsed ?? 0}
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                Background Check Used
+              </label>
+              <input
+                type="number"
+                className="form-control bg-light"
+                value={planDetails?.backgroundCheckUsed ?? 0}
                 disabled
                 readOnly
               />

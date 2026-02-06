@@ -44,6 +44,7 @@ import AllNotification from "./Components/AllNotification";
 import BidView from "./pages/BidManagement/BidView";
 import { Toaster } from "sonner";
 import Payments from "./pages/Payments/Payments";
+import ListingManagement from "./pages/PropertyManagement/PropertyManagement";
 
 export default function App() {
   return (
@@ -86,9 +87,9 @@ export default function App() {
           <Route path="/platform-settings" element={<PlatformSettings />} />
           <Route path="/support" element={<Support />} />
 
-          <Route path="/property-management" element={<PropertyManagement />} />
+          <Route path="/listing-management" element={<ListingManagement />} />
           <Route
-            path="/property-management/view-property"
+            path="/listing-management/view-listing"
             element={<ViewProperty />}
           />
 
