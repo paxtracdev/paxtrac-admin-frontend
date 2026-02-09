@@ -251,9 +251,9 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             </NavLink>
           </li>  */}
           <li>
-            <NavLink className="app-menu__item" to="/property-management">
+            <NavLink className="app-menu__item" to="/listing-management">
               <Building2 size={20} />
-              <span className="app-menu__label">Property Management</span>
+              <span className="app-menu__label">Listing Management</span>
             </NavLink>
           </li>
           <li>

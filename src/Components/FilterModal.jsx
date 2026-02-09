@@ -40,7 +40,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
       <div className="modal-dialog modal-md modal-dialog-centered fade-in">
         <div ref={modalRef} className="modal-content position-relative p-3">
           <div className=" w-100 text-center">
-            <h5>Filter Property</h5>
+            <h5>Filter Listing</h5>
           </div>
           <button
             className="btn-close position-absolute"
@@ -90,7 +90,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
 
             {/* PROPERTY TYPE SELECT */}
             <div className="mt-3">
-              <p className="mb-2 fw-semibold">Property Type</p>
+              <p className="mb-2 fw-semibold">Listing Type</p>
               <CustomDropdown
                 placeholder="All"
                 value={localFilters.propertyType}

@@ -14,18 +14,18 @@ import "lightgallery/css/lg-thumbnail.css";
 import "lightgallery/css/lg-zoom.css";
 import { CirclePlay, File, Play } from "lucide-react";
 
-const ViewProperty = () => {
+const ViewListing = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const propertyId = searchParams.get("id");
+const listingId = searchParams.get("id");
   const [activeVideo, setActiveVideo] = useState(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveDateTime, setApproveDateTime] = useState("");
   const [approveError, setApproveError] = useState("");
 
   // 🔒 STATIC DATA (NO API)
-  const property = {
-    propertyId: "PROP-001",
+  const listing  = {
+    listingId: "PROP-001",
     address: "123 Main Street, New York, NY 10001",
     legalOwner: "John Doe",
     managementCompany: "ABC Property Management LLC",
@@ -117,11 +117,11 @@ const ViewProperty = () => {
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="title-heading mb-3">View Property</div>
+        <div className="title-heading mb-3">View Listing</div>
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-4 mt-3 position-relative">
-          <h2 className="title text-black mb-4">Property Details</h2>
+          <h2 className="title text-black mb-4">Listing Details</h2>
 
           {/* Status badge */}
           {(() => {
@@ -132,7 +132,7 @@ const ViewProperty = () => {
               rejected: { label: "Rejected", className: "inactive" },
             };
 
-            const status = statusMap[property.status] || {};
+            const status = statusMap[listing.status] || {};
             return (
               <div className={`status-badge ${status.className}`}>
                 {status.label}
@@ -141,18 +141,18 @@ const ViewProperty = () => {
           })()}
 
           <div className="row">
-            <Detail label="Property ID" value={property.propertyId} />
-            <Detail label="Property Address" value={property.address} />
-            <Detail label="Legal Owner" value={property.legalOwner} />
+            <Detail label="Listing ID" value={listing.listingId} />
+            <Detail label="Listing Address" value={listing.address} />
+            <Detail label="Legal Owner" value={listing.legalOwner} />
             <Detail
               label="Property Management Company"
-              value={property.managementCompany}
+              value={listing.managementCompany}
             />
             <div className="col-md-12 mb-3">
               <label className="form-label fw-semibold">Service Types</label>
 
               <div className="d-flex flex-wrap gap-2">
-                {property.serviceTypes.map((type, idx) => (
+                {listing.serviceTypes.map((type, idx) => (
                   <span key={idx} className="service-chip">
                     {type}
                   </span>
@@ -160,29 +160,29 @@ const ViewProperty = () => {
               </div>
             </div>
 
-            <Detail label="Property Type" value={property.propertyType} />
+            <Detail label="Property Type" value={listing.propertyType} />
 
-            {property.propertyType === "Residential" && (
-              <Detail label="Units" value={property.units} />
+            {listing.propertyType === "Residential" && (
+              <Detail label="Units" value={listing.units} />
             )}
 
-            {property.propertyType === "Commercial" && (
-              <Detail label="Square Feet" value={property.squareFeet} />
+            {listing.propertyType === "Commercial" && (
+              <Detail label="Square Feet" value={listing.squareFeet} />
             )}
 
             <Detail
               label="Due Diligence Period"
-              value={`${property.dueDiligenceDays} Days`}
+              value={`${listing.dueDiligenceDays} Days`}
             />
             <Detail
               label="Inspection Allowed"
-              value={property.inspectionAllowed}
+              value={listing.inspectionAllowed}
             />
-            <Detail label="Bid Duration" value={property.bidDuration} />
+            <Detail label="Bid Duration" value={listing.bidDuration} />
 
             <FullDetail
               label="Additional Requirements"
-              value={property.additionalRequirements}
+              value={listing.additionalRequirements}
             />
 
             {/* Documents preview */}
@@ -192,7 +192,7 @@ const ViewProperty = () => {
               </label>
 
               <div className="d-flex flex-wrap gap-2">
-                {property.documents.map((doc, idx) => (
+                {listing.documents.map((doc, idx) => (
                   <a
                     key={idx}
                     href={doc.url}
@@ -207,37 +207,37 @@ const ViewProperty = () => {
               </div>
             </div>
 
-            <FullDetail label="Scope of Work" value={property.scopeOfWork} />
+            <FullDetail label="Scope of Work" value={listing.scopeOfWork} />
 
             <Detail
               label="Service Contract Length"
-              value={property.contractLength}
+              value={listing.contractLength}
             />
             <Detail
               label="Target Compensation"
-              value={property.targetCompensation}
+              value={listing.targetCompensation}
             />
             <Detail
               label="Expected Start Date"
-              value={property.expectedStartDate}
+              value={listing.expectedStartDate}
             />
             <Detail
               label="Completion Timeframe"
-              value={property.completionTimeframe}
+              value={listing.completionTimeframe}
             />
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Contract File</label>
               <div className="contract-file-item">
                 <a
-                  href={property.contractFile.url}
+                  href={listing.contractFile.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="fd-inline-flex align-items-center me-3 mb-2 text-decoration-none"
                   style={{ color: "#7f6c4d" }}
                 >
                   <File size={18} />{" "}
-                  <span className="ms-1">{property.contractFile.name}</span>
+                  <span className="ms-1">{listing.contractFile.name}</span>
                 </a>
               </div>
             </div>
@@ -251,7 +251,7 @@ const ViewProperty = () => {
                 elementClassNames="property-gallery"
                 ref={lightGalleryRef}
               >
-                {property.photos.map((src, idx) => (
+                {listing.photos.map((src, idx) => (
                   <a key={idx} href={src} className="property-gallery-item">
                     <img src={src} alt={`Property photo ${idx + 1}`} />
                   </a>
@@ -264,7 +264,7 @@ const ViewProperty = () => {
               <label className="form-label fw-semibold">Videos Uploaded</label>
 
               <div className="video-gallery">
-                {property.videos.map((src, idx) => (
+                {listing.videos.map((src, idx) => (
                   <div
                     key={idx}
                     className="video-item video-thumb"
@@ -285,7 +285,7 @@ const ViewProperty = () => {
             <button className="button-secondary" onClick={() => navigate(-1)}>
               Back
             </button>
-            {property.status === "under-review" && (
+            {listing.status === "under-review" && (
               <>
                 <button className="primary-button" onClick={handleApprove}>
                   Approve
@@ -381,7 +381,7 @@ const ViewProperty = () => {
   );
 };
 
-export default ViewProperty;
+export default ViewListing;
 
 const Detail = ({ label, value }) => (
   <div className="col-md-6 mb-3">

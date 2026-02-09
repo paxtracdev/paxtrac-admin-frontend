@@ -69,7 +69,7 @@ const Notification = ({ notifications = [] }) => {
           <div className="p-2 text-center border-top">
             <Link
               to="/all-notification"
-              className="text-decoration-none fw-semibold text-color"
+              className="d-block text-decoration-none fw-semibold text-color"
             >
               View All
             </Link>

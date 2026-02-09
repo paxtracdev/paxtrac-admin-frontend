@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 const mockReviews = [
   {
     id: 1,
-    customerName: "Alice Johnson", 
+    customerName: "Alice Johnson",
     rating: 5,
     feedback:
       "The bidding process was smooth and transparent. Highly recommended!",
@@ -21,7 +21,7 @@ const mockReviews = [
   },
   {
     id: 2,
-    customerName: "Michael Lee", 
+    customerName: "Michael Lee",
     rating: 4,
     feedback:
       "Good support during property evaluation, but response could be faster.",
@@ -33,7 +33,7 @@ const mockReviews = [
   },
   {
     id: 3,
-    customerName: "Sophia Brown", 
+    customerName: "Sophia Brown",
     rating: 3,
     feedback: "Some issues with document verification, but overall okay.",
     jobDetails: "Property Documentation",
@@ -44,7 +44,7 @@ const mockReviews = [
   },
   {
     id: 4,
-    customerName: "Daniel Carter", 
+    customerName: "Daniel Carter",
     rating: 5,
     feedback: "Excellent service and very professional team.",
     jobDetails: "Residential Property Search",
@@ -55,7 +55,7 @@ const mockReviews = [
   },
   {
     id: 5,
-    customerName: "Emma Wilson", 
+    customerName: "Emma Wilson",
     rating: 4,
     feedback: "Smooth experience overall, paperwork took a bit longer.",
     jobDetails: "Commercial Property Leasing",
@@ -66,7 +66,7 @@ const mockReviews = [
   },
   {
     id: 6,
-    customerName: "James Anderson", 
+    customerName: "James Anderson",
     rating: 5,
     feedback: "Outstanding attention to detail and fast communication.",
     jobDetails: "Luxury Property Consulting",
@@ -77,7 +77,7 @@ const mockReviews = [
   },
   {
     id: 7,
-    customerName: "Olivia Martinez", 
+    customerName: "Olivia Martinez",
     rating: 4,
     feedback: "Very knowledgeable agents and helpful throughout.",
     jobDetails: "Land Purchase Assistance",
@@ -88,7 +88,7 @@ const mockReviews = [
   },
   {
     id: 8,
-    customerName: "William Turner", 
+    customerName: "William Turner",
     rating: 2,
     feedback: "Communication gaps caused delays.",
     jobDetails: "Rental Property Management",
@@ -99,7 +99,7 @@ const mockReviews = [
   },
   {
     id: 9,
-    customerName: "Ava Thompson", 
+    customerName: "Ava Thompson",
     rating: 5,
     feedback: "Fantastic experience from start to finish.",
     jobDetails: "Apartment Purchase",
@@ -110,7 +110,7 @@ const mockReviews = [
   },
   {
     id: 10,
-    customerName: "Noah Harris", 
+    customerName: "Noah Harris",
     rating: 3,
     feedback: "Average service, expected quicker updates.",
     jobDetails: "Property Resale",
@@ -121,7 +121,7 @@ const mockReviews = [
   },
   {
     id: 11,
-    customerName: "Isabella Moore", 
+    customerName: "Isabella Moore",
     rating: 4,
     feedback: "Helpful team and clear pricing structure.",
     jobDetails: "First-Time Buyer Support",
@@ -132,7 +132,7 @@ const mockReviews = [
   },
   {
     id: 12,
-    customerName: "Liam Walker", 
+    customerName: "Liam Walker",
     rating: 5,
     feedback: "Quick turnaround and excellent market knowledge.",
     jobDetails: "Investment Property Advisory",
@@ -161,7 +161,7 @@ const Review = () => {
       text: "Are you sure you want to mark this review as inappropriate?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
+      confirmButtonColor: "#a99068",
       cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, flag it",
     }).then((result) => {
@@ -239,29 +239,68 @@ const Review = () => {
                   <p>{item.feedback}</p>
                 </div>
 
-                {/* Flag button */}
+                {/* Approve / Reject buttons */}
                 <div className="mt-3 text-end d-flex align-items-end justify-content-between">
                   {/* Stats */}
                   <div className="d-flex gap-4 mt-2">
-                    {/* <span className="small">
-                      <strong>Response Time:</strong> {item.responseTime}
-                    </span>
-                    <span className="small">
-                      <strong>Completion Rate:</strong> {item.jobCompletionRate}
-                    </span> */}
                     <span className="small">
                       <strong>Winner:</strong> {item.winnerName || "N/A"}
                     </span>
                   </div>
-                  <button
-                    className="login-btn gap-1"
-                    onClick={() => handleFlag(item.id)}
-                    disabled={flaggedReviews.has(item.id)}
-                    style={{ opacity: flaggedReviews.has(item.id) ? 0.5 : 1 }}
-                  >
-                    <Flag size={16} />{" "}
-                    {flaggedReviews.has(item.id) ? "Flagged" : "Flag"}
-                  </button>
+
+                  <div className="d-flex gap-2">
+                    {/* <button
+                      className="login-btn gap-1"
+                      onClick={() => {
+                        Swal.fire({
+                          title: "Approve this review?",
+                          text: `Are you sure you want to approve Review ID ${item.id}?`,
+                          icon: "success",
+
+                          confirmButtonColor: "#a99068",
+
+                          confirmButtonText: "Yes, approve",
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            Swal.fire({
+                              title: "Approved!",
+                              text: `Review ID ${item.id} has been approved.`,
+                              icon: "success",
+                              timer: 2000,
+                              showConfirmButton: false,
+                            });
+                          }
+                        });
+                      }}
+                    >
+                      Approve
+                    </button> */}
+
+                    <button
+                      className="login-btn" style={{ background: "#e83f3f"}}
+                      onClick={() => {
+                        Swal.fire({
+                          title: "Reject this review?",
+                          text: `Are you sure you want to reject Review ID ${item.id}?`,
+                          icon: "warning",
+                          confirmButtonColor: "#a99068",
+                          confirmButtonText: "Yes, reject",
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            Swal.fire({
+                              title: "Rejected!",
+                              text: `Review ID ${item.id} has been rejected.`,
+                              icon: "success",
+                              timer: 2000,
+                              showConfirmButton: false,
+                            });
+                          }
+                        });
+                      }}
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
