@@ -13,6 +13,7 @@ const PlatformSettings = () => {
     language: "en",
     preRegistrationAmount: 250,
     promoCode: "",
+    backgroundCheckAmount: 0,
   });
 
   const [errors, setErrors] = useState({});
@@ -39,6 +40,14 @@ const PlatformSettings = () => {
 
     if (settings.promoCode && settings.promoCode.length > 20) {
       newErrors.promoCode = "Promo code must be 20 characters or less";
+    }
+
+    if (
+      settings.backgroundCheckAmount === "" ||
+      settings.backgroundCheckAmount < 0
+    ) {
+      newErrors.backgroundCheckAmount =
+        "Background check amount must be 0 or more";
     }
 
     setErrors(newErrors);
@@ -82,6 +91,8 @@ const PlatformSettings = () => {
                 placeholder="Enter platform name"
                 value={settings.platformName}
                 onChange={(e) => handleChange("platformName", e.target.value)}
+                readOnly
+                disabled
               />
               {errors.platformName && (
                 <div className="text-danger">{errors.platformName}</div>
@@ -121,6 +132,27 @@ const PlatformSettings = () => {
               />
               {errors.promoCode && (
                 <div className="text-danger">{errors.promoCode}</div>
+              )}
+            </div>
+
+            <div className="col-md-6 mb-4">
+              <label className="form-label fw-semibold">
+                Background Check Amount
+              </label>
+              <input
+                type="number"
+                min="0"
+                className="form-control"
+                placeholder="Enter background check amount (USD)"
+                value={settings.backgroundCheckAmount}
+                onChange={(e) =>
+                  handleChange("backgroundCheckAmount", Number(e.target.value))
+                }
+              />
+              {errors.backgroundCheckAmount && (
+                <div className="text-danger">
+                  {errors.backgroundCheckAmount}
+                </div>
               )}
             </div>
           </div>

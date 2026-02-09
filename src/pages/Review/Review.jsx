@@ -249,7 +249,7 @@ const Review = () => {
                   </div>
 
                   <div className="d-flex gap-2">
-                    <button
+                    {/* <button
                       className="login-btn gap-1"
                       onClick={() => {
                         Swal.fire({
@@ -274,7 +274,7 @@ const Review = () => {
                       }}
                     >
                       Approve
-                    </button>
+                    </button> */}
 
                     <button
                       className="login-btn" style={{ background: "#e83f3f"}}
@@ -290,7 +290,7 @@ const Review = () => {
                             Swal.fire({
                               title: "Rejected!",
                               text: `Review ID ${item.id} has been rejected.`,
-                              icon: "error",
+                              icon: "success",
                               timer: 2000,
                               showConfirmButton: false,
                             });
