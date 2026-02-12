@@ -7,6 +7,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useNavigate } from "react-router-dom";
 import { useGetBidsQuery } from "../../api/userApi";
+import BidManagementFilterModal from "../../Components/BidManagementFilterModal";
 
 const initialProperties = [
   {
@@ -20,16 +21,16 @@ const initialProperties = [
   },
   {
     id: "PROP-2026-002",
-    propertyType: "Vacation Rental",
+    propertyType: "Vacation Rentals",
     listerName: "John Doe",
-    status: "Inactive",
+    status: "inactive",
     totalBidders: 2,
     email: "john.doe@sunriserealty.com",
     address: "45 Ocean Drive, Miami, FL",
   },
   {
     id: "PROP-2026-003",
-    propertyType: "Multi Family",
+    propertyType: "Multi-Family",
     listerName: "Michael Johnson",
     status: "active",
     totalBidders: 8,
@@ -38,9 +39,9 @@ const initialProperties = [
   },
   {
     id: "PROP-2026-004",
-    propertyType: "Office Space",
+    propertyType: "Commercial",
     listerName: "Emma Thompson",
-    status: "request re-open",
+    status: "request-reopen",
     totalBidders: 4,
     email: "emma.thompson@skyline.com",
     address: "77 Broadway, San Francisco, CA",
@@ -55,24 +56,56 @@ const BidManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchInput, setSearchInput] = useState("");
-  const [status, setStatus] = useState("");
-  const [type, setType] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [filters, setFilters] = useState({
+    status: "",
+    propertyType: "",
+  });
 
   const { data, isLoading, isError } = useGetBidsQuery({
     page: currentPage,
     limit: pageSize,
     search: searchInput,
-    status,
-    type,
+    status: filters.status,
+    type: filters.propertyType,
   });
-
   // Data state (for flag toggle)
   const navigate = useNavigate();
 
   // Paginate Properties
   const properties = useMemo(() => {
-    return data?.data || [];
-  }, [data]);
+    let filtered = data?.data;
+
+    // Apply search
+    if (searchInput) {
+      const query = searchInput.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          item?.id?.toLowerCase().includes(query) ||
+          item?.propertyType?.toLowerCase().includes(query) ||
+          item?.listerName?.toLowerCase().includes(query) ||
+          item?.email?.toLowerCase().includes(query),
+      );
+    }
+
+    // Apply status filter
+    if (filters.status) {
+      filtered = filtered.filter(
+        (item) => item.bidStatus?.toLowerCase() === filters.status.toLowerCase(),
+      );
+    }
+
+    // Apply property type filter
+    if (filters.propertyType) {
+      filtered = filtered.filter(
+        (item) =>
+          item.propertyType?.toLowerCase().trim() ===
+          filters.propertyType.toLowerCase().trim(),
+      );
+    }
+
+    return filtered;
+  }, [data, searchInput, filters]);
 
   const paginatedProperties = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -140,7 +173,7 @@ const BidManagement = () => {
           const statusClass =
             status === "active"
               ? ""
-              : status === "request re-open"
+              : status === "request-reopen"
                 ? "pending"
                 : "inactive";
 
@@ -191,6 +224,13 @@ const BidManagement = () => {
             <div className="title-heading mb-2">Bid Management</div>
             <p className="title-sub-heading"> Manage bids</p>
           </div>
+
+          <button
+            className="primary-button"
+            onClick={() => setShowFilter(true)}
+          >
+            Filter
+          </button>
         </div>
 
         <Breadcrumbs />
@@ -239,6 +279,17 @@ const BidManagement = () => {
           />
         </div>
       </section>
+
+      <BidManagementFilterModal
+        show={showFilter}
+        onClose={() => setShowFilter(false)}
+        initialFilters={filters}
+        onApply={(data) => {
+          setFilters(data);
+          setCurrentPage(1);
+          setShowFilter(false);
+        }}
+      />
     </main>
   );
 };

@@ -53,10 +53,11 @@ export const userApi = createApi({
       }),
       providesTags: ["Users"],
     }),
-    getBid: builder.query({
+    getBidIndivisual: builder.query({
       query: (id) => `/bids-list/${id}`,
       providesTags: ["Users"],
     }),
+    
   }),
 });
 
@@ -65,5 +66,5 @@ export const {
   useGetUserByIdQuery,
   useUpdateUserMutation,
   useGetBidsQuery,
-  useGetBidQuery,
+  useGetBidIndivisualQuery,
 } = userApi;

@@ -6,7 +6,7 @@ import { AgGridReact } from "ag-grid-react";
 import CustomPagination from "../../Components/CustomPagination";
 import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { useGetBidQuery } from "../../api/userApi";
+import { useGetBidIndivisualQuery } from "../../api/userApi";
 
 const BidView = () => {
   const mockBidders = [
@@ -33,13 +33,14 @@ const BidView = () => {
     },
   ];
   const { id } = useParams();
-  const { data, isLoading, isError } = useGetBidQuery(id, {
+  const { data, isLoading, isError } = useGetBidIndivisualQuery(id, {
     skip: !id,
   });
 
   const location = useLocation();
   const navigate = useNavigate();
   const [bidders, setBidders] = useState(mockBidders);
+  const [search, setSearch] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "broadcast" | "bidder"
@@ -48,6 +49,17 @@ const BidView = () => {
   const [messageError, setMessageError] = useState("");
 
   const [bid, setBid] = useState(null);
+
+  const filteredBidders = bidders.filter((b) => {
+    const query = search.toLowerCase();
+    return (
+      b.bidderId.toLowerCase().includes(query) ||
+      b.name.toLowerCase().includes(query) ||
+      b.email.toLowerCase().includes(query) ||
+      b.status.toLowerCase().includes(query) ||
+      b.bidAmount.toString().includes(query)
+    );
+  });
 
   useEffect(() => {
     if (data?.data) {
@@ -235,7 +247,7 @@ const BidView = () => {
 
         <Breadcrumbs />
 
-        <div className="custom-card bg-white p-4 mt-3 position-relative">
+        <div className="custom-card bg-white p-4 mt-3 mb-4 position-relative">
           {/* Status badge */}
           <span
             className={`status-badge  ${bid.status !== "active" ? "inactive" : ""}`}
@@ -341,7 +353,17 @@ const BidView = () => {
           </div>
         </div>
 
-        <div className="custom-card bg-white p-4 mt-4">
+        <div className="search-bar mb-3 w-50">
+          <input
+            type="text"
+            className="form-control ps-3"
+            placeholder="Search bidders by name, id, email, status..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="custom-card bg-white p-4 mt-2">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="mb-0">Bidding Details</h5>
             <button className="login-btn" onClick={openBroadcastModal}>
@@ -350,7 +372,7 @@ const BidView = () => {
           </div>
           <div className="ag-theme-alpine">
             <AgGridReact
-              rowData={bidders}
+              rowData={filteredBidders}
               columnDefs={bidderColumnDefs}
               domLayout="autoHeight"
               headerHeight={40}

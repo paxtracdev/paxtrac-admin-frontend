@@ -32,7 +32,23 @@ const CustomPagination = ({
   // }, [inputPage, totalPages, handlePageChange]);
 
   return (
-    <div className="t-pagination-c"> 
+    <div className="t-pagination-c">
+      
+      {/* Rows Per Page */}
+<div className="rows-per-page">
+  <label className="pagination-info" >Rows per page: </label>
+  <select
+    value={intRowsPerPage}
+    onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
+  >
+    {[5, 10, 25, 50, 100].map((size) => (
+      <option key={size} value={size}>
+        {size}
+      </option>
+    ))}
+  </select>
+</div>
+
 
       {/* Pagination Controls */}
       <div className="p-btn-grp">
