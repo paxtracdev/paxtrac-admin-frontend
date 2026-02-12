@@ -87,11 +87,15 @@ const Announcements = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const filteredData = useMemo(() => {
-    return STATIC_NOTIFICATIONS.filter(
-      (n) =>
-        n.title.toLowerCase().includes(search.toLowerCase()) ||
-        n.message.toLowerCase().includes(search.toLowerCase()),
-    );
+    return STATIC_NOTIFICATIONS.filter((n) => {
+      const searchText = search.toLowerCase();
+
+      return (
+        n.title.toLowerCase().includes(searchText) ||
+        n.message.toLowerCase().includes(searchText) ||
+        n.targetAudience.toLowerCase().includes(searchText)
+      );
+    });
   }, [search]);
 
   const validate = () => {
@@ -304,7 +308,7 @@ const Announcements = () => {
           <input
             type="text"
             className="form-control ps-3"
-            placeholder="Search by title..."
+            placeholder="Search by title or target audience ..."
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
