@@ -8,13 +8,14 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     //  GET Users (Pagination + Search)
     getUsers: builder.query({
-      query: ({ page = 1, limit = 10, search = "" }) => ({
+      query: ({ page = 1, limit = 10, search = "", role }) => ({
         url: "/users",
         method: "GET",
         params: {
           page,
           limit,
           search,
+          role,
         },
       }),
       providesTags: ["Users"],
@@ -38,8 +39,31 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["Users"],
     }),
+
+    getBids: builder.query({
+      query: ({ page, limit, search, status, type }) => ({
+        url: "/bid",
+        params: {
+          page,
+          limit,
+          ...(search && { search }),
+          ...(status && { status }),
+          ...(type && { type }),
+        },
+      }),
+      providesTags: ["Users"],
+    }),
+    getBid: builder.query({
+      query: (id) => `/bids-list/${id}`,
+      providesTags: ["Users"],
+    }),
   }),
 });
 
-export const { useGetUsersQuery, useGetUserByIdQuery, useUpdateUserMutation } =
-  userApi;
+export const {
+  useGetUsersQuery,
+  useGetUserByIdQuery,
+  useUpdateUserMutation,
+  useGetBidsQuery,
+  useGetBidQuery,
+} = userApi;

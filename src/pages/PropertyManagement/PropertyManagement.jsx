@@ -9,6 +9,10 @@ import Swal from "sweetalert2";
 import { Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FilterModal from "../../Components/FilterModal";
+import {
+  useGetPropertiesQuery,
+  useDeletePropertyMutation,
+} from "../../api/propertyApi";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -59,25 +63,30 @@ const ListingManagement = () => {
   /* =======================
      STATE
   ======================= */
-  const [allData, setAllData] = useState(demoProperty);
-  const [rowData, setRowData] = useState([]);
+
   const [searchInput, setSearchInput] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  const [query, setQuery] = useState({
+    page: 1,
+    limit: 10,
+    search: "",
+    status: "",
+    type: "",
+  });
+  const { data, isLoading } = useGetPropertiesQuery(query);
+  const allData = data?.data || [];
+  const rowData = allData;
+  const [deleteProperty] = useDeletePropertyMutation();
 
   const [filters, setFilters] = useState({
     status: "",
     propertyType: "",
   });
 
-  const [query, setQuery] = useState({
-    page: 1,
-    limit: 10,
-  });
-
   /* =======================
      PAGINATION VALUES
   ======================= */
-  const totalCount = allData.length;
+  const totalCount = data?.total || 0;
   const totalPages = Math.ceil(totalCount / query.limit);
   const currentPage = query.page;
   const pageSize = query.limit;
@@ -85,34 +94,6 @@ const ListingManagement = () => {
   /* =======================
      SEARCH + FILTER + PAGINATION LOGIC
   ======================= */
-  useEffect(() => {
-    let filtered = [...demoProperty];
-
-    // Search
-    if (searchInput) {
-      filtered = filtered.filter(
-        (item) =>
-          item.listingId.toLowerCase().includes(searchInput.toLowerCase()) ||
-          item.listingType.toLowerCase().includes(searchInput.toLowerCase()),
-      );
-    }
-
-    // Filter
-    if (filters.status) {
-      filtered = filtered.filter((i) => i.status === filters.status);
-    }
-
-    if (filters.propertyType) {
-      filtered = filtered.filter((i) => i.listingType === filters.propertyType);
-    }
-
-    setAllData(filtered);
-
-    // Pagination slice
-    const start = (query.page - 1) * query.limit;
-    const end = start + query.limit;
-    setRowData(filtered.slice(start, end));
-  }, [searchInput, filters, query]);
 
   /* =======================
      PAGINATION HANDLERS
@@ -122,25 +103,36 @@ const ListingManagement = () => {
   };
 
   const handlePageSizeChange = (size) => {
-    setQuery({ page: 1, limit: size });
+    setQuery((prev) => ({
+      ...prev,
+      page: 1,
+      limit: size,
+    }));
   };
 
   /* =======================
      DELETE
   ======================= */
-  const handleDelete = (id) => {
-    Swal.fire({
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
       title: "Delete property?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setAllData((prev) => prev.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "Property deleted successfully.", "success");
-      }
     });
+    if (!result.isConfirmed) return;
+    try {
+      await deleteProperty(id).unwrap();
+
+      Swal.fire("Deleted!", "Property deleted successfully.", "success");
+    } catch (error) {
+      Swal.fire(
+        "Failed",
+        error?.data?.message || "Failed to delete property",
+        "error",
+      );
+    }
   };
 
   /* =======================
@@ -172,13 +164,13 @@ const ListingManagement = () => {
       },
       {
         headerName: "Listing Type",
-        field: "listingType",
+        field: "propertyType",
         flex: 1,
         minWidth: 200,
       },
       {
         headerName: "Company Name",
-        field: "companyName",
+        field: "propertyManagementCompanyName",
         flex: 2,
         minWidth: 100,
         cellStyle: {
@@ -186,7 +178,7 @@ const ListingManagement = () => {
           overflow: "hidden",
           textOverflow: "ellipsis",
         },
-        tooltipField: "companyName",
+        tooltipField: "propertyManagementCompanyName",
       },
       {
         headerName: "Status",
@@ -228,7 +220,7 @@ const ListingManagement = () => {
             |
             <button
               className="border-0 bg-transparent text-danger"
-              onClick={() => handleDelete(params.data.id)}
+              onClick={() => handleDelete(params.data._id)}
             >
               <Trash2 size={18} />
             </button>
@@ -267,7 +259,14 @@ const ListingManagement = () => {
             className="form-control w-50"
             placeholder="Search by listing ID or type..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setQuery((prev) => ({
+                ...prev,
+                page: 1,
+                search: e.target.value,
+              }));
+            }}
           />
         </div>
 
@@ -312,7 +311,12 @@ const ListingManagement = () => {
         onClose={() => setShowFilter(false)}
         onApply={(appliedFilters) => {
           setFilters(appliedFilters);
-          setQuery((prev) => ({ ...prev, page: 1 }));
+          setQuery((prev) => ({
+            ...prev,
+            page: 1,
+            status: appliedFilters.status,
+            type: appliedFilters.propertyType,
+          }));
           setShowFilter(false);
         }}
       />

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { MessageCircleMore } from "lucide-react";
 import { AgGridReact } from "ag-grid-react";
 import CustomPagination from "../../Components/CustomPagination";
 import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { useGetBidQuery } from "../../api/userApi";
 
 const BidView = () => {
   const mockBidders = [
@@ -31,6 +32,10 @@ const BidView = () => {
       status: "winner",
     },
   ];
+  const { id } = useParams();
+  const { data, isLoading, isError } = useGetBidQuery(id, {
+    skip: !id,
+  });
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,30 +50,30 @@ const BidView = () => {
   const [bid, setBid] = useState(null);
 
   useEffect(() => {
-    const passedBid = location.state?.bid;
-
-    if (!passedBid) {
-      navigate("/bid-management");
-    } else {
-      setBid(passedBid);
+    if (data?.data) {
+      setBid(data.data[0]);
     }
-  }, [location, navigate]);
+  }, [data]);
 
   if (!bid) return null;
 
   // For datetime-local input, convert "YYYY-MM-DD HH:mm" to "YYYY-MM-DDTHH:mm"
-  const formattedBidTime = bid.bidTime ? bid.bidTime.replace(" ", "T") : "";
-  const formattedBidEndTime = bid.bidEndTime
-    ? bid.bidEndTime.replace(" ", "T")
-    : new Date(new Date(bid.bidTime).getTime() + 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 16); // default to 1 hour after bidTime
+  const formattedBidTime = bid.bidTime
+    ? new Date(bid.bidTime).toISOString().slice(0, 16)
+    : "";
+  const formattedBidEndTime = bid.bidTime
+    ? new Date(bid.bidEndTime).toISOString().slice(0, 16)
+    : bid.bidDuration
+      ? new Date(new Date(bid.bidDuration).getTime() + 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 16)
+      : ""; // default to 1 hour after bidTime
 
   const handleBidTimeChange = (e) => {
     const value = e.target.value;
     setBid((prev) => ({
       ...prev,
-      bidTime: value ? value.replace("T", " ") : "",
+      bidDuration: value ? value.replace("T", " ") : "",
     }));
   };
 
@@ -241,7 +246,7 @@ const BidView = () => {
           <div className="row mt-2">
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Property ID</label>
-              <input className="form-control" value={bid.id} disabled />
+              <input className="form-control" value={bid.propertyId} disabled />
             </div>
 
             <div className="col-md-6 mb-3">
@@ -257,7 +262,11 @@ const BidView = () => {
               <label className="form-label fw-semibold">
                 Property Holder Name
               </label>
-              <input className="form-control" value={bid.listerName} disabled />
+              <input
+                className="form-control"
+                value={bid.firstName + " " + bid.lastName}
+                disabled
+              />
             </div>
 
             <div className="col-md-6 mb-3">
