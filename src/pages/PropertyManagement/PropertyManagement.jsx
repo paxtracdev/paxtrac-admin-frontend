@@ -66,7 +66,7 @@ const ListingManagement = () => {
 
   const [filters, setFilters] = useState({
     status: "",
-    listingType: "",
+    propertyType: "",
   });
 
   const [query, setQuery] = useState({
@@ -102,10 +102,8 @@ const ListingManagement = () => {
       filtered = filtered.filter((i) => i.status === filters.status);
     }
 
-    if (filters.listingType) {
-      filtered = filtered.filter(
-        (i) => i.listingType === filters.listingType,
-      );
+    if (filters.propertyType) {
+      filtered = filtered.filter((i) => i.listingType === filters.propertyType);
     }
 
     setAllData(filtered);
@@ -220,8 +218,9 @@ const ListingManagement = () => {
             <button
               className="border-0 bg-transparent"
               onClick={() =>
-                navigate(`/listing-management/view-listing?id=${params.data.id}`)
-
+                navigate(
+                  `/listing-management/view-listing?id=${params.data.id}`,
+                )
               }
             >
               <Eye size={18} />

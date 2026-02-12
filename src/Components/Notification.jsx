@@ -14,7 +14,7 @@ const Notification = ({ notifications = [] }) => {
         id="dropdown-notifications"
         className="notification-icon c-pointer me-3 position-relative"
       >
-        <Bell size={20}  />
+        <Bell size={20} />
         {/* {hasNotifications && (
           <span
             className="notification-badge position-absolute translate-middle badge rounded-pill bg-danger"
@@ -51,7 +51,6 @@ const Notification = ({ notifications = [] }) => {
                 key={idx}
                 className="p-3 small notification-item"
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate(n.link || "/")}
               >
                 <strong>{n.title}</strong> — {n.message}
                 <div

@@ -58,6 +58,11 @@ const BidView = () => {
 
   // For datetime-local input, convert "YYYY-MM-DD HH:mm" to "YYYY-MM-DDTHH:mm"
   const formattedBidTime = bid.bidTime ? bid.bidTime.replace(" ", "T") : "";
+  const formattedBidEndTime = bid.bidEndTime
+    ? bid.bidEndTime.replace(" ", "T")
+    : new Date(new Date(bid.bidTime).getTime() + 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 16); // default to 1 hour after bidTime
 
   const handleBidTimeChange = (e) => {
     const value = e.target.value;
@@ -73,8 +78,6 @@ const BidView = () => {
       title: "Saved",
       text: "Bid details updated successfully.",
       confirmButtonColor: "#a99068",
-    }).then(() => {
-      navigate("/bid-management");
     });
   };
 
@@ -86,8 +89,6 @@ const BidView = () => {
       title: "Bidding Closed",
       text: "Bidding has been closed successfully.",
       confirmButtonColor: "#a99068",
-    }).then(() => {
-      navigate("/bid-management");
     });
   };
 
@@ -99,8 +100,6 @@ const BidView = () => {
       title: "Bidding Reopened",
       text: "Bidding has been reopened successfully.",
       confirmButtonColor: "#a99068",
-    }).then(() => {
-      navigate("/bid-management");
     });
   };
 
@@ -276,6 +275,17 @@ const BidView = () => {
                 className="form-control text-lowercase"
                 value={bid.email}
                 disabled
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Bid Duration</label>
+              <input
+                type="datetime-local"
+                className="form-control"
+                value={formattedBidEndTime}
+                disabled
+                readOnly
               />
             </div>
 

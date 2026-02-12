@@ -6,15 +6,15 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
   const modalRef = useRef(null);
 
   useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      onClose();
-    }
-  };
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, [onClose]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
 
   const PROPERTY_TYPES = [
     "Multi-Family",
@@ -50,41 +50,40 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
 
           <div className="modal-body p-2">
             {/* STATUS RADIO */}
-            <div className="">
+            <div>
               <p className="mb-2 fw-semibold">Status</p>
 
-              <div className="d-flex align-items-center gap-4">
-                <div className="form-check">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    id="status-active" // unique id
-                    name="status"
-                    checked={localFilters.status === "active"}
-                    onChange={() =>
-                      setLocalFilters({ ...localFilters, status: "active" })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="status-active">
-                    Active
-                  </label>
-                </div>
-
-                <div className="form-check">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    id="status-inactive" // unique id
-                    name="status"
-                    checked={localFilters.status === "inactive"}
-                    onChange={() =>
-                      setLocalFilters({ ...localFilters, status: "inactive" })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="status-inactive">
-                    Inactive
-                  </label>
-                </div>
+              <div className="row">
+                {[
+                  { label: "Under review", value: "under-review" },
+                  { label: "Deal sealed", value: "dealSealed" },
+                  { label: "Approved", value: "approved" },
+                  { label: "Rejected", value: "rejected" },
+                ].map((status) => (
+                  <div className="col-sm-6 mb-2" key={status.value}>
+                    <div className="form-check">
+                      <input
+                        type="radio"
+                        className="form-check-input"
+                        id={`status-${status.value}`}
+                        name="status"
+                        checked={localFilters.status === status.value}
+                        onChange={() =>
+                          setLocalFilters({
+                            ...localFilters,
+                            status: status.value,
+                          })
+                        }
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor={`status-${status.value}`}
+                      >
+                        {status.label}
+                      </label>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
