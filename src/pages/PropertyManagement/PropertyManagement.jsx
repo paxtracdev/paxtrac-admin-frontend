@@ -86,7 +86,7 @@ const ListingManagement = () => {
   /* =======================
      PAGINATION VALUES
   ======================= */
-  const totalCount = data?.total || 0;
+  const totalCount = data?.pagination?.total || 0;
   const totalPages = Math.ceil(totalCount / query.limit);
   const currentPage = query.page;
   const pageSize = query.limit;

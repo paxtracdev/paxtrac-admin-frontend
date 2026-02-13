@@ -111,7 +111,7 @@ const BidManagement = () => {
     const startIndex = (currentPage - 1) * pageSize;
   }, [currentPage, pageSize]);
 
-  const totalCount = data?.total;
+  const totalCount = data?.pagination?.total;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handlePageChange = (page) => {

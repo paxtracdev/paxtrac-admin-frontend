@@ -16,7 +16,19 @@ export const analyticsApi = createApi({
         },
       }),
     }),
+     getAllTransactions: builder.query({
+      query: ({ page = 1, limit = 10, search = "" }) => ({
+        url: "/AllTransactions",
+        params: {
+          page,
+          limit,
+          search,
+        },
+      }),
+      providesTags: ["Transactions"],
+    }),
+    
   }),
 });
 
-export const { useGetUserAnalyticsQuery } = analyticsApi;
+export const { useGetUserAnalyticsQuery ,useGetAllTransactionsQuery } = analyticsApi;

@@ -5,7 +5,7 @@ import { logout } from "../redux/slice/userSlice"; // adjust path
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://51.161.10.63/api/admin",
   prepareHeaders: (headers, { getState }) => {
-    const token = getState().auth?.token || localStorage.getItem("token");
+    const token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTgxYWI2YThiMTUzMTg1OWQ4MWFlY2IiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk2NjA0OSwiZXhwIjoxNzcxMDUyNDQ5fQ.CZx1dZ-KdRbxyqSjUcZI9vYV2YiUWI8LlxRYhhErxBE";
 
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
