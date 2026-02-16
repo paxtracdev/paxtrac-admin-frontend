@@ -26,7 +26,32 @@ export const propertyApi = createApi({
       }),
       invalidatesTags: ["Property"],
     }),
+    PropertyById: builder.query({
+      query: (propertyId) => `/properties/${propertyId}`,
+    }),
+    approveProperty: builder.mutation({
+      query: ({ listingId, startDate }) => ({
+        url: `/approve/${listingId}`,
+        method: "POST",
+        body: { startDate },
+      }),
+      invalidatesTags: ["Property"],
+    }),
+
+    rejectProperty: builder.mutation({
+      query: (propertyId) => ({
+        url: `/properties/${propertyId}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Property"],
+    }),
   }),
 });
 
-export const { useGetPropertiesQuery, useDeletePropertyMutation } = propertyApi;
+export const {
+  useGetPropertiesQuery,
+  useDeletePropertyMutation,
+  usePropertyByIdQuery,
+  useApprovePropertyMutation,
+  useRejectPropertyMutation,
+} = propertyApi;

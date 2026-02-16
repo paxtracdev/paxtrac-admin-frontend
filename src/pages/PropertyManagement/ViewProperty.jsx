@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
 
@@ -13,66 +13,26 @@ import "lightgallery/css/lightgallery.css";
 import "lightgallery/css/lg-thumbnail.css";
 import "lightgallery/css/lg-zoom.css";
 import { CirclePlay, File, Play } from "lucide-react";
-
+import { usePropertyByIdQuery } from "../../api/propertyApi";
+import { useApprovePropertyMutation } from "../../api/propertyApi";
+import { useRejectPropertyMutation } from "../../api/propertyApi";
 const ViewListing = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-const listingId = searchParams.get("id");
+  const { id: listingId } = useParams();
+
   const [activeVideo, setActiveVideo] = useState(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveDateTime, setApproveDateTime] = useState("");
   const [approveError, setApproveError] = useState("");
+  const { data, isLoading, isError } = usePropertyByIdQuery(listingId, {
+    skip: !listingId,
+  });
+  const [approveProperty] = useApprovePropertyMutation();
+  const [rejectProperty] = useRejectPropertyMutation();
 
   // 🔒 STATIC DATA (NO API)
-  const listing  = {
-    listingId: "PROP-001",
-    address: "123 Main Street, New York, NY 10001",
-    legalOwner: "John Doe",
-    managementCompany: "ABC Property Management LLC",
-    serviceTypes: ["Maintenance", "Cleaning", "Security"],
-    propertyType: "Residential",
-    units: 24,
-    squareFeet: null,
-    dueDiligenceDays: 14,
-    inspectionAllowed: "Yes",
-    bidDuration: "30 Days",
-    additionalRequirements:
-      "All vendors must provide valid insurance and licenses.",
-    status: "under-review",
-    documents: [
-      {
-        name: "Property_Deed.pdf",
-        url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      },
-      {
-        name: "Insurance.docx",
-        url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      },
-    ],
-
-    scopeOfWork:
-      "Provide complete maintenance and upkeep of the residential property including plumbing, electrical, and common area cleaning.",
-    contractLength: "2 Years",
-    targetCompensation: "$120,000",
-    expectedStartDate: "2026-02-01",
-    completionTimeframe: "180 Days",
-    contractFile: {
-      name: "ServiceContract.pdf",
-      url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    },
-    photos: [
-      "https://picsum.photos/id/1015/600/400",
-      "https://picsum.photos/id/1016/600/400",
-      "https://picsum.photos/id/1018/600/400",
-      "https://picsum.photos/id/1020/600/400",
-      "https://picsum.photos/id/1024/600/400",
-    ],
-    videos: [
-      "https://media.w3.org/2010/05/sintel/trailer.mp4",
-      "https://media.w3.org/2010/05/bunny/trailer.mp4",
-      "https://media.w3.org/2010/05/video/movie_300.mp4",
-    ],
-  };
+  const listing = data?.data;
 
   const handleApprove = () => {
     setApproveDateTime("");
@@ -80,35 +40,73 @@ const listingId = searchParams.get("id");
     setShowApproveModal(true);
   };
 
-  const handleApproveConfirm = () => {
+  const handleApproveConfirm = async () => {
     if (!approveDateTime) {
       setApproveError("Date & time is required");
       return;
     }
 
-    setShowApproveModal(false);
+    const formattedStartDate = (approveDateTime) => {
+      const d = new Date(approveDateTime);
+      return d.toISOString()
+    };
 
-    Swal.fire({
-      title: "Approved",
-      text: "Property has been approved",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    }).then(() => {
-      navigate("/property-management");
-    });
+    try {
+      setShowApproveModal(false);
+
+      await approveProperty({
+        listingId,
+        startDate: formattedStartDate(approveDateTime),
+      }).unwrap();
+
+      Swal.fire({
+        title: "Approved",
+        text: "Property has been approved",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      }).then(() => {
+        navigate("/listing-management");
+      });
+    } catch (err) {
+      Swal.fire({
+        title: "Error",
+        text: err?.data?.message,
+        icon: "error",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
-  const handleReject = () => {
-    Swal.fire({
-      title: "Rejected",
-      text: "Property has been rejected",
-      icon: "error",
-      confirmButtonColor: "#a99068",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/property-management");
-      }
+  const handleReject = async () => {
+    const result = await Swal.fire({
+      title: "Reject Property?",
+      text: "Are you sure you want to reject this property?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e83f3f",
+      cancelButtonColor: "#a99068",
+      confirmButtonText: "Yes, reject",
     });
+
+    try {
+      await rejectProperty(listingId).unwrap();
+
+      Swal.fire({
+        title: "Rejected",
+        text: "Property has been rejected",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      }).then(() => {
+        navigate("/listing-management");
+      });
+    } catch (err) {
+      Swal.fire({
+        title: "Error",
+        text: err?.data?.message || "Failed to reject property",
+        icon: "error",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   // For lightgallery ref (optional, if you want to control)
@@ -132,7 +130,7 @@ const listingId = searchParams.get("id");
               rejected: { label: "Rejected", className: "inactive" },
             };
 
-            const status = statusMap[listing.status] || {};
+            const status = statusMap[listing?.status] || {};
             return (
               <div className={`status-badge ${status.className}`}>
                 {status.label}
@@ -141,18 +139,21 @@ const listingId = searchParams.get("id");
           })()}
 
           <div className="row">
-            <Detail label="Listing ID" value={listing.listingId} />
-            <Detail label="Listing Address" value={listing.address} />
-            <Detail label="Legal Owner" value={listing.legalOwner} />
+            <Detail label="Listing ID" value={listing?.listingId} />
+            <Detail
+              label="Listing Address"
+              value={listing?.servicePropertyAddress}
+            />
+            <Detail label="Legal Owner" value={listing?.legalOwnerName} />
             <Detail
               label="Property Management Company"
-              value={listing.managementCompany}
+              value={listing?.propertyManagementCompanyName}
             />
             <div className="col-md-12 mb-3">
               <label className="form-label fw-semibold">Service Types</label>
 
               <div className="d-flex flex-wrap gap-2">
-                {listing.serviceTypes.map((type, idx) => (
+                {listing?.serviceTypes?.map((type, idx) => (
                   <span key={idx} className="service-chip">
                     {type}
                   </span>
@@ -160,29 +161,35 @@ const listingId = searchParams.get("id");
               </div>
             </div>
 
-            <Detail label="Property Type" value={listing.propertyType} />
+            <Detail label="Property Type" value={listing?.propertyType} />
 
-            {listing.propertyType === "Residential" && (
-              <Detail label="Units" value={listing.units} />
+            {listing?.propertyType === "Residential" && (
+              <Detail label="Units" value={listing?.totalResidentialUnits} />
             )}
 
-            {listing.propertyType === "Commercial" && (
-              <Detail label="Square Feet" value={listing.squareFeet} />
+            {listing?.propertyType === "Commercial" && (
+              <Detail
+                label="Square Feet"
+                value={listing.commercialSquareFeet}
+              />
             )}
 
             <Detail
               label="Due Diligence Period"
-              value={`${listing.dueDiligenceDays} Days`}
+              value={`${listing?.dueDiligenceDays} Days`}
             />
             <Detail
               label="Inspection Allowed"
-              value={listing.inspectionAllowed}
+              value={listing?.allowInspection}
             />
-            <Detail label="Bid Duration" value={listing.bidDuration} />
+            <Detail
+              label="Bid Duration"
+              value={`${listing?.bidDurationDays} Days`}
+            />
 
             <FullDetail
               label="Additional Requirements"
-              value={listing.additionalRequirements}
+              value={listing?.additionalRequirementText}
             />
 
             {/* Documents preview */}
@@ -192,7 +199,7 @@ const listingId = searchParams.get("id");
               </label>
 
               <div className="d-flex flex-wrap gap-2">
-                {listing.documents.map((doc, idx) => (
+                {listing?.additionalRequirementDocuments?.map((doc, idx) => (
                   <a
                     key={idx}
                     href={doc.url}
@@ -207,37 +214,40 @@ const listingId = searchParams.get("id");
               </div>
             </div>
 
-            <FullDetail label="Scope of Work" value={listing.scopeOfWork} />
+            <FullDetail
+              label="Scope of Work"
+              value={listing?.scopeOfworkDescription}
+            />
 
             <Detail
               label="Service Contract Length"
-              value={listing.contractLength}
+              value={listing?.contractLength}
             />
             <Detail
               label="Target Compensation"
-              value={listing.targetCompensation}
+              value={listing?.compensationAmount}
             />
             <Detail
               label="Expected Start Date"
-              value={listing.expectedStartDate}
+              value={listing?.contractStartDate}
             />
             <Detail
               label="Completion Timeframe"
-              value={listing.completionTimeframe}
+              value={listing?.completionTimeframeDays}
             />
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Contract File</label>
               <div className="contract-file-item">
                 <a
-                  href={listing.contractFile.url}
+                  href={listing?.contractFile?.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="fd-inline-flex align-items-center me-3 mb-2 text-decoration-none"
                   style={{ color: "#7f6c4d" }}
                 >
                   <File size={18} />{" "}
-                  <span className="ms-1">{listing.contractFile.name}</span>
+                  <span className="ms-1">{listing?.contractFile?.name}</span>
                 </a>
               </div>
             </div>
@@ -251,7 +261,7 @@ const listingId = searchParams.get("id");
                 elementClassNames="property-gallery"
                 ref={lightGalleryRef}
               >
-                {listing.photos.map((src, idx) => (
+                {listing?.uploadPhotos?.map((src, idx) => (
                   <a key={idx} href={src} className="property-gallery-item">
                     <img src={src} alt={`Property photo ${idx + 1}`} />
                   </a>
@@ -264,7 +274,7 @@ const listingId = searchParams.get("id");
               <label className="form-label fw-semibold">Videos Uploaded</label>
 
               <div className="video-gallery">
-                {listing.videos.map((src, idx) => (
+                {listing?.uploadVideos?.map((src, idx) => (
                   <div
                     key={idx}
                     className="video-item video-thumb"
@@ -285,7 +295,7 @@ const listingId = searchParams.get("id");
             <button className="button-secondary" onClick={() => navigate(-1)}>
               Back
             </button>
-            {listing.status === "under-review" && (
+            {listing?.status === "under-review" && (
               <>
                 <button className="primary-button" onClick={handleApprove}>
                   Approve

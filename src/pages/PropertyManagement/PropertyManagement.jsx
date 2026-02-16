@@ -211,7 +211,7 @@ const ListingManagement = () => {
               className="border-0 bg-transparent"
               onClick={() =>
                 navigate(
-                  `/listing-management/view-listing?id=${params.data.id}`,
+                  `/listing-management/view-listing/${params.data._id}`,
                 )
               }
             >

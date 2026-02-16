@@ -57,7 +57,26 @@ export const userApi = createApi({
       query: (id) => `/bids-list/${id}`,
       providesTags: ["Users"],
     }),
-    
+    startBid: builder.mutation({
+      query: ({ bidId, bidTime }) => ({
+        url: `/update-bidding-start/${bidId}`,
+        method: "PUT",
+        body: { bidTime },
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    getSupport: builder.query({
+      query: ({ page, limit, search }) => ({
+        url: "/supports",
+        method: "GET",
+        params: {
+          page,
+          limit,
+          search,
+        },
+      }),
+      providesTags: ["Users"],
+    }),
   }),
 });
 
@@ -67,4 +86,6 @@ export const {
   useUpdateUserMutation,
   useGetBidsQuery,
   useGetBidIndivisualQuery,
+  useStartBidMutation,
+  useGetSupportQuery,
 } = userApi;

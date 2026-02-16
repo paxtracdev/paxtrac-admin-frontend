@@ -7,7 +7,7 @@ import CustomPagination from "../../Components/CustomPagination";
 import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { useGetBidIndivisualQuery } from "../../api/userApi";
-
+import { useStartBidMutation } from "../../api/userApi";
 const BidView = () => {
   const mockBidders = [
     {
@@ -36,6 +36,7 @@ const BidView = () => {
   const { data, isLoading, isError } = useGetBidIndivisualQuery(id, {
     skip: !id,
   });
+  const [BidTime] = useStartBidMutation();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const BidView = () => {
   const [messageText, setMessageText] = useState("");
   const [selectedBidder, setSelectedBidder] = useState(null);
   const [messageError, setMessageError] = useState("");
+  const [bidTime, setBidTime] = useState(""); // for datetime-local input
 
   const [bid, setBid] = useState(null);
 
@@ -73,6 +75,7 @@ const BidView = () => {
   const formattedBidTime = bid.bidTime
     ? new Date(bid.bidTime).toISOString().slice(0, 16)
     : "";
+
   const formattedBidEndTime = bid.bidTime
     ? new Date(bid.bidEndTime).toISOString().slice(0, 16)
     : bid.bidDuration
@@ -82,31 +85,55 @@ const BidView = () => {
       : ""; // default to 1 hour after bidTime
 
   const handleBidTimeChange = (e) => {
-    const value = e.target.value;
-    setBid((prev) => ({
-      ...prev,
-      bidDuration: value ? value.replace("T", " ") : "",
-    }));
+    setBidTime(e.target.value);
   };
 
-  const handleSaveChanges = () => {
-    Swal.fire({
-      icon: "success",
-      title: "Saved",
-      text: "Bid details updated successfully.",
-      confirmButtonColor: "#a99068",
-    });
+  const handleSaveChanges = async () => {
+    const payload = {
+      bidId: bid.propertyId,
+      bidTime: bid.bidTime,
+    };
+    try {
+      // Call your API mutation
+      await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
+      Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: "Bid details updated successfully.",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update bid time",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
-  const handleCloseBidding = () => {
-    setBid((prev) => ({ ...prev, status: "inactive" }));
+  const handleCloseBidding = async () => {
+    try {
+      // Call backend to close the bid
+      await endBidding({ bidId: bid.id }).unwrap();
 
-    Swal.fire({
-      icon: "success",
-      title: "Bidding Closed",
-      text: "Bidding has been closed successfully.",
-      confirmButtonColor: "#a99068",
-    });
+      // Update UI
+      setBid((prev) => ({ ...prev, status: "inactive" }));
+
+      Swal.fire({
+        icon: "success",
+        title: "Bidding Closed",
+        text: "Bidding has been closed successfully.",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to close bidding",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   const handleReopenBidding = () => {
@@ -315,7 +342,7 @@ const BidView = () => {
               <input
                 type="datetime-local"
                 className="form-control"
-                value={formattedBidTime}
+                value={bidTime}
                 onChange={handleBidTimeChange}
                 onClick={(e) => e.target.showPicker?.()}
                 onFocus={(e) => e.target.showPicker?.()}
@@ -327,7 +354,7 @@ const BidView = () => {
               <textarea
                 className="form-control"
                 rows={3}
-                value={bid.address || "-"}
+                value={bid.servicePropertyAddress || "-"}
                 disabled
               />
             </div>

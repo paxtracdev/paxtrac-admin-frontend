@@ -86,7 +86,7 @@ export default function App() {
 
           <Route path="/listing-management" element={<ListingManagement />} />
           <Route
-            path="/listing-management/view-listing"
+            path="/listing-management/view-listing/:id"
             element={<ViewProperty />}
           />
 

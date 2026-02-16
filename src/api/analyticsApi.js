@@ -5,18 +5,13 @@ export const analyticsApi = createApi({
   reducerPath: "analyticsApi",
   baseQuery: baseQueryWithAuth,
   endpoints: (builder) => ({
-    getUserAnalytics: builder.query({
-      query: ({ range, startDate, endDate }) => ({
-        url: "/reports/user-activity",
+    getAnalytics: builder.query({
+      query: () => ({
+        url: "/analytics",
         method: "GET",
-        params: {
-          range,
-          startDate,
-          endDate,
-        },
       }),
     }),
-     getAllTransactions: builder.query({
+    getAllTransactions: builder.query({
       query: ({ page = 1, limit = 10, search = "" }) => ({
         url: "/AllTransactions",
         params: {
@@ -27,8 +22,8 @@ export const analyticsApi = createApi({
       }),
       providesTags: ["Transactions"],
     }),
-    
   }),
 });
 
-export const { useGetUserAnalyticsQuery ,useGetAllTransactionsQuery } = analyticsApi;
+export const { useGetAnalyticsQuery, useGetAllTransactionsQuery } =
+  analyticsApi;
