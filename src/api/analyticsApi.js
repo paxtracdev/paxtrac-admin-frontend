@@ -22,6 +22,7 @@ export const analyticsApi = createApi({
       }),
       providesTags: ["Transactions"],
     }),
+    
   }),
 });
 

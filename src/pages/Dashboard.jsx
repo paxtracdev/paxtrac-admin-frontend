@@ -24,7 +24,7 @@ function Dashboard() {
       icon: <CalendarCheck size={22} />,
       title: "Total Jobs",
       value: statsData.total_events,
-      path: "/bid-management",
+      path: "/listing-management",
     },
     // {
     //   icon: <TrendingUp size={22} />,

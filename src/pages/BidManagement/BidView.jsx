@@ -8,6 +8,10 @@ import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { useGetBidIndivisualQuery } from "../../api/userApi";
 import { useStartBidMutation } from "../../api/userApi";
+import { useBiddersQuery } from "../../api/userApi";
+import { useBroadcastBiddersMutation } from "../../api/userApi";
+import { useBroadcastBidderMutation } from "../../api/userApi";
+
 const BidView = () => {
   const mockBidders = [
     {
@@ -37,11 +41,24 @@ const BidView = () => {
     skip: !id,
   });
   const [BidTime] = useStartBidMutation();
+  const [broadcastBidders] = useBroadcastBiddersMutation();
+  const [broadcastBidder] = useBroadcastBidderMutation();
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [bidders, setBidders] = useState(mockBidders);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const { data: dataList, isLoading: biddersLoading } = useBiddersQuery(
+    {
+      bidId: id,
+      page,
+      limit,
+      search,
+    },
+    { skip: !id },
+  );
+  const bidders = dataList?.bidders || [];
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "broadcast" | "bidder"
@@ -55,11 +72,11 @@ const BidView = () => {
   const filteredBidders = bidders.filter((b) => {
     const query = search.toLowerCase();
     return (
-      b.bidderId.toLowerCase().includes(query) ||
-      b.name.toLowerCase().includes(query) ||
-      b.email.toLowerCase().includes(query) ||
-      b.status.toLowerCase().includes(query) ||
-      b.bidAmount.toString().includes(query)
+      b?.bidderId?.toLowerCase().includes(query) ||
+      b?.name?.toLowerCase().includes(query) ||
+      b?.email?.toLowerCase().includes(query) ||
+      b?.status?.toLowerCase().includes(query) ||
+      b?.bidAmount?.toString().includes(query)
     );
   });
 
@@ -89,9 +106,11 @@ const BidView = () => {
   };
 
   const handleSaveChanges = async () => {
+    const isoBidTime = new Date(bidTime).toISOString(); // converts local time to UTC ISO format
+
     const payload = {
       bidId: bid.propertyId,
-      bidTime: bid.bidTime,
+      bidTime: isoBidTime,
     };
     try {
       // Call your API mutation
@@ -160,8 +179,9 @@ const BidView = () => {
     },
     {
       headerName: "Bidder Name",
-      field: "name",
       flex: 1.5,
+      valueGetter: (params) =>
+        `${params.data?.firstName || ""} ${params.data?.lastName || ""}`.trim(),
     },
     {
       headerName: "Bidder Email",
@@ -227,7 +247,7 @@ const BidView = () => {
     setShowModal(true);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     // TODO: API call here
 
     if (!messageText.trim()) {
@@ -240,20 +260,42 @@ const BidView = () => {
     //   message: messageText,
     // });
 
-    setShowModal(false);
-    setMessageText("");
-    setMessageError("");
-    setSelectedBidder(null);
+    try {
+      if (modalType === "broadcast") {
+        await broadcastBidders({
+          propertyId: bid.propertyId,
+          text: messageText,
+        }).unwrap();
+      } else {
+        await broadcastBidder({
+          propertyId: bid.propertyId,
+          bidderId: selectedBidder.bidderId,
+          text: messageText,
+        }).unwrap();
+      }
 
-    Swal.fire({
-      icon: "success",
-      title: "Message sent",
-      text:
-        modalType === "broadcast"
-          ? "Broadcast message sent successfully."
-          : `Message sent to ${selectedBidder?.name}`,
-      confirmButtonColor: "#a99068",
-    });
+      setShowModal(false);
+      setMessageText("");
+      setMessageError("");
+      setSelectedBidder(null);
+
+      Swal.fire({
+        icon: "success",
+        title: "Message sent",
+        text:
+          modalType === "broadcast"
+            ? "Broadcast message sent successfully."
+            : `Message sent to ${selectedBidder?.firstName || ""}`,
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to send message",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   return (
@@ -412,11 +454,16 @@ const BidView = () => {
           </div>
 
           <CustomPagination
-            currentPage={1}
-            totalPages={1}
-            totalCount={bidders.length}
-            pageSize={10}
+            currentPage={page}
+            totalPages={dataList?.totalPages || 1}
+            totalCount={dataList?.total || 0}
+            pageSize={limit}
             pageSizeOptions={[5, 10]}
+            onPageChange={(p) => setPage(p)}
+            onPageSizeChange={(s) => {
+              setLimit(s);
+              setPage(1);
+            }}
           />
         </div>
 

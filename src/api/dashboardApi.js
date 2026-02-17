@@ -3,7 +3,7 @@ import { baseQueryWithAuth } from "./baseApi";
 
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
-baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithAuth,
   tagTypes: ["Dashboard"],
 
   endpoints: (builder) => ({

@@ -77,6 +77,37 @@ export const userApi = createApi({
       }),
       providesTags: ["Users"],
     }),
+    bidders: builder.query({
+      query: ({ page = 1, limit = 10, search, bidId }) => ({
+        url: `/bids/${bidId}`,
+        params: { page, limit, search },
+      }),
+      providesTags: ["Users"],
+    }),
+    broadcastBidders: builder.mutation({
+      query: ({ propertyId, text }) => ({
+        url: `/notify-bidders`,
+        method: "POST",
+        body: {
+          bidId: propertyId,
+          message: text,
+        },
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    broadcastBidder: builder.mutation({
+      query: ({ propertyId, bidderId, text }) => ({
+        url: "/notify-bidder",
+        method: "POST",
+        body: {
+          bidId: propertyId,
+          bidderId: bidderId,
+          message: text,
+        },
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    
   }),
 });
 
@@ -88,4 +119,7 @@ export const {
   useGetBidIndivisualQuery,
   useStartBidMutation,
   useGetSupportQuery,
+  useBiddersQuery,
+  useBroadcastBiddersMutation,
+  useBroadcastBidderMutation,
 } = userApi;
