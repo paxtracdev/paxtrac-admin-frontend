@@ -5,6 +5,8 @@ import CustomPagination from "../../Components/CustomPagination";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import NoData from "../../Components/NoData";
+import PaymentFilterModal from "../../Components/PaymentFilterModal";
+
 import { useGetAllTransactionsQuery } from "../../api/analyticsApi";
 const demoPayments = [
   {
@@ -48,6 +50,9 @@ const Payments = () => {
   const [pageSize, setPageSize] = useState(10);
   const [payments, setPayments] = useState(demoPayments);
   const [searchInput, setSearchInput] = useState("");
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
+
   const { data, isLoading } = useGetAllTransactionsQuery({
     page: currentPage,
     limit: pageSize,
@@ -157,6 +162,14 @@ const Payments = () => {
             <div className="title-heading mb-2">Payments Management</div>
             <p className="title-sub-heading">View all property payments</p>
           </div>
+
+          {/* Filter Button */}
+          <button
+            className="login-btn"
+            onClick={() => setFilterModalOpen(true)}
+          >
+            Filter
+          </button>
         </div>
 
         <Breadcrumbs />
@@ -211,6 +224,18 @@ const Payments = () => {
           )}
         </div>
       </section>
+
+     <PaymentFilterModal
+  show={filterModalOpen}
+  initialStatus={statusFilter}
+  onClose={() => setFilterModalOpen(false)}
+  onApply={(status) => {
+    setStatusFilter(status);
+    setFilterModalOpen(false);
+    setCurrentPage(1);
+  }}
+/>
+
     </main>
   );
 };

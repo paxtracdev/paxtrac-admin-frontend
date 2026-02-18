@@ -521,3 +521,6 @@ const BidView = () => {
 };
 
 export default BidView;
+
+
+

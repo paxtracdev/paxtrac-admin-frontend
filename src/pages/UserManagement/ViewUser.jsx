@@ -1,192 +1,45 @@
 import React from "react";
-import { useNavigate, useSearchParams, useParams } from "react-router-dom";
-import Button from "react-bootstrap/Button";
-import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom"; 
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { File } from "lucide-react";
-import { useGetUserByIdQuery } from "../../api/userApi";
-// Static data simulating users and their business info (ideally you would fetch this)
-const STATIC_USERS = [
-  // ===== OWNER =====
-  {
-    _id: "1",
-    userId: "USR-001",
-    first_name: "Amit",
-    last_name: "Sharma",
-    email: "amit.owner@example.com",
-    phone: "9876543210",
-    role: "owner",
-    status: "active",
-    registrationDate: "2025-12-01",
-    planDetails: {
-      planName: "Foundation", // Foundation | Pillar | Empire
-      billingType: "Annually", // Annually | One Time
-      purchaseDate: "2025-11-20",
-      backgroundCheckUsed: "4",
-      propertyUsed: "2",
-    },
-    businessDetails: {
-      ownerName: "Sharma Properties Pvt Ltd",
-      ownerAddress: "123 MG Road, Mumbai",
-      employees: 40,
-      unitsOwned: 120,
-      startYear: 2008,
-      capexBudget: "₹1,20,00,000",
-      geographicAreas: "Mumbai, Pune",
-      propertyTypes: ["Apartment", "Commercial", "Villa"],
-      propertyPortfolio:
-        "Managing premium residential and commercial properties across metro cities.",
-    },
-  },
+import { useGetUserByIdQuery } from "../../api/userApi"; 
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
-  // ===== VENDOR =====
-  {
-    _id: "2",
-    userId: "USR-002",
-    first_name: "John",
-    last_name: "Doe",
-    email: "john.vendor@example.com",
-    phone: "9876500000",
-    role: "vendor",
-    status: "active",
-    registrationDate: "2026-01-10",
-    planDetails: {
-      planName: "Pillar", // Foundation | Pillar | Empire
-      billingType: "One-Time", // Annually | One Time
-      purchaseDate: "2026-01-20",
-      backgroundCheckUsed: "4",
-      propertyUsed: "2",
-    },
-    businessDetails: {
-      businessName: "Doe Infrastructure Services",
-      businessAddress: "45 Industrial Area, Delhi",
-      geographicAreas: "Delhi NCR, Haryana",
-      startYear: 2016,
-      staffCount: 22,
-      services: [
-        "Surveyors",
-        "Excavators",
-        "Crane Operator",
-        "Welders",
-        "Fencing Contractor",
-      ],
-      license: true,
-      about:
-        "We provide end-to-end infrastructure and construction support services.",
-      experience:
-        "Completed over 150 commercial and residential projects across North India.",
-      uploadedFiles: [
-        {
-          name: "company-profile.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-        {
-          name: "service-brochure.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-      ],
+const ViewUser = () => { 
 
-      documents: [
-        {
-          name: "gst-certificate.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-        {
-          name: "trade-license.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-      ],
+  const { id } = useParams();
+  console.log("ViewUser ID:", id);
 
-      keyTeamMembers: [
-        { name: "Rohit Verma", position: "Project Manager" },
-        { name: "Ankit Jain", position: "Site Supervisor" },
-        { name: "Sunil Rao", position: "Operations Head" },
-        { name: "Deepak Singh", position: "Safety Officer" },
-        { name: "Neha Gupta", position: "HR Manager" },
-      ],
-    },
-  },
+const { data, isLoading, isError } = useGetUserByIdQuery(id);
 
-  // ===== MANAGER =====
-  {
-    _id: "3",
-    userId: "USR-003",
-    first_name: "Jane",
-    last_name: "Smith",
-    email: "jane.manager@example.com",
-    phone: "9123456789",
-    role: "manager",
-    status: "active",
-    registrationDate: "2026-01-15",
-    businessDetails: {
-      companyName: "Smith Property Management",
-      companyAddress: "78 Park Street, Bengaluru",
-      geographicAreas: "Bengaluru, Mysuru",
-      staffCount: 15,
-      startYear: 2014,
-      propertyTypes: ["Apartment", "Multi-Family"],
-      license: true,
-      about:
-        "We specialize in professional property management for residential communities.",
-      services: ["Tenant Management", "Maintenance", "Rent Collection"],
-      portfolio:
-        "Currently managing 25+ residential societies with 3000+ units.",
-      successStories:
-        "Improved tenant retention by 35% and reduced maintenance costs by 20%.",
-      documents: [
-        {
-          name: "gst-certificate.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-        {
-          name: "trade-license.pdf",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        },
-      ],
-      keyTeamMembers: [
-        { name: "Karan Mehta", position: "Senior Manager" },
-        { name: "Pooja Nair", position: "Accounts Lead" },
-        { name: "Rahul Iyer", position: "Maintenance Head" },
-        { name: "Sneha Kapoor", position: "Client Relations" },
-      ],
-    },
-  },
-];
+if (isLoading) return  <LoadingComponent isLoading fullScreen />; 
+if (isError || !data?.data) return <p>User not found</p>;
 
-const ViewUser = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+// Map API response to your component structure
+const user = data.data;
 
-  const id = useParams();
+const userId = user._id;
+const first_name = user.firstName || "";
+const last_name = user.lastName || "";
+const email = user.email || "";
+const phone = user.mobileNumber || "";
+const role = user.role || "N/A";
+const status = "active"; 
+const registrationDate = user.createdAt;
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetUserByIdQuery(id, {
-    skip: !id, // don't run query if no id
-  });
+const planDetails = {
+  planName: "N/A", 
+  billingType: "N/A",
+  purchaseDate: "N/A",
+  propertyUsed: user.plans?.usedProperties || 0,
+  backgroundCheckUsed: user.plans?.usedbackgroundChecks || 0,
+};
 
-  useEffect(() => {
-    if (!id) return;
+const businessDetails = 
+  role === "owner" ? user.OwnerbusinessDetails?.[0] || {} :
+  role === "vendor" ? user.VendorbusinessDetails?.[0] || {} :
+  role === "manager" ? user.ManagerbusinessDetails?.[0] || {} : {};
 
-    const foundUser = STATIC_USERS.find((u) => u._id === id);
-  }, [id]);
-
-  if (!shownUser) return; 
-
-  const {
-    _id: userId,
-    firstName: first_name,
-    lastName: last_name,
-    email,
-    mobileNumber: phone,
-    role,
-    status,
-    registrationDate,
-    ManagerbusinessDetails: businessDetails,
-    plans: planDetails,
-  } = shownUser?.data;
 
   const renderOwnerDetails = () => (
     <>
@@ -296,12 +149,12 @@ const ViewUser = () => {
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Types of property</label>
           <div className="d-flex flex-wrap gap-2">
-            {businessDetails.propertyTypes.map((type, i) => (
+            {businessDetails.propertyTypes?.map((type, i) => (
               <span
                 key={i}
                 className="service-chip"
                 style={{ fontSize: "0.9rem" }}
-                title={type} // shows tooltip on hover
+                title={type} 
               >
                 {type}
               </span>
@@ -668,7 +521,7 @@ const ViewUser = () => {
           {/* Status Badge Top Right */}
           <div
             className={`status-badge ${status === "inactive" ? "inactive" : ""}`}
-          >
+          > 
             {status}
           </div>
 
