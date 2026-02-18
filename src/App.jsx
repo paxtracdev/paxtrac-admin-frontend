@@ -56,7 +56,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/user-management/add-user" element={<AddUser />} />
           <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/user-management/view-user" element={<ViewUser />} />
+          <Route path="/user-management/view-user/:id" element={<ViewUser />} />
 
           <Route path="/vendor-management" element={<VendorManagement />} />
           <Route path="/vendor-management/view" element={<VendorView />} />

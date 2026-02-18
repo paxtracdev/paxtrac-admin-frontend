@@ -46,10 +46,6 @@ const Support = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedSupport, setSelectedSupport] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [replyModal, setReplyModal] = useState(false);
-  const [replyText, setReplyText] = useState("");
-  const [statusRow, setStatusRow] = useState(null);
-  const [replyError, setReplyError] = useState("");
   const { data, isError } = useGetSupportQuery({
     page,
     pageSize,
@@ -76,27 +72,13 @@ const Support = () => {
     );
   }, [debouncedSearch]);
 
-  const totalCount = data?.pagination?.total || 0;  
+  const totalCount = data?.pagination?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-   const paginatedData = useMemo(() => {
+  const paginatedData = useMemo(() => {
     const start = (page - 1) * pageSize;
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, page, pageSize]);
-
-  const handleCloseReplyModal = () => {
-    setReplyModal(false);
-    setReplyText("");
-    setReplyError("");
-    setStatusRow(null);
-  };
-
-  useEffect(() => {
-    if (replyModal) {
-      setReplyText("");
-      setReplyError("");
-    }
-  }, [replyModal]);
 
   const columnDefs = useMemo(
     () => [
@@ -139,10 +121,45 @@ const Support = () => {
           ],
 
           lockAfter: "success",
-          onChange: (value, rowData, node) => {
+          onChange: async (value, rowData, node) => {
             if (value === "success") {
-              setStatusRow({ rowData, node });
-              setReplyModal(true);
+              const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to mark this support as resolved?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#a99068",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Resolve it!",
+              });
+
+              if (result.isConfirmed) {
+                try {
+                  const response = await support(rowData._id).unwrap();
+
+                  // Update row safely by creating a new object
+                  node.setData({ ...rowData, status: "success" });
+
+                  Swal.fire({
+                    title: "Resolved!",
+                    text: response?.message || "Support resolved successfully",
+                    icon: "success",
+                    confirmButtonColor: "#a99068",
+                  });
+                } catch (err) {
+                  console.error("Support update error:", err);
+
+                  Swal.fire({
+                    title: "Error",
+                    text:
+                      err?.data?.message ||
+                      err?.error ||
+                      "Failed to update support status",
+                    icon: "error",
+                    confirmButtonColor: "#a99068",
+                  });
+                }
+              }
             }
           },
         },
@@ -250,56 +267,6 @@ const Support = () => {
                 onClick={() => setOpenModal(false)}
               >
                 Close
-              </button>
-            </div>
-          </Modal.Body>
-        </Modal>
-
-        {/* reply modal  */}
-        <Modal show={replyModal} onHide={handleCloseReplyModal} centered>
-          <Modal.Body className="p-3">
-            <h5 className="text-center">Reply to User</h5>
-
-            <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
-              <button
-                className="button-secondary"
-                onClick={handleCloseReplyModal}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="button-primary"
-                onClick={async () => {
-                
-                  try {
-                    // call the mutation
-                    await support(statusRow.rowData._id).unwrap();
-
-                    // update grid locally
-                    statusRow.node.setDataValue("status", "success");
-
-                    Swal.fire({
-                      title: "Resolved",
-                      text: "Support resolved successfully",
-                      icon: "success",
-                      confirmButtonColor: "#a99068",
-                    });
-
-                    handleCloseReplyModal();
-                  } catch (error) {
-                    Swal.fire({
-                      title: "Error",
-                      text:
-                        error?.data?.message ||
-                        "Failed to update support status",
-                      icon: "error",
-                      confirmButtonColor: "#a99068",
-                    });
-                  }
-                }}
-              >
-                Mark Resolved
               </button>
             </div>
           </Modal.Body>
