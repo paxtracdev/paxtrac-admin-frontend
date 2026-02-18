@@ -24,7 +24,7 @@ export const userApi = createApi({
     //  GET User By ID
     getUserById: builder.query({
       query: (id) => ({
-        url: `/users/${id}`,
+        url: `/userId/${id}`,
         method: "GET",
       }),
       providesTags: ["Users"],
@@ -107,7 +107,22 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["Users"],
     }),
-    
+    Support: builder.mutation({
+      query: (id) => ({
+        url: `/support/${id}`,
+        method: "PATCH",
+        // data can be added here if needed, e.g., body: { status: 'resolved' }
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    Settings: builder.mutation({
+  query: (payload) => ({
+    url: `/adminsettings`,      // backend route
+    method: "POST",        // or "PUT" depending on your backend
+    body: payload,         // the data you are sending
+  }),
+}),
+
   }),
 });
 
@@ -122,4 +137,6 @@ export const {
   useBiddersQuery,
   useBroadcastBiddersMutation,
   useBroadcastBidderMutation,
+  useSupportMutation,
+  useSettingsMutation  
 } = userApi;

@@ -3,20 +3,19 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomDropdown from "../../Components/CustomDropdown";
 import Swal from "sweetalert2";
+import { useSettingsMutation } from "../../api/userApi";
 
 const PlatformSettings = () => {
   const navigate = useNavigate();
 
   const [settings, setSettings] = useState({
     platformName: "Paxtrac",
-    timezone: "asia_kolkata",
-    language: "en",
-    preRegistrationAmount: 250,
-    promoCode: "",
+    preRegistrationAmount: 0,
     backgroundCheckAmount: 0,
   });
 
   const [errors, setErrors] = useState({});
+  const [setting, { isLoading }] = useSettingsMutation();
 
   const handleChange = (key, value) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -26,20 +25,12 @@ const PlatformSettings = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!settings.platformName.trim()) {
-      newErrors.platformName = "Platform name is required";
-    }
-
     if (
       settings.preRegistrationAmount === "" ||
       settings.preRegistrationAmount < 0
     ) {
       newErrors.preRegistrationAmount =
         "Pre-registration amount must be 0 or more";
-    }
-
-    if (settings.promoCode && settings.promoCode.length > 20) {
-      newErrors.promoCode = "Promo code must be 20 characters or less";
     }
 
     if (
@@ -54,8 +45,13 @@ const PlatformSettings = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
+
+    await setting({
+      preregistration: settings.preRegistrationAmount,
+      backgroundcheck: settings.backgroundCheckAmount,
+    }).unwrap();
 
     Swal.fire({
       title: "Saved",

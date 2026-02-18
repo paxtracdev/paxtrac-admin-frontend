@@ -1,10 +1,10 @@
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { useEffect, useState } from "react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { File } from "lucide-react";
-
+import { useGetUserByIdQuery } from "../../api/userApi";
 // Static data simulating users and their business info (ideally you would fetch this)
 const STATIC_USERS = [
   // ===== OWNER =====
@@ -157,31 +157,36 @@ const ViewUser = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const id = searchParams.get("id");
+  const id = useParams();
 
-  const [user, setUser] = useState(null);
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useGetUserByIdQuery(id, {
+    skip: !id, // don't run query if no id
+  });
 
   useEffect(() => {
     if (!id) return;
 
     const foundUser = STATIC_USERS.find((u) => u._id === id);
-    setUser(foundUser);
   }, [id]);
 
-  if (!user) return;
+  if (!shownUser) return; 
 
   const {
-    userId,
-    first_name,
-    last_name,
+    _id: userId,
+    firstName: first_name,
+    lastName: last_name,
     email,
-    phone,
+    mobileNumber: phone,
     role,
     status,
     registrationDate,
-    businessDetails,
-    planDetails,
-  } = user;
+    ManagerbusinessDetails: businessDetails,
+    plans: planDetails,
+  } = shownUser?.data;
 
   const renderOwnerDetails = () => (
     <>
@@ -198,7 +203,7 @@ const ViewUser = () => {
             readOnly
             placeholder="Name of Property Owner (Entity)"
           />
-        </div> 
+        </div>
 
         <div className="col-md-6 mb-3">
           <label className="form-label fw-semibold">
@@ -720,7 +725,7 @@ const ViewUser = () => {
                 type="text"
                 className="form-control"
                 placeholder="Enter role"
-                value={role.charAt(0).toUpperCase() + role.slice(1)}
+                value={role?.charAt(0).toUpperCase() + role?.slice(1)}
                 disabled
                 readOnly
               />

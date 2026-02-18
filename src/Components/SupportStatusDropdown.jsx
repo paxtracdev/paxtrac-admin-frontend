@@ -14,7 +14,7 @@ export default function SupportStatusDropdown(params) {
 
   const statusColors = {
     pending: { bg: "#fff7db", text: "#EE973D" },
-    resolved: { bg: "#d1fae5", text: "#065f46" },
+    success: { bg: "#d1fae5", text: "#065f46" },
   };
 
   const colors = statusColors[selected.value] || statusColors.pending;

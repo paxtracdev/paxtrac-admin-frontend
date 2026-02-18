@@ -319,7 +319,7 @@ const BidView = () => {
         <div className="custom-card bg-white p-4 mt-3 mb-4 position-relative">
           {/* Status badge */}
           <span
-            className={`status-badge  ${bid.status !== "active" ? "inactive" : ""}`}
+            className={`status-badge  ${location?.state?.bid.status !== "active" ? "inactive" : ""}`}
           >
             {bid.status}
           </span>
@@ -441,7 +441,7 @@ const BidView = () => {
           </div>
           <div className="ag-theme-alpine">
             <AgGridReact
-              rowData={filteredBidders}
+              rowData={bidders}
               columnDefs={bidderColumnDefs}
               domLayout="autoHeight"
               headerHeight={40}

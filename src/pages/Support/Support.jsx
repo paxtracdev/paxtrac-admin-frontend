@@ -10,6 +10,8 @@ import Loader from "../../Components/Loader";
 import Swal from "sweetalert2";
 import SupportStatusDropdown from "../../Components/SupportStatusDropdown";
 import { useGetSupportQuery } from "../../api/userApi";
+import { useSupportMutation } from "../../api/userApi";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const STATIC_SUPPORT_DATA = [
@@ -48,13 +50,13 @@ const Support = () => {
   const [replyText, setReplyText] = useState("");
   const [statusRow, setStatusRow] = useState(null);
   const [replyError, setReplyError] = useState("");
-  const { data, isLoading, isError } = useGetSupportQuery({
+  const { data, isError } = useGetSupportQuery({
     page,
     pageSize,
     search: debouncedSearch,
   });
 
-  const supportData = data?.items || [];
+  const supportData = data?.data || [];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,6 +66,7 @@ const Support = () => {
 
     return () => clearTimeout(timer);
   }, [search]);
+  const [support, { isLoading }] = useSupportMutation();
 
   const filteredData = useMemo(() => {
     return STATIC_SUPPORT_DATA.filter(
@@ -73,10 +76,10 @@ const Support = () => {
     );
   }, [debouncedSearch]);
 
-  const totalCount = data?.total || 0;
+  const totalCount = data?.pagination?.total || 0;  
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const paginatedData = useMemo(() => {
+   const paginatedData = useMemo(() => {
     const start = (page - 1) * pageSize;
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, page, pageSize]);
@@ -103,30 +106,41 @@ const Support = () => {
       },
       {
         headerName: "User Name",
-        field: "userName",
+        valueGetter: (params) => {
+          const first = params.data?.userId?.firstName || "";
+          const last = params.data?.userId?.lastName || "";
+          return `${first} ${last}`.trim();
+        },
         minWidth: 150,
         flex: 1,
       },
       {
         headerName: "User Email",
-        field: "userEmail",
         cellStyle: { textTransform: "lowercase" },
         minWidth: 250,
         flex: 1,
+        valueGetter: (params) => params.data?.userId?.email || "",
       },
       {
         headerName: "Status",
         field: "status",
         minWidth: 160,
         cellRenderer: SupportStatusDropdown,
+        valueFormatter: (params) => {
+          if (params.value === "success") return "Resolved";
+          return (
+            params?.value?.charAt(0).toUpperCase() + params?.value?.slice(1)
+          ); // Capitalize others
+        },
         cellRendererParams: {
           options: [
             { value: "pending", label: "Pending" },
-            { value: "resolved", label: "Resolved" },
+            { value: "success", label: "Resolved" },
           ],
-          lockAfter: "resolved",
+
+          lockAfter: "success",
           onChange: (value, rowData, node) => {
-            if (value === "resolved") {
+            if (value === "success") {
               setStatusRow({ rowData, node });
               setReplyModal(true);
             }
@@ -183,13 +197,13 @@ const Support = () => {
             <div className="d-flex justify-content-center py-5">
               <Loader size="lg" color="logo" />
             </div>
-          ) : paginatedData.length === 0 ? (
+          ) : supportData.length === 0 ? (
             <NoData text="No support found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedData}
+                  rowData={supportData}
                   columnDefs={columnDefs}
                   headerHeight={40}
                   rowHeight={48}
@@ -204,10 +218,10 @@ const Support = () => {
               <CustomPagination
                 currentPage={page}
                 totalPages={totalPages}
-                totalData={totalCount}
-                rowsPerPage={pageSize}
-                handlePageChange={setPage}
-                handleRowsPerPageChange={(size) => {
+                totalCount={totalCount}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
                   setPageSize(size);
                   setPage(1);
                 }}
@@ -245,25 +259,7 @@ const Support = () => {
         <Modal show={replyModal} onHide={handleCloseReplyModal} centered>
           <Modal.Body className="p-3">
             <h5 className="text-center">Reply to User</h5>
-            <Form.Group className="py-3">
-              <Form.Label className="fw-semibold">
-                Reply <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                placeholder="Enter reply..."
-                value={replyText}
-                onChange={(e) => {
-                  setReplyText(e.target.value);
-                  if (replyError) setReplyError("");
-                }}
-                isInvalid={!!replyError}
-              />
-              {replyError && (
-                <div className="text-danger mt-1">{replyError}</div>
-              )}
-            </Form.Group>
+
             <div className="d-flex align-items-center justify-content-end gap-2 mt-2">
               <button
                 className="button-secondary"
@@ -274,23 +270,33 @@ const Support = () => {
 
               <button
                 className="button-primary"
-                onClick={() => {
-                  if (!replyText.trim()) {
-                    setReplyError("Reply is required");
-                    return;
+                onClick={async () => {
+                
+                  try {
+                    // call the mutation
+                    await support(statusRow.rowData._id).unwrap();
+
+                    // update grid locally
+                    statusRow.node.setDataValue("status", "success");
+
+                    Swal.fire({
+                      title: "Resolved",
+                      text: "Support resolved successfully",
+                      icon: "success",
+                      confirmButtonColor: "#a99068",
+                    });
+
+                    handleCloseReplyModal();
+                  } catch (error) {
+                    Swal.fire({
+                      title: "Error",
+                      text:
+                        error?.data?.message ||
+                        "Failed to update support status",
+                      icon: "error",
+                      confirmButtonColor: "#a99068",
+                    });
                   }
-
-                  // update grid value safely
-                  statusRow.node.setDataValue("status", "resolved");
-
-                  Swal.fire({
-                    title: "Resolved",
-                    text: "Support resolved successfully",
-                    icon: "success",
-                    confirmButtonColor: "#a99068",
-                  });
-
-                  handleCloseReplyModal();
                 }}
               >
                 Mark Resolved

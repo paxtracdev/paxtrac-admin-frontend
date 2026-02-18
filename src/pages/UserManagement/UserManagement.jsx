@@ -9,7 +9,7 @@ import NoData from "../../Components/NoData";
 import { useNavigate } from "react-router-dom";
 import FilterUserModal from "../../Components/FilterUserModal";
 import Swal from "sweetalert2";
-
+import { useGetUsersQuery } from "../../api/userApi";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const STATIC_USERS = [
@@ -46,7 +46,7 @@ const STATIC_USERS = [
     status: true,
     registrationDate: "2026-01-15",
   },
-    {
+  {
     _id: "4",
     userId: "USR-002",
     first_name: "John ",
@@ -68,7 +68,7 @@ const STATIC_USERS = [
     status: true,
     registrationDate: "2026-01-15",
   },
-    {
+  {
     _id: "6",
     userId: "USR-002",
     first_name: "John ",
@@ -101,9 +101,18 @@ const UserManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [filters, setFilters] = useState({ role: "" });
+  const { data, error, isLoading, refetch } = useGetUsersQuery({
+    page,
+    limit: pageSize,
+    search,
+    role: filters.role,
+  });
 
   // Use userData state so we can update status locally
   const [userData, setUserData] = useState(STATIC_USERS);
+  const user = data?.data || [];
+  const totalCount = data?.pagination.total || 0;
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
   // Filtering + Searching on userData
   const filteredUsers = useMemo(() => {
@@ -111,14 +120,14 @@ const UserManagement = () => {
       const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
       const email = user.email.toLowerCase();
       const phone = user.phone.toLowerCase();
-      const userId = user.userId.toLowerCase();  
+      const userId = user.userId.toLowerCase();
       const searchLower = search.toLowerCase();
 
       const matchesSearch =
         fullName.includes(searchLower) ||
         email.includes(searchLower) ||
         phone.includes(searchLower) ||
-        userId.includes(searchLower);  
+        userId.includes(searchLower);
 
       const matchesRole =
         !filters.role || filters.role === ""
@@ -133,8 +142,6 @@ const UserManagement = () => {
     const start = (page - 1) * pageSize;
     return filteredUsers.slice(start, start + pageSize);
   }, [filteredUsers, page, pageSize]);
-
-  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
 
   const handleDelete = (id) => {
     const user = userData.find((u) => u._id === id);
@@ -174,13 +181,13 @@ const UserManagement = () => {
       },
       {
         headerName: "User ID",
-        field: "userId", // NEW COLUMN
+        field: "_id", // NEW COLUMN
         minWidth: 120,
         flex: 1,
       },
       {
         headerName: "Name",
-        valueGetter: (p) => `${p.data.first_name} ${p.data.last_name}`,
+        valueGetter: (p) => `${p.data.firstName} ${p.data.lastName}`,
         minWidth: 200,
         flex: 1,
       },
@@ -193,7 +200,7 @@ const UserManagement = () => {
       },
       {
         headerName: "Phone Number",
-        field: "phone",
+        field: "mobileNumber",
         minWidth: 150,
         flex: 1,
       },
@@ -209,7 +216,7 @@ const UserManagement = () => {
       },
       {
         headerName: "Registration Date",
-        field: "registrationDate",
+        field: "createdAt",
         minWidth: 160,
         flex: 1,
         valueFormatter: (p) =>
@@ -225,7 +232,7 @@ const UserManagement = () => {
               className="btn p-0 border-0 bg-transparent"
               title="View"
               onClick={() =>
-                navigate(`/user-management/view-user?id=${params.data._id}`)
+                navigate(`/user-management/view-user/${params.data._id}`)
               }
               style={{ cursor: "pointer" }}
             >
@@ -287,13 +294,13 @@ const UserManagement = () => {
 
         {/* Table */}
         <div className="custom-card bg-white p-3">
-          {paginatedUsers.length === 0 ? (
+          {user.length === 0 ? (
             <NoData text="No users found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedUsers}
+                  rowData={user}
                   columnDefs={columnDefs}
                   headerHeight={40}
                   rowHeight={48}
@@ -308,7 +315,7 @@ const UserManagement = () => {
               <CustomPagination
                 currentPage={page}
                 totalPages={totalPages}
-                totalCount={filteredUsers.length}
+                totalCount={totalCount}
                 pageSize={pageSize}
                 onPageChange={setPage}
                 onPageSizeChange={(size) => {
