@@ -24,6 +24,7 @@ export const notificationApi = createApi({
       }),
       invalidatesTags: ["Announcement"],
     }),
+    
   }),
 });
 
