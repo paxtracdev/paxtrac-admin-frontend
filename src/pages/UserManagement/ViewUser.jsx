@@ -173,7 +173,7 @@ const ViewUser = () => {
     const foundUser = STATIC_USERS.find((u) => u._id === id);
   }, [id]);
 
-  if (!shownUser) return;
+  if (!shownUser) return; 
 
   const {
     _id: userId,
