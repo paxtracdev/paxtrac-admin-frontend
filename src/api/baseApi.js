@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { logout } from "../redux/slice/userSlice"; // adjust path
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "https://oyster-app-g2hmu.ondigitalocean.app/api/admin",
+  baseUrl: "http://51.161.10.63/api/admin",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.token || localStorage.getItem("token");
 

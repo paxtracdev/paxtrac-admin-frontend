@@ -9,7 +9,10 @@ import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
 import { Eye, Trash2 } from "lucide-react";
 import { ReadMoreCell } from "../../Components/ReadMoreCell";
-
+import {
+  useCreateAnnouncementMutation,
+  useGetAnnouncementsQuery,
+} from "../../api/notificationApi";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 /* ---------------- DROPDOWN OPTIONS ---------------- */
@@ -29,9 +32,9 @@ const prioritytyOptions = [
 
 const userGroupOptions = [
   { label: "All Users", value: "all" },
-  { label: "Vendors", value: "vendors" },
-  { label: "Owners", value: "owners" },
-  { label: "Managers", value: "managers" },
+  { label: "Vendors", value: "vendor" },
+  { label: "Owners", value: "owner" },
+  { label: "Managers", value: "manager" },
 ];
 
 /* ---------------- STATIC DATA ---------------- */
@@ -43,7 +46,7 @@ const STATIC_NOTIFICATIONS = [
     message: "Platform maintenance will occur tonight from 12 AM to 2 AM.",
     type: "maintenance",
     priority: "high",
-    targetAudience: "all",
+    target: "all",
 
     sentAt: "2026-01-20",
   },
@@ -53,7 +56,7 @@ const STATIC_NOTIFICATIONS = [
     message: "We have launched a new dashboard experience.",
     type: "system_update",
     priority: "medium",
-    targetAudience: "vendors",
+    target: "vendors",
 
     sentAt: "2026-01-18",
   },
@@ -63,7 +66,7 @@ const STATIC_NOTIFICATIONS = [
     message: "Draft notification for upcoming platform changes.",
     type: "general",
     priority: "medium",
-    targetAudience: "owners",
+    target: "owners",
 
     sentAt: "2026-01-15", // draft hasn’t been sent yet
   },
@@ -82,6 +85,12 @@ const Announcements = () => {
   const [priorityType, setPriorityType] = useState("");
   const [userGroup, setUserGroup] = useState("");
   const [errors, setErrors] = useState({});
+  const [createAnnouncement, { isLoading }] = useCreateAnnouncementMutation();
+  const { data, isLoading: isListLoading } = useGetAnnouncementsQuery({
+    page,
+    limit: pageSize,
+    search,
+  });
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
@@ -93,7 +102,7 @@ const Announcements = () => {
       return (
         n.title.toLowerCase().includes(searchText) ||
         n.message.toLowerCase().includes(searchText) ||
-        n.targetAudience.toLowerCase().includes(searchText)
+        n.target.toLowerCase().includes(searchText)
       );
     });
   }, [search]);
@@ -112,22 +121,36 @@ const Announcements = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
 
-    Swal.fire({
-      title: "Success!",
-      text: "Notification sent successfully!",
-      icon: "success",
-      timer: 2500,
-      showConfirmButton: true,
-      confirmButtonColor: "#a99068",
-    });
+    try {
+      await createAnnouncement({
+        title,
+        message,
+        target: userGroup,
+      }).unwrap();
 
-    setTitle("");
-    setMessage("");
-    setUserGroup("");
-    setErrors({});
+      Swal.fire({
+        title: "Success!",
+        text: "Notification sent successfully!",
+        icon: "success",
+        timer: 2500,
+        showConfirmButton: true,
+        confirmButtonColor: "#a99068",
+      });
+
+      setTitle("");
+      setMessage("");
+      setUserGroup("");
+      setErrors({});
+    } catch (err) {
+      Swal.fire(
+        "Failed",
+        err?.data?.message || "Failed to send notification",
+        "error",
+      );
+    }
   };
 
   const handleDelete = (id) => {
@@ -171,7 +194,7 @@ const Announcements = () => {
       // { headerName: "Type", field: "type", flex: 1 },
       {
         headerName: "Target Audience",
-        field: "targetAudience",
+        field: "target",
         flex: 1,
       },
       {
@@ -317,13 +340,13 @@ const Announcements = () => {
         <div className="custom-card bg-white p-3">
           <h5 className="mb-3">Recent Notifications</h5>
 
-          {filteredData.length === 0 ? (
+          {data?.data?.length === 0 ? (
             <NoData text="No notifications found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={filteredData}
+                  rowData={data?.data || []}
                   columnDefs={columnDefs}
                   domLayout="autoHeight"
                   headerHeight={40}
@@ -337,8 +360,8 @@ const Announcements = () => {
 
               <CustomPagination
                 currentPage={page}
-                totalPages={1}
-                totalCount={filteredData.length}
+                totalPages={data?.totalPages || 1}
+                totalCount={data?.total}
                 pageSize={pageSize}
                 onPageChange={setPage}
                 onPageSizeChange={setPageSize}

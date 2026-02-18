@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { MessageCircleMore } from "lucide-react";
 import { AgGridReact } from "ag-grid-react";
 import CustomPagination from "../../Components/CustomPagination";
 import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { useGetBidIndivisualQuery } from "../../api/userApi";
+import { useStartBidMutation } from "../../api/userApi";
+import { useBiddersQuery } from "../../api/userApi";
+import { useBroadcastBiddersMutation } from "../../api/userApi";
+import { useBroadcastBidderMutation } from "../../api/userApi";
 
 const BidView = () => {
   const mockBidders = [
@@ -31,77 +36,123 @@ const BidView = () => {
       status: "winner",
     },
   ];
+  const { id } = useParams();
+  const { data, isLoading, isError } = useGetBidIndivisualQuery(id, {
+    skip: !id,
+  });
+  const [BidTime] = useStartBidMutation();
+  const [broadcastBidders] = useBroadcastBiddersMutation();
+  const [broadcastBidder] = useBroadcastBidderMutation();
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [bidders, setBidders] = useState(mockBidders);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const { data: dataList, isLoading: biddersLoading } = useBiddersQuery(
+    {
+      bidId: id,
+      page,
+      limit,
+      search,
+    },
+    { skip: !id },
+  );
+  const bidders = dataList?.bidders || [];
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "broadcast" | "bidder"
   const [messageText, setMessageText] = useState("");
   const [selectedBidder, setSelectedBidder] = useState(null);
   const [messageError, setMessageError] = useState("");
+  const [bidTime, setBidTime] = useState(""); // for datetime-local input
 
   const [bid, setBid] = useState(null);
 
   const filteredBidders = bidders.filter((b) => {
     const query = search.toLowerCase();
     return (
-      b.bidderId.toLowerCase().includes(query) ||
-      b.name.toLowerCase().includes(query) ||
-      b.email.toLowerCase().includes(query) ||
-      b.status.toLowerCase().includes(query) ||
-      b.bidAmount.toString().includes(query)
+      b?.bidderId?.toLowerCase().includes(query) ||
+      b?.name?.toLowerCase().includes(query) ||
+      b?.email?.toLowerCase().includes(query) ||
+      b?.status?.toLowerCase().includes(query) ||
+      b?.bidAmount?.toString().includes(query)
     );
   });
 
   useEffect(() => {
-    const passedBid = location.state?.bid;
-
-    if (!passedBid) {
-      navigate("/bid-management");
-    } else {
-      setBid(passedBid);
+    if (data?.data) {
+      setBid(data.data[0]);
     }
-  }, [location, navigate]);
+  }, [data]);
 
   if (!bid) return null;
 
   // For datetime-local input, convert "YYYY-MM-DD HH:mm" to "YYYY-MM-DDTHH:mm"
-  const formattedBidTime = bid.bidTime ? bid.bidTime.replace(" ", "T") : "";
-  const formattedBidEndTime = bid.bidEndTime
-    ? bid.bidEndTime.replace(" ", "T")
-    : new Date(new Date(bid.bidTime).getTime() + 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 16); // default to 1 hour after bidTime
+  const formattedBidTime = bid.bidTime
+    ? new Date(bid.bidTime).toISOString().slice(0, 16)
+    : "";
+
+  const formattedBidEndTime = bid.bidTime
+    ? new Date(bid.bidEndTime).toISOString().slice(0, 16)
+    : bid.bidDuration
+      ? new Date(new Date(bid.bidDuration).getTime() + 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 16)
+      : ""; // default to 1 hour after bidTime
 
   const handleBidTimeChange = (e) => {
-    const value = e.target.value;
-    setBid((prev) => ({
-      ...prev,
-      bidTime: value ? value.replace("T", " ") : "",
-    }));
+    setBidTime(e.target.value);
   };
 
-  const handleSaveChanges = () => {
-    Swal.fire({
-      icon: "success",
-      title: "Saved",
-      text: "Bid details updated successfully.",
-      confirmButtonColor: "#a99068",
-    });
+  const handleSaveChanges = async () => {
+    const isoBidTime = new Date(bidTime).toISOString(); // converts local time to UTC ISO format
+
+    const payload = {
+      bidId: bid.propertyId,
+      bidTime: isoBidTime,
+    };
+    try {
+      // Call your API mutation
+      await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
+      Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: "Bid details updated successfully.",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update bid time",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
-  const handleCloseBidding = () => {
-    setBid((prev) => ({ ...prev, status: "inactive" }));
+  const handleCloseBidding = async () => {
+    try {
+      // Call backend to close the bid
+      await endBidding({ bidId: bid.id }).unwrap();
 
-    Swal.fire({
-      icon: "success",
-      title: "Bidding Closed",
-      text: "Bidding has been closed successfully.",
-      confirmButtonColor: "#a99068",
-    });
+      // Update UI
+      setBid((prev) => ({ ...prev, status: "inactive" }));
+
+      Swal.fire({
+        icon: "success",
+        title: "Bidding Closed",
+        text: "Bidding has been closed successfully.",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to close bidding",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   const handleReopenBidding = () => {
@@ -128,8 +179,9 @@ const BidView = () => {
     },
     {
       headerName: "Bidder Name",
-      field: "name",
       flex: 1.5,
+      valueGetter: (params) =>
+        `${params.data?.firstName || ""} ${params.data?.lastName || ""}`.trim(),
     },
     {
       headerName: "Bidder Email",
@@ -195,7 +247,7 @@ const BidView = () => {
     setShowModal(true);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     // TODO: API call here
 
     if (!messageText.trim()) {
@@ -208,20 +260,42 @@ const BidView = () => {
     //   message: messageText,
     // });
 
-    setShowModal(false);
-    setMessageText("");
-    setMessageError("");
-    setSelectedBidder(null);
+    try {
+      if (modalType === "broadcast") {
+        await broadcastBidders({
+          propertyId: bid.propertyId,
+          text: messageText,
+        }).unwrap();
+      } else {
+        await broadcastBidder({
+          propertyId: bid.propertyId,
+          bidderId: selectedBidder.bidderId,
+          text: messageText,
+        }).unwrap();
+      }
 
-    Swal.fire({
-      icon: "success",
-      title: "Message sent",
-      text:
-        modalType === "broadcast"
-          ? "Broadcast message sent successfully."
-          : `Message sent to ${selectedBidder?.name}`,
-      confirmButtonColor: "#a99068",
-    });
+      setShowModal(false);
+      setMessageText("");
+      setMessageError("");
+      setSelectedBidder(null);
+
+      Swal.fire({
+        icon: "success",
+        title: "Message sent",
+        text:
+          modalType === "broadcast"
+            ? "Broadcast message sent successfully."
+            : `Message sent to ${selectedBidder?.firstName || ""}`,
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to send message",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   return (
@@ -253,7 +327,7 @@ const BidView = () => {
           <div className="row mt-2">
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Property ID</label>
-              <input className="form-control" value={bid.id} disabled />
+              <input className="form-control" value={bid.propertyId} disabled />
             </div>
 
             <div className="col-md-6 mb-3">
@@ -269,7 +343,11 @@ const BidView = () => {
               <label className="form-label fw-semibold">
                 Property Holder Name
               </label>
-              <input className="form-control" value={bid.listerName} disabled />
+              <input
+                className="form-control"
+                value={bid.firstName + " " + bid.lastName}
+                disabled
+              />
             </div>
 
             <div className="col-md-6 mb-3">
@@ -306,7 +384,7 @@ const BidView = () => {
               <input
                 type="datetime-local"
                 className="form-control"
-                value={formattedBidTime}
+                value={bidTime}
                 onChange={handleBidTimeChange}
                 onClick={(e) => e.target.showPicker?.()}
                 onFocus={(e) => e.target.showPicker?.()}
@@ -318,7 +396,7 @@ const BidView = () => {
               <textarea
                 className="form-control"
                 rows={3}
-                value={bid.address || "-"}
+                value={bid.servicePropertyAddress || "-"}
                 disabled
               />
             </div>
@@ -376,11 +454,16 @@ const BidView = () => {
           </div>
 
           <CustomPagination
-            currentPage={1}
-            totalPages={1}
-            totalCount={bidders.length}
-            pageSize={10}
+            currentPage={page}
+            totalPages={dataList?.totalPages || 1}
+            totalCount={dataList?.total || 0}
+            pageSize={limit}
             pageSizeOptions={[5, 10]}
+            onPageChange={(p) => setPage(p)}
+            onPageSizeChange={(s) => {
+              setLimit(s);
+              setPage(1);
+            }}
           />
         </div>
 

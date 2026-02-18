@@ -9,7 +9,7 @@ export const cmsApi = createApi({
     //  Get all CMS pages
     getAllPages: builder.query({
       query: () => ({
-        url: "/pages/all",
+        url: "/list",
         method: "GET",
       }),
       providesTags: ["CMS"],

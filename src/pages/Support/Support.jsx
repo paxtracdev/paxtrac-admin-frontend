@@ -9,7 +9,7 @@ import { Eye, Search } from "lucide-react";
 import Loader from "../../Components/Loader";
 import Swal from "sweetalert2";
 import SupportStatusDropdown from "../../Components/SupportStatusDropdown";
-
+import { useGetSupportQuery } from "../../api/userApi";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const STATIC_SUPPORT_DATA = [
@@ -48,6 +48,13 @@ const Support = () => {
   const [replyText, setReplyText] = useState("");
   const [statusRow, setStatusRow] = useState(null);
   const [replyError, setReplyError] = useState("");
+  const { data, isLoading, isError } = useGetSupportQuery({
+    page,
+    pageSize,
+    search: debouncedSearch,
+  });
+
+  const supportData = data?.items || [];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,7 +73,7 @@ const Support = () => {
     );
   }, [debouncedSearch]);
 
-  const totalCount = filteredData.length;
+  const totalCount = data?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const paginatedData = useMemo(() => {

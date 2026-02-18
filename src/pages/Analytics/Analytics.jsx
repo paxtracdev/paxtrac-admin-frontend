@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomDropdown from "../../Components/CustomDropdown";
 import CommonCard from "../../Components/CommonCard";
-
+import { useGetAnalyticsQuery } from "../../api/analyticsApi";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -79,7 +79,8 @@ const STATIC_ANALYTICS = {
 
 const Analytics = () => {
   const [dateRange, setDateRange] = useState("thisYear");
-  const [analytics, setAnalytics] = useState(STATIC_ANALYTICS);
+  const [analytics, setAnalytics] = useState({});
+  const { data, isLoading } = useGetAnalyticsQuery();
 
   useEffect(() => {
     // simulate filtered chart data
@@ -95,21 +96,19 @@ const Analytics = () => {
 
     setAnalytics({
       jobStats: {
-        totalJobs: Math.round(STATIC_ANALYTICS.jobStats.totalJobs * m),
-        completedJobs: Math.round(STATIC_ANALYTICS.jobStats.completedJobs * m),
-        pendingJobs: Math.round(STATIC_ANALYTICS.jobStats.pendingJobs * m),
-        cancelledJobs: Math.round(STATIC_ANALYTICS.jobStats.cancelledJobs * m),
+        totalJobs: Math.round(data?.data.totalProperties * m),
+        completedJobs: Math.round(data?.data.completedJobs * m),
+        pendingJobs: Math.round(data?.data.pendingJobs * m),
+        cancelledJobs: Math.round(data?.data.cancelledJobs * m),
       },
       userMetrics: {
-        ...STATIC_ANALYTICS.userMetrics,
-        activeUsers: Math.round(STATIC_ANALYTICS.userMetrics.activeUsers * m),
-        newSignups: Math.round(STATIC_ANALYTICS.userMetrics.newSignups * m),
+        ...data?.data,
+        activeUsers: Math.round(data?.data.activeUsers * m),
+        newSignups: Math.round(data?.data.newSignups * m),
       },
       revenueMetrics: {
-        ...STATIC_ANALYTICS.revenueMetrics,
-        periodRevenue: Math.round(
-          STATIC_ANALYTICS.revenueMetrics.periodRevenue * m,
-        ),
+        ...data?.data,
+        periodRevenue: Math.round(data?.data.periodRevenue * m),
       },
       engagement: STATIC_ANALYTICS.engagement,
     });
@@ -128,8 +127,8 @@ const Analytics = () => {
     // JOB STATISTICS
     rows.push(["Job Statistics"]);
     rows.push(["Metric", "Value"]);
-    rows.push(["Total Jobs", analytics.jobStats.totalJobs]);
-    rows.push(["Completed Jobs", analytics.jobStats.completedJobs]);
+    rows.push(["Total Jobs", data?.data.totalProperties]);
+    rows.push(["Completed Jobs", data?.data.totalCompletedProperties]);
     rows.push(["Pending Jobs", analytics.jobStats.pendingJobs]);
     rows.push(["Cancelled Jobs", analytics.jobStats.cancelledJobs]);
     rows.push([]);
@@ -137,7 +136,7 @@ const Analytics = () => {
     // USER METRICS
     rows.push(["User Metrics"]);
     rows.push(["Metric", "Value"]);
-    rows.push(["Active Users", analytics.userMetrics.activeUsers]);
+    rows.push(["Active Users", data?.data.totalUsers]);
     rows.push(["New Signups", analytics.userMetrics.newSignups]);
     rows.push(["Retention Rate", analytics.userMetrics.retentionRate]);
     rows.push([]);
@@ -183,27 +182,27 @@ const Analytics = () => {
   const kpiStats = [
     {
       title: "Total Jobs",
-      value: STATIC_ANALYTICS.jobStats.totalJobs,
+      value: data?.data.totalProperties,
       icon: <Briefcase size={20} />,
     },
     {
       title: "Completed Jobs",
-      value: STATIC_ANALYTICS.jobStats.completedJobs,
+      value: data?.data.totalCompletedProperties,
       icon: <CheckCircle size={20} />,
     },
     {
       title: "Active Users",
-      value: STATIC_ANALYTICS.userMetrics.activeUsers,
+      value: data?.data.totalUsers,
       icon: <Users size={20} />,
     },
     {
       title: "Total Revenue",
-      value: `$${STATIC_ANALYTICS.revenueMetrics.periodRevenue}`,
+      value: `$${data?.data.totalRevenue}`,
       icon: <DollarSign size={20} />,
     },
     {
       title: "Avg Revenue / User",
-      value: `$${STATIC_ANALYTICS.revenueMetrics.avgRevenuePerUser}`,
+      value: `$${data?.data.averageRevenuePerUser}`,
       icon: <TrendingUp size={20} />,
     },
   ];
@@ -217,9 +216,9 @@ const Analytics = () => {
       {
         label: "Users",
         data: [
-          analytics.userMetrics.totalUsers,
-          analytics.userMetrics.activeUsers,
-          analytics.userMetrics.newSignups,
+          analytics?.totalUsers,
+          analytics?.activeUsers,
+          analytics?.newSignups,
         ],
         borderColor: "#4f46e5",
         backgroundColor: "rgba(79,70,229,0.2)",
@@ -235,10 +234,7 @@ const Analytics = () => {
     datasets: [
       {
         label: "Revenue ($)",
-        data: [
-          analytics.revenueMetrics.periodRevenue,
-          analytics.revenueMetrics.previousRevenue,
-        ],
+        data: [analytics?.periodRevenue, analytics?.previousRevenue],
         backgroundColor: ["#10b981", "#94a3b8"],
       },
     ],
@@ -250,10 +246,7 @@ const Analytics = () => {
     datasets: [
       {
         label: "Engagement",
-        data: [
-          analytics.engagement.avgJobsPerUser,
-          analytics.engagement.avgReviewsPerUser,
-        ],
+        data: [analytics?.avgJobsPerUser, analytics?.avgReviewsPerUser],
         backgroundColor: ["#0ea5e9", "#f59e0b"],
       },
     ],

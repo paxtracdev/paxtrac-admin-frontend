@@ -32,7 +32,7 @@ const BidManagementFilterModal = ({
   }, [show, onClose]);
 
   const PROPERTY_TYPES = [
-    "Multi-Family",
+    "Multi Family",
     "Vacation Rentals",
     "Apartment Building",
     "HOA Condo",

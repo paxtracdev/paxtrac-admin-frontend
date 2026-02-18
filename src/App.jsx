@@ -6,20 +6,17 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserManagement from "./pages/UserManagement/UserManagement";
-import VotingManagement from "./pages/VotingManagement/VotingManagement";
 import Cms from "./pages/CmsManagement/Cms";
 import CMSView from "./pages/CmsManagement/CMSView";
 import AddCmsPage from "./pages/CmsManagement/AddCmsPage";
-import MonetizationManagement from "./pages/MonetizationManagement/MonetizationManagement"; 
 import NotificationCommunication from "./pages/Announcements/Announcements";
 import UnderDevelopment from "./pages/UnderDevelopment";
 import AddUser from "./pages/UserManagement/AddUser";
 import ViewUser from "./pages/UserManagement/ViewUser";
-import ViewVoting from "./pages/VotingManagement/ViewVoting";
 import Legal from "./pages/legal";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import PropertyManagement from "./pages/PropertyManagement/PropertyManagement";
-import ViewProperty from "./pages/PropertyManagement/ViewProperty"; 
+import ViewProperty from "./pages/PropertyManagement/ViewProperty";
 import BlogList from "./pages/Blog/BlogList";
 import AddBlog from "./pages/Blog/AddBlog";
 import ViewBlog from "./pages/Blog/ViewBlog";
@@ -59,13 +56,13 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/user-management/add-user" element={<AddUser />} />
           <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/user-management/view-user" element={<ViewUser />} /> 
-          
-          <Route path="/vendor-management" element={<VendorManagement />} />
-          <Route path="/vendor-management/view" element={<VendorView />} /> 
+          <Route path="/user-management/view-user" element={<ViewUser />} />
 
-          <Route path="/bid-management" element={<BidManagement />} /> 
-          <Route path="/bid-management/view" element={<BidView />} />
+          <Route path="/vendor-management" element={<VendorManagement />} />
+          <Route path="/vendor-management/view" element={<VendorView />} />
+
+          <Route path="/bid-management" element={<BidManagement />} />
+          <Route path="/bid-management/:id" element={<BidView />} />
 
           <Route path="/blogs" element={<BlogList />} />
           <Route path="/blogs/add" element={<AddBlog />} />
@@ -74,40 +71,35 @@ export default function App() {
           <Route path="/vlogs" element={<VlogList />} />
           <Route path="/vlogs/add" element={<AddVlog />} />
           <Route path="/vlogs/view" element={<ViewVlog />} />
-          
+
           <Route path="/faq" element={<FaqList />} />
           <Route path="/faq/add" element={<AddFaq />} />
           <Route path="/faq/view" element={<ViewFaq />} />
 
-          <Route path="/reviews" element={<Review />} /> 
+          <Route path="/reviews" element={<Review />} />
 
-          <Route path="/payment" element={<Payments />} /> 
-          
+          <Route path="/payment" element={<Payments />} />
+
           <Route path="/account-settings" element={<AccoountSetting />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />
           <Route path="/support" element={<Support />} />
 
           <Route path="/listing-management" element={<ListingManagement />} />
           <Route
-            path="/listing-management/view-listing"
+            path="/listing-management/view-listing/:id"
             element={<ViewProperty />}
           />
 
-          <Route path="/voting-management" element={<VotingManagement />} />
-          <Route
-            path="/voting-management/view-vote/:voteId"
-            element={<ViewVoting />}
-          />
-
-          
           <Route path="/issue-resolution" element={<IssueResolution />} />
-          <Route path="/issueresolution/view" element={<IssueResolutionView />} /> 
+          <Route
+            path="/issueresolution/view"
+            element={<IssueResolutionView />}
+          />
 
           <Route path="/policies" element={<Cms />} />
           <Route path="/policies/view" element={<CMSView />} />
           <Route path="/policies/add" element={<AddCmsPage />} />
-          <Route path="/monetization" element={<MonetizationManagement />} />
-          <Route path="/analytics" element={<Analytics />} /> 
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/all-notification" element={<AllNotification />} />
           <Route
             path="/announcements"

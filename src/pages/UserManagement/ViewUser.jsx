@@ -198,7 +198,7 @@ const ViewUser = () => {
             readOnly
             placeholder="Name of Property Owner (Entity)"
           />
-        </div>
+        </div> 
 
         <div className="col-md-6 mb-3">
           <label className="form-label fw-semibold">

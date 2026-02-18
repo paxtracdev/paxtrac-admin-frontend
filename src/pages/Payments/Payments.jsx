@@ -7,6 +7,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import NoData from "../../Components/NoData";
 import PaymentFilterModal from "../../Components/PaymentFilterModal";
 
+import { useGetAllTransactionsQuery } from "../../api/analyticsApi";
 const demoPayments = [
   {
     id: 1,
@@ -52,32 +53,26 @@ const Payments = () => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
 
+  const { data, isLoading } = useGetAllTransactionsQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: searchInput,
+  });
+
   // FILTERED PAYMENTS
   const filteredPayments = useMemo(() => {
-    let result = payments;
+    if (!searchInput) return payments;
+    const query = searchInput.toLowerCase();
+    return payments.filter(
+      (p) =>
+        p.transactionId?.toLowerCase().includes(query) ||
+        p.propertyId?.toLowerCase().includes(query) ||
+        p.subscription?.toLowerCase().includes(query) ||
+        p.transactionStatus?.toLowerCase().includes(query),
+    );
+  }, [payments, searchInput]);
 
-    // Search filter
-    if (searchInput) {
-      const query = searchInput.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.transactionId.toLowerCase().includes(query) ||
-          p.propertyId.toLowerCase().includes(query) ||
-          p.paymentType.toLowerCase().includes(query) ||
-          p.status.toLowerCase().includes(query),
-      );
-    }
-
-    // Status filter
-  if (statusFilter) {
-  result = result.filter((p) => p.status.toLowerCase() === statusFilter);
-}
-
-
-    return result;
-  }, [payments, searchInput, statusFilter]);
-
-  const totalCount = filteredPayments.length;
+  const totalCount = data?.pagination?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // PAGINATION SLICE
@@ -116,7 +111,7 @@ const Payments = () => {
       },
       {
         headerName: "Payment Type",
-        field: "paymentType",
+        field: "transactionfor",
         flex: 1,
         minWidth: 200,
         cellRenderer: (params) => (
@@ -135,7 +130,7 @@ const Payments = () => {
       },
       {
         headerName: "Status",
-        field: "status",
+        field: "transactionStatus",
         flex: 1,
         minWidth: 160,
         cellRenderer: (params) => {
@@ -195,7 +190,7 @@ const Payments = () => {
 
         {/* TABLE */}
         <div className="custom-card bg-white p-4">
-          {paginatedPayments.length === 0 ? (
+          {data?.data.length === 0 ? (
             <NoData text="No payments found" />
           ) : (
             <>
@@ -204,7 +199,7 @@ const Payments = () => {
                 style={{ width: "100%", overflowX: "auto" }}
               >
                 <AgGridReact
-                  rowData={paginatedPayments}
+                  rowData={data?.data}
                   columnDefs={columnDefs}
                   domLayout="autoHeight"
                   headerHeight={40}

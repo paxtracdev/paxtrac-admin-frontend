@@ -6,6 +6,7 @@ import CustomPagination from "../../Components/CustomPagination";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useNavigate } from "react-router-dom";
+import { useGetBidsQuery } from "../../api/userApi";
 import BidManagementFilterModal from "../../Components/BidManagementFilterModal";
 
 const initialProperties = [
@@ -51,9 +52,9 @@ const pageSizeOptions = [2, 3, 5, 10];
 
 const BidManagement = () => {
   // Pagination state
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [properties, setProperties] = useState(initialProperties);
   const [searchInput, setSearchInput] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState({
@@ -61,50 +62,56 @@ const BidManagement = () => {
     propertyType: "",
   });
 
+  const { data, isLoading, isError } = useGetBidsQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: searchInput,
+    status: filters.status,
+    type: filters.propertyType,
+  });
   // Data state (for flag toggle)
   const navigate = useNavigate();
 
   // Paginate Properties
-  const filteredProperties = useMemo(() => {
-    let data = [...properties];
+  const properties = useMemo(() => {
+    let filtered = data?.data;
 
     // Apply search
     if (searchInput) {
       const query = searchInput.toLowerCase();
-      data = data.filter(
+      filtered = filtered.filter(
         (item) =>
-          item.id.toLowerCase().includes(query) ||
-          item.propertyType.toLowerCase().includes(query) ||
-          item.listerName.toLowerCase().includes(query) ||
-          item.email.toLowerCase().includes(query),
+          item?.id?.toLowerCase().includes(query) ||
+          item?.propertyType?.toLowerCase().includes(query) ||
+          item?.listerName?.toLowerCase().includes(query) ||
+          item?.email?.toLowerCase().includes(query),
       );
     }
 
     // Apply status filter
     if (filters.status) {
-      data = data.filter(
-        (item) => item.status?.toLowerCase() === filters.status.toLowerCase(),
+      filtered = filtered.filter(
+        (item) => item.bidStatus?.toLowerCase() === filters.status.toLowerCase(),
       );
     }
 
     // Apply property type filter
     if (filters.propertyType) {
-      data = data.filter(
+      filtered = filtered.filter(
         (item) =>
           item.propertyType?.toLowerCase().trim() ===
           filters.propertyType.toLowerCase().trim(),
       );
     }
 
-    return data;
-  }, [properties, searchInput, filters]);
+    return filtered;
+  }, [data, searchInput, filters]);
 
   const paginatedProperties = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return filteredProperties.slice(startIndex, startIndex + pageSize);
-  }, [filteredProperties, currentPage, pageSize]);
+  }, [currentPage, pageSize]);
 
-  const totalCount = filteredProperties.length;
+  const totalCount = data?.pagination?.total;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handlePageChange = (page) => {
@@ -118,7 +125,7 @@ const BidManagement = () => {
 
   // Edit handler (for demo just show alert)
   const handleViewBid = (bid) => {
-    navigate("/bid-management/view", {
+    navigate(`/bid-management/${bid._id}`, {
       state: {
         bid: {
           ...bid,
@@ -139,7 +146,7 @@ const BidManagement = () => {
       },
       {
         headerName: "Property ID",
-        field: "id",
+        field: "_id",
         flex: 1,
         minWidth: 200,
       },
@@ -151,13 +158,13 @@ const BidManagement = () => {
       },
       {
         headerName: "Property Lister Name",
-        field: "listerName",
+        field: "createdByName",
         flex: 1.5,
         minWidth: 250,
       },
       {
         headerName: "Bidding Status",
-        field: "status",
+        field: "bidStatus",
         flex: 1,
         minWidth: 200,
         cellRenderer: (params) => {
@@ -179,7 +186,7 @@ const BidManagement = () => {
       },
       {
         headerName: "Total Bidders",
-        field: "totalBidders",
+        field: "totalBidder",
         flex: 1,
         minWidth: 150,
       },
@@ -248,7 +255,7 @@ const BidManagement = () => {
             style={{ width: "100%", overflowX: "auto" }}
           >
             <AgGridReact
-              rowData={paginatedProperties}
+              rowData={properties}
               columnDefs={columnDefs}
               domLayout="autoHeight"
               headerHeight={40}
