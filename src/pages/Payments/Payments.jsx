@@ -5,6 +5,7 @@ import CustomPagination from "../../Components/CustomPagination";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import NoData from "../../Components/NoData";
+import PaymentFilterModal from "../../Components/PaymentFilterModal";
 
 const demoPayments = [
   {
@@ -48,19 +49,33 @@ const Payments = () => {
   const [pageSize, setPageSize] = useState(10);
   const [payments, setPayments] = useState(demoPayments);
   const [searchInput, setSearchInput] = useState("");
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
 
   // FILTERED PAYMENTS
   const filteredPayments = useMemo(() => {
-    if (!searchInput) return payments;
-    const query = searchInput.toLowerCase();
-    return payments.filter(
-      (p) =>
-        p.transactionId.toLowerCase().includes(query) ||
-        p.propertyId.toLowerCase().includes(query) ||
-        p.subscription.toLowerCase().includes(query) ||
-        p.status.toLowerCase().includes(query),
-    );
-  }, [payments, searchInput]);
+    let result = payments;
+
+    // Search filter
+    if (searchInput) {
+      const query = searchInput.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.transactionId.toLowerCase().includes(query) ||
+          p.propertyId.toLowerCase().includes(query) ||
+          p.paymentType.toLowerCase().includes(query) ||
+          p.status.toLowerCase().includes(query),
+      );
+    }
+
+    // Status filter
+  if (statusFilter) {
+  result = result.filter((p) => p.status.toLowerCase() === statusFilter);
+}
+
+
+    return result;
+  }, [payments, searchInput, statusFilter]);
 
   const totalCount = filteredPayments.length;
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -85,7 +100,7 @@ const Payments = () => {
         valueGetter: (params) =>
           (currentPage - 1) * pageSize + params.node.rowIndex + 1,
         width: 80,
-      }, 
+      },
       {
         headerName: "Transaction ID",
         field: "transactionId",
@@ -152,6 +167,14 @@ const Payments = () => {
             <div className="title-heading mb-2">Payments Management</div>
             <p className="title-sub-heading">View all property payments</p>
           </div>
+
+          {/* Filter Button */}
+          <button
+            className="login-btn"
+            onClick={() => setFilterModalOpen(true)}
+          >
+            Filter
+          </button>
         </div>
 
         <Breadcrumbs />
@@ -206,6 +229,18 @@ const Payments = () => {
           )}
         </div>
       </section>
+
+     <PaymentFilterModal
+  show={filterModalOpen}
+  initialStatus={statusFilter}
+  onClose={() => setFilterModalOpen(false)}
+  onApply={(status) => {
+    setStatusFilter(status);
+    setFilterModalOpen(false);
+    setCurrentPage(1);
+  }}
+/>
+
     </main>
   );
 };
