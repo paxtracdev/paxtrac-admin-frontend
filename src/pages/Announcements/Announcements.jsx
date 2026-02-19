@@ -186,7 +186,7 @@ const Announcements = () => {
       },
       {
         headerName: "Title",
-        field: "title",
+        field: "heading",
         flex: 1,
         minWidth: 250,
         cellRenderer: ReadMoreCell,
@@ -194,12 +194,12 @@ const Announcements = () => {
       // { headerName: "Type", field: "type", flex: 1 },
       {
         headerName: "Target Audience",
-        field: "target",
+        field: "receiver",
         flex: 1,
       },
       {
         headerName: "Sent At",
-        field: "sentAt",
+        field: "createdAt",
         flex: 1,
       },
       {

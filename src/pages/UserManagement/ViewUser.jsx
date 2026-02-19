@@ -79,7 +79,7 @@ const businessDetails =
           <input
             type="number"
             className="form-control"
-            value={businessDetails.employees}
+            value={businessDetails.noOfEmployees}
             disabled
             readOnly
             placeholder="Number of employees"
@@ -93,7 +93,7 @@ const businessDetails =
           <input
             type="number"
             className="form-control"
-            value={businessDetails.unitsOwned}
+            value={businessDetails.noOfUnitsOWn}
             disabled
             readOnly
             placeholder="Units owned"
@@ -107,7 +107,7 @@ const businessDetails =
           <input
             type="number"
             className="form-control"
-            value={businessDetails.startYear}
+            value={businessDetails.businessStartYear}
             disabled
             readOnly
             placeholder="Business start year"
@@ -184,7 +184,7 @@ const businessDetails =
           <label className="form-label fw-semibold">Business Name *</label>
           <input
             className="form-control"
-            value={businessDetails.businessName || ""}
+            value={businessDetails.nameOfBusiness || ""}
             disabled
           />
         </div>
@@ -193,7 +193,7 @@ const businessDetails =
           <label className="form-label fw-semibold">Business Address *</label>
           <input
             className="form-control"
-            value={businessDetails.businessAddress || ""}
+            value={businessDetails.companyAddress || ""}
             disabled
           />
         </div>
@@ -217,7 +217,7 @@ const businessDetails =
           </label>
           <input
             className="form-control"
-            value={businessDetails.startYear || ""}
+            value={businessDetails.businessStartYear || ""}
             disabled
           />
         </div>
@@ -228,7 +228,7 @@ const businessDetails =
           </label>
           <input
             className="form-control"
-            value={businessDetails.staffCount || ""}
+            value={businessDetails.noOfStaffMembers || ""}
             disabled
           />
         </div>
@@ -236,7 +236,7 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Services Offered</label>
           <div className="d-flex flex-wrap gap-2">
-            {(businessDetails.services || []).map((s, i) => (
+            {(user.serviceOffered || []).map((s, i) => (
               <span key={i} className="service-chip">
                 {s}
               </span>
@@ -248,7 +248,7 @@ const businessDetails =
           <label className="form-label fw-semibold">License Available</label>
           <input
             className="form-control"
-            value={businessDetails.license ? "Yes" : "No"}
+            value={user.licenseForManagementServices ? "Yes" : "No"}
             disabled
           />
         </div>
@@ -258,7 +258,7 @@ const businessDetails =
           <textarea
             className="form-control"
             rows={3}
-            value={businessDetails.about || ""}
+            value={user.aboutYourCompanyInfo || ""}
             disabled
           />
         </div>
@@ -270,7 +270,7 @@ const businessDetails =
           <textarea
             className="form-control"
             rows={3}
-            value={businessDetails.experience || ""}
+            value={user.projectsExperienceDescription || ""}
             disabled
           />
         </div>
@@ -298,7 +298,7 @@ const businessDetails =
             Documents & Certifications
           </label>
           <div className="d-flex flex-wrap gap-2">
-            {(businessDetails.documents || []).map((doc, i) => (
+            {(user.documentsCertificatesUploads || []).map((doc, i) => (
               <a
                 key={i}
                 href={doc.url}
@@ -316,8 +316,8 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Key Team Members</label>
 
-          {(businessDetails.keyTeamMembers || []).length ? (
-            businessDetails.keyTeamMembers.map((member, i) => (
+          {(user.teamMembers || []).length ? (
+            user.teamMembers.map((member, i) => (
               <div key={i} className="d-flex gap-2 mb-2">
                 <input className="form-control" value={member.name} disabled />
                 <input
@@ -335,7 +335,7 @@ const businessDetails =
     </>
   );
 
-  const renderManagerDetails = () => (
+  const   renderManagerDetails = () => (
     <>
       <div className="row">
         <div className="col-md-6 mb-3">
@@ -365,7 +365,7 @@ const businessDetails =
           <input
             className="form-control"
             placeholder="Enter number of staff members"
-            value={businessDetails.staffCount || ""}
+            value={businessDetails.noOfStaffMembers || ""}
             disabled
           />
         </div>
@@ -377,7 +377,7 @@ const businessDetails =
           <input
             className="form-control"
             placeholder="Enter business start year"
-            value={businessDetails.startYear || ""}
+            value={businessDetails.businessStartYear || ""}
             disabled
           />
         </div>
@@ -398,7 +398,7 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Property Types</label>
           <div className="d-flex flex-wrap gap-2">
-            {(businessDetails.propertyTypes || []).map((t, i) => (
+            {(businessDetails.propertyType || []).map((t, i) => (
               <span key={i} className="service-chip">
                 {t}
               </span>
@@ -410,7 +410,7 @@ const businessDetails =
           <label className="form-label fw-semibold">License Available</label>
           <input
             className="form-control"
-            value={businessDetails.license ? "Yes" : "No"}
+            value={user.licenseForManagementServices ? "Yes" : "No"}
             disabled
           />
         </div>
@@ -418,7 +418,7 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Services Offered</label>
           <div className="d-flex flex-wrap gap-2">
-            {(businessDetails.services || []).map((service, i) => (
+            {(user.serviceOffered || []).map((service, i) => (
               <span key={i} className="service-chip">
                 {service}
               </span>
@@ -433,7 +433,7 @@ const businessDetails =
           <textarea
             className="form-control"
             rows={3}
-            value={businessDetails.portfolio || ""}
+            value={user.propertyPortfolioDescription || ""}
             disabled
           />
         </div>
@@ -454,7 +454,7 @@ const businessDetails =
           <textarea
             className="form-control"
             rows={3}
-            value={businessDetails.successStories || ""}
+            value={user.successStoriesDescription || ""}
             disabled
           />
         </div>
@@ -464,7 +464,7 @@ const businessDetails =
             Documents & Certifications
           </label>
           <div className="d-flex flex-wrap gap-2">
-            {(businessDetails.documents || []).map((doc, i) => (
+            {(user.documentsCertificatesUploads || []).map((doc, i) => (
               <a
                 key={i}
                 href={doc.url}
@@ -482,8 +482,8 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Key Team Members</label>
 
-          {(businessDetails.keyTeamMembers || []).length ? (
-            businessDetails.keyTeamMembers.map((member, i) => (
+          {(user.teamMembers || []).length ? (
+            user.teamMembers.map((member, i) => (
               <div key={i} className="d-flex gap-2 mb-2">
                 <input className="form-control" value={member.name} disabled />
                 <input
