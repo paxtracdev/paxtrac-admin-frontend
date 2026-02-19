@@ -123,8 +123,7 @@ const AccoountSetting = () => {
 
     if (Object.keys(newErrors).length > 0) return;
 
-    // If all validations pass
-    console.log("Change Password Payload:", form);
+    // If all validations pass 
 
     Swal.fire({
       icon: "success",
@@ -160,8 +159,7 @@ const AccoountSetting = () => {
               <div className="mb-3">
                 <div className="image-wrapper">
                   <img src={avatar} alt="User Avatar" className="blog-image" />
-
-                  {/* Edit Button */}
+ 
                   <div
                     className="image-action edit-icon"
                     onClick={() => fileRef.current.click()}

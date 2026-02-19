@@ -319,24 +319,21 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
                   <span className="app-menu__label px-2">Policies</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/blogs" className="treeview-item">
-                  {/* <FileText size={18} /> */}
+              {/* <li>
+                <NavLink to="/blogs" className="treeview-item"> 
                   <span className="app-menu__label px-2">Blogs Management</span>
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/vlogs" className="treeview-item">
-                  {/* <PlayCircle size={18} /> */}
+                <NavLink to="/vlogs" className="treeview-item"> 
                   <span className="app-menu__label px-2">Vlogs Management</span>
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/faq" className="treeview-item">
-                  {/* <HelpCircle size={18} /> */}
+                <NavLink to="/faq" className="treeview-item"> 
                   <span className="app-menu__label px-2">FAQs</span>
                 </NavLink>
-              </li>
+              </li> */}
             </ul>
           </li>
           {/* End CONTENT MANAGEMENT */}

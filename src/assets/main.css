@@ -23257,3 +23257,7 @@ span.assign-badge {
     border: 1px solid #a88f67;
     border-radius: 14px;
 }
+
+.tox .tox-edit-area::before {
+    border: 2px solid #a99068 !important; 
+} 

@@ -6,6 +6,7 @@ import { propertyApi } from "../api/propertyApi";
 import { notificationApi } from "../api/notificationApi";
 import { analyticsApi } from "../api/analyticsApi";
 import { cmsApi } from "../api/cmsApi";
+import { reviewApi } from "../api/reviewApi";
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -15,6 +16,7 @@ export const store = configureStore({
     [notificationApi.reducerPath]: notificationApi.reducer,
     [analyticsApi.reducerPath]: analyticsApi.reducer,
     [cmsApi.reducerPath]: cmsApi.reducer,
+    [reviewApi.reducerPath]: reviewApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,5 +26,6 @@ export const store = configureStore({
       notificationApi.middleware,
       analyticsApi.middleware,
       cmsApi.middleware,
+      reviewApi.middleware,
     ),
 });

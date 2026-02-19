@@ -5,9 +5,13 @@ import logo from "../../assets/images/logos.png";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import showToast from "../../utils/showToast";
+import { useForgotPasswordMutation, useLoginMutation } from "../../api/authApi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
+  const [forgotPassword, { isLoading: isSending }] =
+    useForgotPasswordMutation();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -53,7 +57,7 @@ export default function LoginPage() {
 
   const togglePassword = () => setShowPassword((prev) => !prev);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const emailError = validateEmail(email);
@@ -62,23 +66,42 @@ export default function LoginPage() {
 
     if (emailError || passwordError) return;
 
-    // MOCK LOGIN SUCCESS
-    localStorage.setItem("token", "mock-token");
+    try {
+      const result = await login({ email, password }).unwrap();
 
-    showToast("Login Successful. Welcome to Admin Dashboard", "success");
-    navigate("/dashboard");
+      if (result.status) {
+        localStorage.setItem("token", result.data.token);
+        localStorage.setItem("user", JSON.stringify(result.data.user));
+
+        showToast("Login Successful. Welcome to Admin Dashboard", "success");
+        navigate("/dashboard");
+      } else {
+        showToast(result.message || "Login failed", "error");
+      }
+    } catch (err) {
+      showToast(err?.data?.message || "Something went wrong", "error");
+    }
   };
 
-  const handleSendReset = (e) => {
+  const handleSendReset = async (e) => {
     e.preventDefault();
 
     const forgotEmailError = validateEmail(forgotEmail.trim());
     setErrors((prev) => ({ ...prev, forgotEmail: forgotEmailError }));
-
     if (forgotEmailError) return;
 
-    setEmailSent(true);
-    showToast("Password reset link has been sent to your email", "success");
+    try {
+      const result = await forgotPassword({ email: forgotEmail }).unwrap();
+
+      if (result.status) {
+        setEmailSent(true);
+        showToast("Password reset link has been sent to your email", "success");
+      } else {
+        showToast(result.message || "Failed to send reset link", "error");
+      }
+    } catch (err) {
+      showToast(err?.data?.message || "Something went wrong", "error");
+    }
   };
 
   return (
@@ -172,8 +195,12 @@ export default function LoginPage() {
                   </div>
 
                   <div className="text-center mt-3">
-                    <button type="submit" className="login-btn">
-                      Sign In
+                    <button
+                      type="submit"
+                      className="login-btn"
+                      disabled={isLoggingIn}
+                    >
+                      {isLoggingIn ? "Signing In..." : "Sign In"}
                     </button>
                   </div>
                 </form>
@@ -212,13 +239,19 @@ export default function LoginPage() {
                       autoFocus
                     />
                     {errors.forgotEmail && (
-                      <div className="text-danger small">{errors.forgotEmail}</div>
+                      <div className="text-danger small">
+                        {errors.forgotEmail}
+                      </div>
                     )}
                   </div>
 
                   <div className="text-center mb-3">
-                    <button type="submit" className="login-btn">
-                      Send Reset Link
+                    <button
+                      type="submit"
+                      className="login-btn"
+                      disabled={isSending}
+                    >
+                      {isSending ? "Sending..." : "Send Reset Link"}
                     </button>
                   </div>
 
@@ -257,28 +290,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-// if (!email) {
-//       newErrors.email = "Email is required";
-//     } else if (
-//       !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
-//     ) {
-//       newErrors.email = "Enter a valid email address (e.g. user@example.com)";
-//     }
-
-//     if (!password) {
-//       newErrors.password = "Password is required";
-//     } else if (password.length < 8) {
-//       newErrors.password = "Password must be at least 8 characters";
-//     } else if (!/[A-Z]/.test(password)) {
-//       newErrors.password =
-//         "Password must include at least one uppercase letter";
-//     } else if (!/[a-z]/.test(password)) {
-//       newErrors.password =
-//         "Password must include at least one lowercase letter";
-//     } else if (!/\d/.test(password)) {
-//       newErrors.password = "Password must include at least one number";
-//     } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
-//       newErrors.password =
-//         "Password must include at least one special character";
-//     }
