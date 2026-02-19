@@ -26,8 +26,7 @@ export const LoadingComponent = ({ isLoading = false, fullScreen = false }) => {
     }
   });
 
-  return (
-    <main className="app-content body-bg">
+  return ( 
       <section className="container">
         <div
           className={`${fullScreen ? "" : ""}`}
@@ -44,7 +43,6 @@ export const LoadingComponent = ({ isLoading = false, fullScreen = false }) => {
             />
           </div>
         </div>
-      </section>
-    </main>
+      </section> 
   );
 };

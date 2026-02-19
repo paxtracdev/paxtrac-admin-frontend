@@ -6,6 +6,7 @@ export const cmsApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ["CMS"],
   endpoints: (builder) => ({
+
     //  Get all CMS pages
     getAllPages: builder.query({
       query: () => ({
@@ -15,41 +16,37 @@ export const cmsApi = createApi({
       providesTags: ["CMS"],
     }),
 
-    //  Privacy Policy
+    // GET Privacy Policy
     getPrivacyPolicy: builder.query({
-      query: () => ({
-        url: "/privacy-policy",
-        method: "GET",
-      }),
+      query: () => ({ url: "/privacypolicy", method: "GET" }),
       providesTags: ["CMS"],
     }),
 
-    //  Terms & Conditions
-    getTermsAndConditions: builder.query({
-      query: () => ({
-        url: "/terms-and-conditions",
-        method: "GET",
-      }),
-      providesTags: ["CMS"],
-    }),
-
-    //  Update CMS Page Content
-    updatePageContent: builder.mutation({
-      query: ({ id, content }) => ({
-        url: `/page-content/${id}`,
-        method: "PUT",
-        body: {
-          content,
-        },
-      }),
+    // PUT Privacy Policy
+    updatePrivacyPolicy: builder.mutation({
+      query: (body) => ({ url: "/privacypolicy", method: "PUT", body }),
       invalidatesTags: ["CMS"],
     }),
+
+    // GET Terms of Service
+    getTermsOfService: builder.query({
+      query: () => ({ url: "/termsOfService", method: "GET" }),
+      providesTags: ["CMS"],
+    }),
+
+    // PUT Terms of Service
+    updateTermsOfService: builder.mutation({
+      query: (body) => ({ url: "/termsOfService", method: "PUT", body }),
+      invalidatesTags: ["CMS"],
+    }),
+ 
   }),
 });
 
 export const {
-  useGetAllPagesQuery,
+  useGetAllPagesQuery,  
   useGetPrivacyPolicyQuery,
-  useGetTermsAndConditionsQuery,
-  useUpdatePageContentMutation,
+  useUpdatePrivacyPolicyMutation,
+  useGetTermsOfServiceQuery,
+  useUpdateTermsOfServiceMutation,
 } = cmsApi;

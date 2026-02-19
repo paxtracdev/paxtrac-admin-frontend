@@ -6,29 +6,20 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NoData from "../../Components/NoData";
+import { useGetAllPagesQuery } from "../../api/cmsApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
-
-const STATIC_CMS_DATA = [
-  {
-    _id: "1",
-    title: "Privacy Policy",
-    slug: "privacy-policy",
-    updatedAt: "2024-10-01T10:30:00",
-    content: "<p>This is privacy policy content.</p>",
-  },
-  {
-    _id: "2",
-    title: "Terms & Conditions",
-    slug: "terms-and-conditions",
-    updatedAt: "2024-10-05T14:45:00",
-    content: "<p>This is terms and conditions content.</p>",
-  },
-];
-
+ModuleRegistry.registerModules([AllCommunityModule]); 
 const Cms = () => {
   const navigate = useNavigate();
-  const [cmsData, setCmsData] = useState(STATIC_CMS_DATA);
+  const { data, isLoading } = useGetAllPagesQuery();
+
+  const cmsData = useMemo(() => {
+    return (data?.data || []).map((item) => ({
+      ...item,
+      title: item.name, // map API field to table field
+    }));
+  }, [data]);
 
   const columnDefs = useMemo(
     () => [
@@ -76,7 +67,7 @@ const Cms = () => {
         ),
       },
     ],
-    [navigate]
+    [navigate],
   );
 
   return (
@@ -94,7 +85,9 @@ const Cms = () => {
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-3">
-          {cmsData.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : cmsData.length === 0 ? (
             <NoData text="No CMS pages found" />
           ) : (
             <div className="ag-theme-alpine">
@@ -105,10 +98,10 @@ const Cms = () => {
                 rowHeight={48}
                 domLayout="autoHeight"
                 getRowStyle={(params) => ({
-                    backgroundColor:
-                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
-                  })}
-              /> 
+                  backgroundColor:
+                    params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
+                })}
+              />
             </div>
           )}
         </div>
