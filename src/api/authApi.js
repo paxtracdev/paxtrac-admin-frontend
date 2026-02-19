@@ -15,10 +15,10 @@ export const userAuthApiSlice = createApi({
       }),
     }),
 
-    getProfile: builder.query({
-      query: () => "/user/profile",
-      providesTags: ["User"],
-    }),
+    // getProfile: builder.query({
+    //   query: () => "/user/profile",
+    //   providesTags: ["User"],
+    // }),
     forgotPassword: builder.mutation({
       query: (payload) => ({
         url: "/forgot-password",
@@ -26,19 +26,30 @@ export const userAuthApiSlice = createApi({
         body: payload,
       }),
     }),
-    resetPassword: builder.mutation({
-      query: ({ token, password }) => ({
-        url: `/reset-password/${token}`,
-        method: "PUT",
-        body: { password },
+
+    updatePassword: builder.mutation({
+      query: (payload) => ({
+        url: "/update-password",
+        method: "POST",
+        body: payload,
       }),
+      invalidatesTags: ["User"], // optional if you want to refresh user data
     }),
+
+    // resetPassword: builder.mutation({
+    //   query: ({ token, password }) => ({
+    //     url: `/reset-password/${token}`,
+    //     method: "PUT",
+    //     body: { password },
+    //   }),
+    // }),
   }),
 });
 
 export const {
   useLoginMutation,
-  useGetProfileQuery,
+  // useGetProfileQuery,
   useForgotPasswordMutation,
-  useResetPasswordMutation,
+  // useResetPasswordMutation,
+  useUpdatePasswordMutation,
 } = userAuthApiSlice;
