@@ -1,14 +1,16 @@
 import { CalendarCheck, DollarSign, TrendingUp, Users } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useGetAnalyticsQuery } from "../api/analyticsApi";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { data, isLoading } = useGetAnalyticsQuery();
 
   // Mock static data instead of API
   const statsData = {
-    active_users: 1250,
-    total_events: 1240,
+    active_users: data?.data.totalUsers,
+    total_events: data?.data.totalProperties,
     engagement_ratio: "75%",
     total_revenue: 15400,
   };
