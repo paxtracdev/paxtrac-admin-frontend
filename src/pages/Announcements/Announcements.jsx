@@ -11,65 +11,17 @@ import { Eye, Trash2 } from "lucide-react";
 import { ReadMoreCell } from "../../Components/ReadMoreCell";
 import {
   useCreateAnnouncementMutation,
+  useDeleteAnnouncementMutation,
   useGetAnnouncementsQuery,
 } from "../../api/notificationApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-/* ---------------- DROPDOWN OPTIONS ---------------- */
-
-const notiTypeOptions = [
-  { label: "General Notification", value: "general" },
-  { label: "Promotional Offer", value: "promotion" },
-  { label: "System Update", value: "system_update" },
-  { label: "Important Update", value: "important" },
-  { label: "Maintenance Notice", value: "maintenance" },
-];
-
-const prioritytyOptions = [
-  { label: "Medium", value: "medium" },
-  { label: "High", value: "high" },
-];
 
 const userGroupOptions = [
   { label: "All Users", value: "all" },
   { label: "Vendors", value: "vendor" },
   { label: "Owners", value: "owner" },
   { label: "Managers", value: "manager" },
-];
-
-/* ---------------- STATIC DATA ---------------- */
-
-const STATIC_NOTIFICATIONS = [
-  {
-    id: 1,
-    title: "Scheduled Maintenance",
-    message: "Platform maintenance will occur tonight from 12 AM to 2 AM.",
-    type: "maintenance",
-    priority: "high",
-    target: "all",
-
-    sentAt: "2026-01-20",
-  },
-  {
-    id: 2,
-    title: "New Feature Release",
-    message: "We have launched a new dashboard experience.",
-    type: "system_update",
-    priority: "medium",
-    target: "vendors",
-
-    sentAt: "2026-01-18",
-  },
-  {
-    id: 3,
-    title: "Upcoming Announcement",
-    message: "Draft notification for upcoming platform changes.",
-    type: "general",
-    priority: "medium",
-    target: "owners",
-
-    sentAt: "2026-01-15", // draft hasn’t been sent yet
-  },
 ];
 
 /* ---------------- COMPONENT ---------------- */
@@ -81,8 +33,6 @@ const Announcements = () => {
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [notiType, setNotiType] = useState("");
-  const [priorityType, setPriorityType] = useState("");
   const [userGroup, setUserGroup] = useState("");
   const [errors, setErrors] = useState({});
   const [createAnnouncement, { isLoading }] = useCreateAnnouncementMutation();
@@ -91,21 +41,11 @@ const Announcements = () => {
     limit: pageSize,
     search,
   });
+  const [deleteAnnouncement, { isLoading: isDeleting }] =
+    useDeleteAnnouncementMutation();
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-
-  const filteredData = useMemo(() => {
-    return STATIC_NOTIFICATIONS.filter((n) => {
-      const searchText = search.toLowerCase();
-
-      return (
-        n.title.toLowerCase().includes(searchText) ||
-        n.message.toLowerCase().includes(searchText) ||
-        n.target.toLowerCase().includes(searchText)
-      );
-    });
-  }, [search]);
 
   const validate = () => {
     const newErrors = {};
@@ -153,28 +93,34 @@ const Announcements = () => {
     }
   };
 
-  const handleDelete = (id) => {
-    Swal.fire({
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
       title: "Delete Announcement?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Here you would call your delete API or remove item
-        // Example: deleteAnnouncement(id);
+    });
 
-        // Show success alert
+    if (result.isConfirmed) {
+      try {
+        await deleteAnnouncement(id).unwrap();
+
         Swal.fire({
           title: "Deleted!",
           text: "The announcement has been deleted.",
           icon: "success",
           confirmButtonColor: "#a99068",
         });
+      } catch (err) {
+        Swal.fire(
+          "Failed",
+          err?.data?.message || "Failed to delete announcement",
+          "error",
+        );
       }
-    });
+    }
   };
 
   const columnDefs = useMemo(
@@ -218,8 +164,8 @@ const Announcements = () => {
             <Trash2
               size={18}
               className="text-danger"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleDelete(params.data.id)}
+              style={{ cursor: isDeleting ? "not-allowed" : "pointer" }}
+              onClick={() => !isDeleting && handleDelete(params.data._id)}
             />
           </div>
         ),
@@ -331,7 +277,7 @@ const Announcements = () => {
           <input
             type="text"
             className="form-control ps-3"
-            placeholder="Search by title or target audience ..."
+            placeholder="Search by title ..."
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -340,7 +286,9 @@ const Announcements = () => {
         <div className="custom-card bg-white p-3">
           <h5 className="mb-3">Recent Notifications</h5>
 
-          {data?.data?.length === 0 ? (
+          {isListLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : data?.data?.length === 0 ? (
             <NoData text="No notifications found" />
           ) : (
             <>
