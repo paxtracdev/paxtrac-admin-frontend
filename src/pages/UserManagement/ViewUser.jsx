@@ -16,7 +16,7 @@ if (isLoading) return  <LoadingComponent isLoading fullScreen />;
 if (isError || !data?.data) return <p>User not found</p>;
 
 // Map API response to your component structure
-const user = data.data;
+const user = data.data.user;
 
 const userId = user._id;
 const first_name = user.firstName || "";
