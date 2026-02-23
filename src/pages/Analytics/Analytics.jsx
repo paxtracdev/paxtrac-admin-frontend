@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomDropdown from "../../Components/CustomDropdown";
 import CommonCard from "../../Components/CommonCard";
-import { useGetAnalyticsQuery } from "../../api/analyticsApi";
+import {
+  useGetAnalyticsQuery,
+  useGetChartAnalyticsQuery,
+} from "../../api/analyticsApi";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,9 +25,10 @@ import {
   DollarSign,
   Download,
   TrendingUp,
-  UserPlus,
   Users,
 } from "lucide-react";
+import { LoadingComponent } from "../../Components/LoadingComponent";
+import NoData from "../../Components/NoData";
 
 ChartJS.register(
   CategoryScale,
@@ -47,130 +51,122 @@ const dateRangeOptions = [
   { label: "This Year", value: "thisYear" },
 ];
 
-/* ---------------- STATIC ANALYTICS DATA ---------------- */
+// -------- HELPERS --------
+const formatValue = (value) => {
+  if (value === 0) return 0;
+  if (!value) return "-";
+  return value;
+};
 
-const STATIC_ANALYTICS = {
-  jobStats: {
-    totalJobs: 1240,
-    completedJobs: 980,
-    pendingJobs: 180,
-    cancelledJobs: 80,
-  },
+const formatCurrency = (value) => {
+  const number = Number(value);
 
-  userMetrics: {
-    totalUsers: 5400,
-    activeUsers: 3870,
-    newSignups: 620,
-    retentionRate: "72%",
-  },
+  if (value === null || value === undefined || isNaN(number)) {
+    return "-";
+  }
 
-  revenueMetrics: {
-    periodRevenue: 124500,
-    previousRevenue: 102300,
-    avgRevenuePerUser: 23.05,
-    transactions: 3120,
-  },
-
-  engagement: {
-    avgJobsPerUser: 4.2,
-    avgReviewsPerUser: 1.8,
-  },
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number);
 };
 
 const Analytics = () => {
   const [dateRange, setDateRange] = useState("thisYear");
-  const [analytics, setAnalytics] = useState({});
   const { data, isLoading } = useGetAnalyticsQuery();
-
-  useEffect(() => {
-    // simulate filtered chart data
-    const multiplierMap = {
-      last7days: 0.1,
-      last30days: 0.3,
-      last90days: 0.6,
-      thisMonth: 0.4,
-      thisYear: 1,
-    };
-
-    const m = multiplierMap[dateRange];
-
-    setAnalytics({
-      jobStats: {
-        totalJobs: Math.round(data?.data.totalProperties * m),
-        completedJobs: Math.round(data?.data.completedJobs * m),
-        pendingJobs: Math.round(data?.data.pendingJobs * m),
-        cancelledJobs: Math.round(data?.data.cancelledJobs * m),
-      },
-      userMetrics: {
-        ...data?.data,
-        activeUsers: Math.round(data?.data.activeUsers * m),
-        newSignups: Math.round(data?.data.newSignups * m),
-      },
-      revenueMetrics: {
-        ...data?.data,
-        periodRevenue: Math.round(data?.data.periodRevenue * m),
-      },
-      engagement: STATIC_ANALYTICS.engagement,
-    });
-  }, [dateRange]);
+  const {
+    data: chartData,
+    isLoading: isChartLoading,
+    isFetching: isChartFetching,
+  } = useGetChartAnalyticsQuery(dateRange);
+  const isPageLoading = isLoading ;
 
   const downloadReport = () => {
-    // ---------- CSV GENERATION ----------
+    if (!data?.data || !chartData?.data || isChartLoading) return;
+
     const rows = [];
 
     // HEADER
     rows.push(["Analytics Report"]);
-    rows.push([`Date Range: ${dateRange}`]);
+    const selectedLabel =
+      dateRangeOptions.find((opt) => opt.value === dateRange)?.label ||
+      dateRange;
+
+    rows.push([`Date Range: ${selectedLabel}`]);
     rows.push(["Generated On", new Date().toLocaleString()]);
     rows.push([]);
 
-    // JOB STATISTICS
-    rows.push(["Job Statistics"]);
-    rows.push(["Metric", "Value"]);
-    rows.push(["Total Jobs", data?.data.totalProperties]);
-    rows.push(["Completed Jobs", data?.data.totalCompletedProperties]);
-    rows.push(["Pending Jobs", analytics.jobStats.pendingJobs]);
-    rows.push(["Cancelled Jobs", analytics.jobStats.cancelledJobs]);
-    rows.push([]);
+    /* ---------------- JOB & USER STATS ---------------- */
 
-    // USER METRICS
-    rows.push(["User Metrics"]);
+    rows.push(["Overview"]);
     rows.push(["Metric", "Value"]);
-    rows.push(["Active Users", data?.data.totalUsers]);
-    rows.push(["New Signups", analytics.userMetrics.newSignups]);
-    rows.push(["Retention Rate", analytics.userMetrics.retentionRate]);
-    rows.push([]);
 
-    // REVENUE ANALYTICS
-    rows.push(["Revenue Analytics"]);
-    rows.push(["Metric", "Value"]);
+    rows.push(["Total Jobs", formatValue(data?.data?.totalProperties)]);
     rows.push([
-      "Current Period Revenue",
-      analytics.revenueMetrics.periodRevenue,
+      "Completed Jobs",
+      formatValue(data?.data?.totalCompletedProperties),
     ]);
-    rows.push([
-      "Previous Period Revenue",
-      analytics.revenueMetrics.previousRevenue,
-    ]);
+    rows.push(["Total Users", formatValue(data?.data?.totalUsers)]);
+    rows.push(["Total Revenue", formatCurrency(data?.data?.totalRevenue)]);
     rows.push([
       "Avg Revenue Per User",
-      analytics.revenueMetrics.avgRevenuePerUser,
+      formatCurrency(data?.data?.averageRevenuePerUser),
     ]);
-    rows.push(["Transactions", analytics.revenueMetrics.transactions]);
-    rows.push([]);
-
-    // PLATFORM ENGAGEMENT
-    rows.push(["Platform Engagement"]);
-    rows.push(["Metric", "Value"]);
-    rows.push(["Avg Jobs Per User", analytics.engagement.avgJobsPerUser]);
-    rows.push(["Avg Reviews Per User", analytics.engagement.avgReviewsPerUser]);
 
     rows.push([]);
 
-    // ---------- CSV GENERATION ----------
+    /* ---------------- CHART DATA (IF EXISTS) ---------------- */
+
+    if (chartData?.data?.revenue) {
+      rows.push(["Revenue Comparison"]);
+      rows.push(["Metric", "Value"]);
+
+      rows.push([
+        "Current Period Revenue",
+        formatCurrency(chartData?.data?.revenue?.periodRevenue),
+      ]);
+
+      rows.push([
+        "Previous Period Revenue",
+        formatCurrency(chartData?.data?.revenue?.previousRevenue),
+      ]);
+
+      rows.push([]);
+    }
+
+    if (chartData?.data?.userGrowth) {
+      rows.push(["User Growth"]);
+      rows.push(["Metric", "Value"]);
+
+      rows.push([
+        "Total Users (Chart)",
+        formatValue(chartData?.data?.userGrowth?.totalUsers),
+      ]);
+
+      rows.push([
+        "Active Users",
+        formatValue(chartData?.data?.userGrowth?.activeUsers),
+      ]);
+
+      rows.push([]);
+    }
+
+    // CSV GENERATION
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      rows.map((row) => row.join(",")).join("\n");
+      rows
+        .map((row) =>
+          row
+            .map((cell) =>
+              typeof cell === "string" && cell.includes(",")
+                ? `"${cell}"`
+                : cell,
+            )
+            .join(","),
+        )
+        .join("\n");
 
     const link = document.createElement("a");
     link.href = encodeURI(csvContent);
@@ -182,27 +178,31 @@ const Analytics = () => {
   const kpiStats = [
     {
       title: "Total Jobs",
-      value: data?.data.totalProperties,
+      value: isLoading ? "NA" : formatValue(data?.data?.totalProperties),
       icon: <Briefcase size={20} />,
     },
     {
       title: "Completed Jobs",
-      value: data?.data.totalCompletedProperties,
+      value: isLoading
+        ? "NA"
+        : formatValue(data?.data?.totalCompletedProperties),
       icon: <CheckCircle size={20} />,
     },
     {
-      title: "Active Users",
-      value: data?.data.totalUsers,
+      title: "Total Users",
+      value: isLoading ? "NA" : formatValue(data?.data?.totalUsers),
       icon: <Users size={20} />,
     },
     {
       title: "Total Revenue",
-      value: `$${data?.data.totalRevenue}`,
+      value: isLoading ? "NA" : formatCurrency(data?.data?.totalRevenue),
       icon: <DollarSign size={20} />,
     },
     {
       title: "Avg Revenue / User",
-      value: `$${data?.data.averageRevenuePerUser}`,
+      value: isLoading
+        ? "NA"
+        : formatCurrency(data?.data?.averageRevenuePerUser),
       icon: <TrendingUp size={20} />,
     },
   ];
@@ -216,9 +216,8 @@ const Analytics = () => {
       {
         label: "Users",
         data: [
-          analytics?.totalUsers,
-          analytics?.activeUsers,
-          analytics?.newSignups,
+          chartData?.data?.userGrowth?.totalUsers || 0,
+          chartData?.data?.userGrowth?.activeUsers || 0,
         ],
         borderColor: "#4f46e5",
         backgroundColor: "rgba(79,70,229,0.2)",
@@ -233,21 +232,12 @@ const Analytics = () => {
     labels: ["Current Period", "Previous Period"],
     datasets: [
       {
-        label: "Revenue ($)",
-        data: [analytics?.periodRevenue, analytics?.previousRevenue],
+        label: "Revenue",
+        data: [
+          chartData?.data?.revenue?.periodRevenue || 0,
+          chartData?.data?.revenue?.previousRevenue || 0,
+        ],
         backgroundColor: ["#10b981", "#94a3b8"],
-      },
-    ],
-  };
-
-  // 📊 Platform Engagement
-  const engagementData = {
-    labels: ["Avg Jobs/User", "Avg Reviews/User"],
-    datasets: [
-      {
-        label: "Engagement",
-        data: [analytics?.avgJobsPerUser, analytics?.avgReviewsPerUser],
-        backgroundColor: ["#0ea5e9", "#f59e0b"],
       },
     ],
   };
@@ -267,57 +257,81 @@ const Analytics = () => {
 
         <Breadcrumbs />
 
-        {/* KPI CARDS */}
-        <div className="mb-4">
-          <CommonCard stats={kpiStats} />
-        </div>
-
-        <div className="d-flex align-items-center justify-content-between mb-3">
-          {/* FILTER */}
-          <div className="col-md-4">
-            <CustomDropdown
-              options={dateRangeOptions}
-              placeholder="Select date range"
-              value={dateRange}
-              onChange={setDateRange}
-            />
-          </div>
-
-          <button
-            className="login-btn"
-            onClick={downloadReport}
-            disabled={!analytics}
-          >
-            <Download size={18} /> Generate Report
-          </button>
-        </div>
-
-        {/* CHARTS */}
-
-        <div className="row g-4">
-          {/* Revenue */}
-          <div className="col-xl-6 col-12">
-            <div className="card p-3">
-              <h6 className="mb-3">Revenue Analytics</h6>
-              <Bar data={revenueData} />
+        {isPageLoading ? (
+          <LoadingComponent isLoading fullScreen />
+        ) : (
+          <>
+            {/* KPI CARDS */}
+            <div className="mb-4">
+              <CommonCard stats={kpiStats} />
             </div>
-          </div>
-          {/* User Growth */}
-          <div className="col-xl-6 col-12">
-            <div className="card p-3">
-              <h6 className="mb-3">User Growth</h6>
-              <Line data={userGrowthData} />
-            </div>
-          </div>
 
-          {/* Engagement */}
-          <div className="col-xl-6 col-12">
-            <div className="card p-3">
-              <h6 className="mb-3">Platform Engagement</h6>
-              <Bar data={engagementData} />
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              {/* FILTER */}
+              <div className="col-md-4">
+                <CustomDropdown
+                  options={dateRangeOptions}
+                  placeholder="Select date range"
+                  value={dateRange}
+                  onChange={setDateRange}
+                />
+              </div>
+
+              <button
+                className="login-btn"
+                onClick={downloadReport}
+                disabled={
+                  isLoading ||
+                  isChartLoading ||
+                  isChartFetching ||
+                  !data?.data ||
+                  !chartData?.data
+                }
+                style={{
+                  opacity:
+                    isLoading || isChartLoading || isChartFetching ? 0.6 : 1,
+                  cursor:
+                    isLoading || isChartLoading || isChartFetching
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+              >
+                <Download size={18} /> Generate Report
+              </button>
             </div>
-          </div>
-        </div>
+
+            {/* CHARTS */}
+
+            <div className="row g-4">
+              {/* Revenue */}
+              <div className="col-xl-6 col-12">
+                <div className="card p-3">
+                  <h6 className="mb-3">Revenue Analytics</h6>
+                  {isChartLoading ? (
+                    <LoadingComponent isLoading fullScreen />
+                  ) : chartData?.data?.revenue ? (
+                    <Bar data={revenueData} />
+                  ) : (
+                    <NoData text="No revenue data available" />
+                  )}
+                </div>
+              </div>
+              {/* User Growth */}
+              <div className="col-xl-6 col-12">
+                <div className="card p-3">
+                  <h6 className="mb-3">User Growth</h6>
+                  {isChartLoading ? (
+                    <LoadingComponent isLoading fullScreen />
+                  ) : chartData?.data?.userGrowth ? (
+                    <Line data={userGrowthData} />
+                  ) : (
+                    <NoData text="No user data available" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </main>
   );

@@ -22,9 +22,18 @@ export const analyticsApi = createApi({
       }),
       providesTags: ["Transactions"],
     }),
+
+    // Charts 
+    getChartAnalytics: builder.query({
+      query: (period) => ({
+        url: "/analytic",
+        method: "GET",
+        params: { period },
+      }),
+    }),
     
   }),
 });
 
-export const { useGetAnalyticsQuery, useGetAllTransactionsQuery } =
+export const { useGetAnalyticsQuery, useGetAllTransactionsQuery, useGetChartAnalyticsQuery } =
   analyticsApi;
