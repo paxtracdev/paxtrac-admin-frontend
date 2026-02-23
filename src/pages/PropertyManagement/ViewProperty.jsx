@@ -55,7 +55,7 @@ const ViewListing = () => {
 
     const formattedStartDate = (approveDateTime) => {
       const d = new Date(approveDateTime);
-      return d.toISOString();
+      return d.toLocaleString();
     };
 
     try {

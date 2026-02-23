@@ -151,7 +151,7 @@ const BidManagement = () => {
         headerName: "Property ID",
         field: "_id",
         flex: 1,
-        minWidth: 200,
+        minWidth: 250,
       },
       {
         headerName: "Property Type",

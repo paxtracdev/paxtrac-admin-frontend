@@ -57,7 +57,7 @@ export default function ResetPassword() {
 
     // Mock successful update
     try {
-      await resetPassword({ password: newPassword, token }).unwrap();
+      await resetPassword({  newPassword, token }).unwrap();
 
       showToast("Your password has been updated successfully.", "success");
       navigate("/");

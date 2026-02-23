@@ -52,11 +52,11 @@ const Payments = () => {
   const [searchInput, setSearchInput] = useState("");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
-
   const { data, isLoading } = useGetAllTransactionsQuery({
     page: currentPage,
     limit: pageSize,
     search: searchInput,
+    status: statusFilter,
   });
 
   // FILTERED PAYMENTS
@@ -137,9 +137,9 @@ const Payments = () => {
           const value = params.value?.toLowerCase();
 
           const statusClass =
-            value === "paid"
+            value === "success"
               ? ""
-              : value === "failed"
+              : value === "pending"
                 ? "inactive"
                 : value === "refund"
                   ? "pending"
@@ -225,17 +225,16 @@ const Payments = () => {
         </div>
       </section>
 
-     <PaymentFilterModal
-  show={filterModalOpen}
-  initialStatus={statusFilter}
-  onClose={() => setFilterModalOpen(false)}
-  onApply={(status) => {
-    setStatusFilter(status);
-    setFilterModalOpen(false);
-    setCurrentPage(1);
-  }}
-/>
-
+      <PaymentFilterModal
+        show={filterModalOpen}
+        initialStatus={statusFilter}
+        onClose={() => setFilterModalOpen(false)}
+        onApply={(status) => {
+          setStatusFilter(status);
+          setFilterModalOpen(false);
+          setCurrentPage(1);
+        }}
+      />
     </main>
   );
 };

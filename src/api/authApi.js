@@ -37,10 +37,10 @@ export const userAuthApiSlice = createApi({
     }),
 
     resetPassword: builder.mutation({
-      query: ({ token, password }) => ({
+      query: ({ token, newPassword }) => ({
         url: `/reset-password/${token}`,
         method: "POST",
-        body: { password },
+        body: { newPassword },
       }),
     }),
   }),

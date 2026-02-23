@@ -33,8 +33,8 @@ const PaymentFilterModal = ({
 
   const STATUS_OPTIONS = [
     { label: "All", value: "" },
-    { label: "Paid", value: "paid" },
-    { label: "Failed", value: "failed" },
+    { label: "success", value: "success" },
+    { label: "pending", value: "pending" },
     { label: "Refund", value: "refund" },
   ];
 

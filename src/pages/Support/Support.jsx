@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import SupportStatusDropdown from "../../Components/SupportStatusDropdown";
 import { useGetSupportQuery } from "../../api/userApi";
 import { useSupportMutation } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -46,7 +47,7 @@ const Support = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedSupport, setSelectedSupport] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { data, isError } = useGetSupportQuery({
+  const { data, isError, isLoading } = useGetSupportQuery({
     page,
     pageSize,
     search: debouncedSearch,
@@ -62,7 +63,7 @@ const Support = () => {
 
     return () => clearTimeout(timer);
   }, [search]);
-  const [support, { isLoading }] = useSupportMutation();
+  const [support] = useSupportMutation();
 
   const filteredData = useMemo(() => {
     return STATIC_SUPPORT_DATA.filter(
@@ -210,10 +211,8 @@ const Support = () => {
 
         {/* Table */}
         <div className="custom-card bg-white p-3">
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <Loader size="lg" color="logo" />
-            </div>
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
           ) : supportData.length === 0 ? (
             <NoData text="No support found" />
           ) : (

@@ -12,7 +12,7 @@ function Dashboard() {
     active_users: data?.data.totalUsers,
     total_events: data?.data.totalProperties,
     engagement_ratio: "75%",
-    total_revenue: 15400,
+    total_revenue: data?.data.totalRevenue,
   };
 
   const stats = [

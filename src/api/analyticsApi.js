@@ -12,17 +12,17 @@ export const analyticsApi = createApi({
       }),
     }),
     getAllTransactions: builder.query({
-      query: ({ page = 1, limit = 10, search = "" }) => ({
+      query: ({ page = 1, limit = 10, search = "", status }) => ({
         url: "/AllTransactions",
         params: {
           page,
           limit,
           search,
+          status,
         },
       }),
       providesTags: ["Transactions"],
     }),
-    
   }),
 });
 
