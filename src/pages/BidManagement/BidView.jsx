@@ -45,6 +45,8 @@ const BidView = () => {
   const [broadcastBidder] = useBroadcastBidderMutation();
 
   const location = useLocation();
+  const bidStatusFromList = location.state?.bidStatus;
+  const [bidStatus, setBidStatus] = useState(bidStatusFromList || "");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -85,6 +87,12 @@ const BidView = () => {
       setBid(data.data[0]);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (bidStatusFromList) {
+      setBidStatus(bidStatusFromList);
+    }
+  }, [bidStatusFromList]);
 
   if (!bid) return null;
 
@@ -138,6 +146,7 @@ const BidView = () => {
 
       // Update UI
       setBid((prev) => ({ ...prev, status: "inactive" }));
+      setBidStatus("inactive");
 
       Swal.fire({
         icon: "success",
@@ -164,6 +173,7 @@ const BidView = () => {
     };
     await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
     setBid((prev) => ({ ...prev, status: "active" }));
+    setBidStatus("active");
 
     Swal.fire({
       icon: "success",
@@ -326,9 +336,9 @@ const BidView = () => {
         <div className="custom-card bg-white p-4 mt-3 mb-4 position-relative">
           {/* Status badge */}
           <span
-            className={`status-badge  ${status !== "active" ? "inactive" : ""}`}
+            className={`status-badge  ${bidStatus?.toLowerCase() !== "active" ? "inactive" : ""}`}
           >
-            {status}
+            {bidStatus || "-"}
           </span>
 
           <div className="row mt-2">
@@ -414,7 +424,7 @@ const BidView = () => {
               Save Changes
             </button>
 
-            {bid.status !== "active" ? (
+            {bidStatus?.toLowerCase() !== "active" ? (
               <button
                 className="button-secondary"
                 onClick={handleReopenBidding}
