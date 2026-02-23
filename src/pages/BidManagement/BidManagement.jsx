@@ -130,10 +130,7 @@ const BidManagement = () => {
   const handleViewBid = (bid) => {
     navigate(`/bid-management/${bid._id}`, {
       state: {
-        bid: {
-          ...bid,
-          bidTime: bid.bidTime ?? "2026-01-01 10:00",
-        },
+        bidStatus: bid.bidStatus, 
       },
     });
   };
