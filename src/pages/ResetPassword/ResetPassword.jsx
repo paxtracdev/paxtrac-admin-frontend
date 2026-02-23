@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import logo from "../../assets/images/logos.png";
 import showToast from "../../utils/showToast";
 import { Eye, EyeClosed } from "lucide-react";
+import { useResetPasswordMutation } from "../../api/authApi";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const { token } = useParams();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,7 +38,7 @@ export default function ResetPassword() {
     return "";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newPasswordError = validatePassword(newPassword);
@@ -53,9 +56,14 @@ export default function ResetPassword() {
     if (newPasswordError || confirmPasswordError) return;
 
     // Mock successful update
-    showToast("Your password has been updated successfully.", "success");
+    try {
+      await resetPassword({ password: newPassword, token }).unwrap();
 
-    navigate("/");
+      showToast("Your password has been updated successfully.", "success");
+      navigate("/");
+    } catch (error) {
+      showToast(error?.data?.message || "Failed to reset password", "error");
+    }
   };
 
   const toggleNewPassword = () => {

@@ -18,7 +18,7 @@ export const notificationApi = createApi({
 
     createAnnouncement: builder.mutation({
       query: (payload) => ({
-        url: "/notification",
+        url: "/notication",
         method: "POST",
         body: payload,
       }),

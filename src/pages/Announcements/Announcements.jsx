@@ -13,6 +13,7 @@ import {
   useCreateAnnouncementMutation,
   useGetAnnouncementsQuery,
 } from "../../api/notificationApi";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 /* ---------------- DROPDOWN OPTIONS ---------------- */

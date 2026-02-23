@@ -13,6 +13,7 @@ import {
   useGetPropertiesQuery,
   useDeletePropertyMutation,
 } from "../../api/propertyApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -160,7 +161,7 @@ const ListingManagement = () => {
         headerName: "Listing ID",
         field: "listingId",
         flex: 1,
-        minWidth: 160,
+        minWidth: 250,
       },
       {
         headerName: "Listing Type",
@@ -210,9 +211,7 @@ const ListingManagement = () => {
             <button
               className="border-0 bg-transparent"
               onClick={() =>
-                navigate(
-                  `/listing-management/view-listing/${params.data._id}`,
-                )
+                navigate(`/listing-management/view-listing/${params.data._id}`)
               }
             >
               <Eye size={18} />
@@ -272,7 +271,9 @@ const ListingManagement = () => {
 
         {/* TABLE */}
         <div className="custom-card bg-white p-3">
-          {rowData.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : rowData.length === 0 ? (
             <NoData text="No listing found" />
           ) : (
             <>

@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import FilterUserModal from "../../Components/FilterUserModal";
 import Swal from "sweetalert2";
 import { useGetUsersQuery } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const STATIC_USERS = [
@@ -182,7 +184,7 @@ const UserManagement = () => {
       {
         headerName: "User ID",
         field: "_id", // NEW COLUMN
-        minWidth: 120,
+        minWidth: 250,
         flex: 1,
       },
       {
@@ -293,8 +295,11 @@ const UserManagement = () => {
         </div>
 
         {/* Table */}
+
         <div className="custom-card bg-white p-3">
-          {user.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : user.length === 0 ? (
             <NoData text="No users found" />
           ) : (
             <>

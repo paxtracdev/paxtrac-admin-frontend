@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 import LightGallery from "lightgallery/react";
 // Plugins if needed (optional)
@@ -22,17 +23,23 @@ const ViewListing = () => {
   const { id: listingId } = useParams();
 
   const [activeVideo, setActiveVideo] = useState(null);
+  const lightGalleryRef = useRef(null);
+
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveDateTime, setApproveDateTime] = useState("");
+
   const [approveError, setApproveError] = useState("");
+
   const { data, isLoading, isError } = usePropertyByIdQuery(listingId, {
     skip: !listingId,
   });
+
   const [approveProperty] = useApprovePropertyMutation();
   const [rejectProperty] = useRejectPropertyMutation();
 
   // 🔒 STATIC DATA (NO API)
   const listing = data?.data;
+  if (isLoading) return <LoadingComponent isLoading fullScreen />;
 
   const handleApprove = () => {
     setApproveDateTime("");
@@ -48,7 +55,7 @@ const ViewListing = () => {
 
     const formattedStartDate = (approveDateTime) => {
       const d = new Date(approveDateTime);
-      return d.toISOString()
+      return d.toISOString();
     };
 
     try {
@@ -110,7 +117,6 @@ const ViewListing = () => {
   };
 
   // For lightgallery ref (optional, if you want to control)
-  const lightGalleryRef = useRef(null);
 
   return (
     <main className="app-content body-bg">

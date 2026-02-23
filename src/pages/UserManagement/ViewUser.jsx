@@ -1,45 +1,47 @@
 import React from "react";
-import { useNavigate, useSearchParams, useParams } from "react-router-dom"; 
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { File } from "lucide-react";
-import { useGetUserByIdQuery } from "../../api/userApi"; 
+import { useGetUserByIdQuery } from "../../api/userApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
 
-const ViewUser = () => { 
-
+const ViewUser = () => {
   const { id } = useParams();
   console.log("ViewUser ID:", id);
 
-const { data, isLoading, isError } = useGetUserByIdQuery(id);
+  const { data, isLoading, isError } = useGetUserByIdQuery(id);
 
-if (isLoading) return  <LoadingComponent isLoading fullScreen />; 
-if (isError || !data?.data) return <p>User not found</p>;
+  if (isLoading) return <LoadingComponent isLoading fullScreen />;
+  if (isError || !data?.data) return <p>User not found</p>;
 
-// Map API response to your component structure
-const user = data.data;
+  // Map API response to your component structure
+  const user = data.data;
 
-const userId = user._id;
-const first_name = user.firstName || "";
-const last_name = user.lastName || "";
-const email = user.email || "";
-const phone = user.mobileNumber || "";
-const role = user.role || "N/A";
-const status = "active"; 
-const registrationDate = user.createdAt;
+  const userId = user._id;
+  const first_name = user.firstName || "";
+  const last_name = user.lastName || "";
+  const email = user.email || "";
+  const phone = user.mobileNumber || "";
+  const role = user.role || "N/A";
+  const status = "active";
+  const registrationDate = user.createdAt;
 
-const planDetails = {
-  planName: "N/A", 
-  billingType: "N/A",
-  purchaseDate: "N/A",
-  propertyUsed: user.plans?.usedProperties || 0,
-  backgroundCheckUsed: user.plans?.usedbackgroundChecks || 0,
-};
+  const planDetails = {
+    planName: user.subscription?.planName,
+    billingType: user.subscription?.subscriptionType,
+    purchaseDate: user.subscription?.createdAt,
+    propertyUsed: user.subscription?.usedProperties || 0,
+    backgroundCheckUsed: user.subscription?.usedbackgroundChecks || 0,
+  };
 
-const businessDetails = 
-  role === "owner" ? user.OwnerbusinessDetails?.[0] || {} :
-  role === "vendor" ? user.VendorbusinessDetails?.[0] || {} :
-  role === "manager" ? user.ManagerbusinessDetails?.[0] || {} : {};
-
+  const businessDetails =
+    role === "owner"
+      ? user.OwnerbusinessDetails?.[0] || {}
+      : role === "vendor"
+        ? user.VendorbusinessDetails?.[0] || {}
+        : role === "manager"
+          ? user.ManagerbusinessDetails?.[0] || {}
+          : {};
 
   const renderOwnerDetails = () => (
     <>
@@ -121,7 +123,7 @@ const businessDetails =
           <input
             type="text"
             className="form-control"
-            value={businessDetails.capexBudget}
+            value={businessDetails.capexBudgetAvg}
             disabled
             readOnly
             placeholder="Annual CapEx budget"
@@ -133,7 +135,7 @@ const businessDetails =
             Geographic areas that you focus on
           </label>
           <div className="d-flex flex-wrap gap-2">
-            {businessDetails.geographicAreas?.split(",").map((area, i) => (
+            {businessDetails.geographicArea?.split(",").map((area, i) => (
               <span
                 key={i}
                 className="service-chip"
@@ -149,12 +151,12 @@ const businessDetails =
         <div className="col-md-12 mb-3">
           <label className="form-label fw-semibold">Types of property</label>
           <div className="d-flex flex-wrap gap-2">
-            {businessDetails.propertyTypes?.map((type, i) => (
+            {businessDetails.propertyType?.map((type, i) => (
               <span
                 key={i}
                 className="service-chip"
                 style={{ fontSize: "0.9rem" }}
-                title={type} 
+                title={type}
               >
                 {type}
               </span>
@@ -167,7 +169,7 @@ const businessDetails =
           <textarea
             className="form-control"
             rows={4}
-            value={businessDetails.propertyPortfolio}
+            value={user.propertyPortfolioDescription}
             disabled
             readOnly
             placeholder="Property Portfolio details"
@@ -335,7 +337,7 @@ const businessDetails =
     </>
   );
 
-  const   renderManagerDetails = () => (
+  const renderManagerDetails = () => (
     <>
       <div className="row">
         <div className="col-md-6 mb-3">
@@ -444,7 +446,7 @@ const businessDetails =
             className="form-control"
             placeholder="Enter company details"
             rows={3}
-            value={businessDetails.about || ""}
+            value={user.aboutYourCompanyInfo || ""}
             disabled
           />
         </div>
@@ -521,7 +523,7 @@ const businessDetails =
           {/* Status Badge Top Right */}
           <div
             className={`status-badge ${status === "inactive" ? "inactive" : ""}`}
-          > 
+          >
             {status}
           </div>
 

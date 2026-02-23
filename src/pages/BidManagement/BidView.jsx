@@ -106,7 +106,7 @@ const BidView = () => {
   };
 
   const handleSaveChanges = async () => {
-    const isoBidTime = new Date(bidTime).toISOString(); // converts local time to UTC ISO format
+    const isoBidTime = new Date(bidTime).toLocaleString(); // converts local time to UTC ISO format
 
     const payload = {
       bidId: bid.propertyId,
@@ -155,7 +155,14 @@ const BidView = () => {
     }
   };
 
-  const handleReopenBidding = () => {
+  const handleReopenBidding = async () => {
+    const isoBidTime = new Date(bidTime).toLocaleString(); // converts local time to UTC ISO format
+
+    const payload = {
+      bidId: bid.propertyId,
+      bidTime: isoBidTime,
+    };
+    await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
     setBid((prev) => ({ ...prev, status: "active" }));
 
     Swal.fire({
@@ -319,9 +326,9 @@ const BidView = () => {
         <div className="custom-card bg-white p-4 mt-3 mb-4 position-relative">
           {/* Status badge */}
           <span
-            className={`status-badge  ${location?.state?.bid.status !== "active" ? "inactive" : ""}`}
+            className={`status-badge  ${status !== "active" ? "inactive" : ""}`}
           >
-            {bid.status}
+            {status}
           </span>
 
           <div className="row mt-2">
@@ -521,6 +528,3 @@ const BidView = () => {
 };
 
 export default BidView;
-
-
-

@@ -36,13 +36,13 @@ export const userAuthApiSlice = createApi({
       invalidatesTags: ["User"], // optional if you want to refresh user data
     }),
 
-    // resetPassword: builder.mutation({
-    //   query: ({ token, password }) => ({
-    //     url: `/reset-password/${token}`,
-    //     method: "PUT",
-    //     body: { password },
-    //   }),
-    // }),
+    resetPassword: builder.mutation({
+      query: ({ token, password }) => ({
+        url: `/reset-password/${token}`,
+        method: "POST",
+        body: { password },
+      }),
+    }),
   }),
 });
 
@@ -50,6 +50,6 @@ export const {
   useLoginMutation,
   // useGetProfileQuery,
   useForgotPasswordMutation,
-  // useResetPasswordMutation,
+  useResetPasswordMutation,
   useUpdatePasswordMutation,
 } = userAuthApiSlice;

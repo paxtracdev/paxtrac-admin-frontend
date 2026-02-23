@@ -8,6 +8,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useNavigate } from "react-router-dom";
 import { useGetBidsQuery } from "../../api/userApi";
 import BidManagementFilterModal from "../../Components/BidManagementFilterModal";
+import { LoadingComponent } from "../../Components/LoadingComponent";
+import NoData from "../../Components/NoData";
 
 const initialProperties = [
   {
@@ -91,7 +93,8 @@ const BidManagement = () => {
     // Apply status filter
     if (filters.status) {
       filtered = filtered.filter(
-        (item) => item.bidStatus?.toLowerCase() === filters.status.toLowerCase(),
+        (item) =>
+          item.bidStatus?.toLowerCase() === filters.status.toLowerCase(),
       );
     }
 
@@ -250,33 +253,41 @@ const BidManagement = () => {
         </div>
 
         <div className="custom-card bg-white p-4 mt-3">
-          <div
-            className="ag-theme-alpine"
-            style={{ width: "100%", overflowX: "auto" }}
-          >
-            <AgGridReact
-              rowData={properties}
-              columnDefs={columnDefs}
-              domLayout="autoHeight"
-              headerHeight={40}
-              rowHeight={48}
-              getRowStyle={(params) => ({
-                backgroundColor:
-                  params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
-              })}
-            />
-          </div>
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : properties?.length === 0 ? (
+            <NoData text="No found" />
+          ) : (
+            <>
+              <div
+                className="ag-theme-alpine"
+                style={{ width: "100%", overflowX: "auto" }}
+              >
+                <AgGridReact
+                  rowData={properties}
+                  columnDefs={columnDefs}
+                  domLayout="autoHeight"
+                  headerHeight={40}
+                  rowHeight={48}
+                  getRowStyle={(params) => ({
+                    backgroundColor:
+                      params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",
+                  })}
+                />
+              </div>
 
-          {/* Custom Pagination */}
-          <CustomPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            pageSizeOptions={pageSizeOptions}
-          />
+              {/* Custom Pagination */}
+              <CustomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                pageSizeOptions={pageSizeOptions}
+              />
+            </>
+          )}
         </div>
       </section>
 
