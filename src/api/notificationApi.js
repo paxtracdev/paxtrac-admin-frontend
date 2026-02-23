@@ -24,9 +24,17 @@ export const notificationApi = createApi({
       }),
       invalidatesTags: ["Announcement"],
     }),
+
+    deleteAnnouncement: builder.mutation({
+      query: (id) => ({
+        url: `/notices/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Announcement"],  
+    }),
     
   }),
 });
 
-export const { useGetAnnouncementsQuery, useCreateAnnouncementMutation } =
+export const { useGetAnnouncementsQuery, useCreateAnnouncementMutation, useDeleteAnnouncementMutation } =
   notificationApi;

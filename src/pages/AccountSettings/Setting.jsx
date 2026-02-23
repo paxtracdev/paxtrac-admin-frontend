@@ -128,14 +128,20 @@ const AccoountSetting = () => {
           setErrors({});
         });
       } else {
-        Swal.fire(
-          "Error",
-          result.message || "Failed to update password",
-          "error",
-        );
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Failed to update password",
+          confirmButtonColor: "#a99068",
+        });
       }
     } catch (err) {
-      Swal.fire("Error", err?.data?.message || "Something went wrong", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.data?.message || "Something went wrong",
+        confirmButtonColor: "#a99068",
+      });
     }
   };
 
