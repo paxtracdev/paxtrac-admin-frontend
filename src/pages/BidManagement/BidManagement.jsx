@@ -83,7 +83,7 @@ const BidManagement = () => {
       const query = searchInput.toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          item?.id?.toLowerCase().includes(query) ||
+          item?._id?.toLowerCase().includes(query) ||
           item?.propertyType?.toLowerCase().includes(query) ||
           item?.listerName?.toLowerCase().includes(query) ||
           item?.email?.toLowerCase().includes(query),

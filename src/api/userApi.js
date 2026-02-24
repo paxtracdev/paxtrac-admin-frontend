@@ -117,9 +117,9 @@ export const userApi = createApi({
     }),
     Settings: builder.mutation({
       query: (payload) => ({
-        url: `/adminsettings`,      // backend route
-        method: "POST",        // or "PUT" depending on your backend
-        body: payload,         // the data you are sending
+        url: `/adminsettings`, // backend route
+        method: "POST", // or "PUT" depending on your backend
+        body: payload, // the data you are sending
       }),
     }),
 
@@ -129,7 +129,7 @@ export const userApi = createApi({
         method: "GET",
       }),
     }),
-
+     
   }),
 });
 
@@ -146,5 +146,5 @@ export const {
   useBroadcastBidderMutation,
   useSupportMutation,
   useSettingsMutation,
-  useGetSettingsQuery, 
+  useGetSettingsQuery,
 } = userApi;

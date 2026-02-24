@@ -95,7 +95,7 @@ const CMSView = () => {
           {(!privacyData && pageType === "privacy-policy") ||
           (!termsData && pageType === "terms-of-service") ? (
             <LoadingComponent isLoading fullScreen />
-          ) : content ? (
+          ) : (
             <>
               <div className="mb-3">
                 <label className="form-label fw-semibold">Page Title</label>
@@ -147,8 +147,6 @@ const CMSView = () => {
                 </button>
               </div>
             </>
-          ) : (
-            <NoData text="No data found" />
           )}
         </div>
       </section>

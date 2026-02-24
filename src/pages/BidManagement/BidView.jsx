@@ -142,7 +142,6 @@ const BidView = () => {
   const handleCloseBidding = async () => {
     try {
       // Call backend to close the bid
-      await endBidding({ bidId: bid.id }).unwrap();
 
       // Update UI
       setBid((prev) => ({ ...prev, status: "inactive" }));

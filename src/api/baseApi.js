@@ -4,7 +4,7 @@ import { logout } from "../redux/slice/userSlice"; // adjust path
 
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://51.161.10.63/api/admin",
-  prepareHeaders: (headers, { getState }) => {
+   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.token || localStorage.getItem("token");
 
     if (token) {

@@ -142,10 +142,7 @@ export default function LoginPage() {
                       onChange={(e) => {
                         const value = e.target.value;
                         setEmail(value);
-                        setErrors((prev) => ({
-                          ...prev,
-                          email: validateEmail(value),
-                        }));
+                        
                       }}
                       autoFocus
                     />
@@ -165,10 +162,7 @@ export default function LoginPage() {
                         onChange={(e) => {
                           const value = e.target.value;
                           setPassword(value);
-                          setErrors((prev) => ({
-                            ...prev,
-                            password: validatePassword(value),
-                          }));
+                          
                         }}
                       />
                       <span onClick={togglePassword}>
