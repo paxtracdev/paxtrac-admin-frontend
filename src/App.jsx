@@ -45,7 +45,7 @@ import ListingManagement from "./pages/PropertyManagement/PropertyManagement";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/admin">
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
