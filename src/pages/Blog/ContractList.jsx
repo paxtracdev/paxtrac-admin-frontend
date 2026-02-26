@@ -5,43 +5,71 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
-import { VLOG_DATA } from "./VlogStaticData";
+import { BLOG_DATA } from "./BlogStaticData";
 import Swal from "sweetalert2";
 
-const VlogList = () => {
+const ContractList = () => {
   const navigate = useNavigate();
-  const [vlogs, setVlogs] = useState(VLOG_DATA);
+
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [contract, setContract] = useState(BLOG_DATA);
 
+  /* Filter */
   const filteredData = useMemo(() => {
-    return vlogs.filter((v) =>
-      v.title.toLowerCase().includes(search.toLowerCase()),
+    return contract.filter((b) =>
+      b.title.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [vlogs, search]);
+  }, [contract, search]);
 
+  /* Pagination calculations */
   const totalCount = filteredData.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredData.slice(startIndex, startIndex + pageSize);
   }, [filteredData, currentPage, pageSize]);
 
-  const handlePageChange = (page) => setCurrentPage(page);
-  const handlePageSizeChange = (size) => {
-    setPageSize(size);
-    setCurrentPage(1);
+  /* Handlers */
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setCurrentPage(1); // reset page on size change
+  };
+
+  /* Columns */
   const columnDefs = [
     {
       headerName: "S.No",
       width: 90,
       valueGetter: (p) => (currentPage - 1) * pageSize + p.node.rowIndex + 1,
     },
-    { headerName: "Title", field: "title", flex: 1.5 },
+    {
+      headerName: "Title",
+      field: "title",
+      flex: 1.5,
+    },
+    //     {
+    //   headerName: "Status",
+    //   field: "status",
+    //   flex: 1,
+    //   cellRenderer: (params) => {
+    //     const isDraft = params.value === "Draft";
+
+    //     return (
+    //       <span
+    //         className={`status-badge-table ${isDraft ? "pending" : ""}`}
+    //       >
+    //         {params.value}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       headerName: "Created At",
       flex: 1.2,
@@ -54,7 +82,7 @@ const VlogList = () => {
         const handleDelete = () => {
           Swal.fire({
             title: "Are you sure?",
-            text: `You want to delete vlog "${params.data.title}"`,
+            text: `You want to delete contract "${params.data.title}"`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#a99068",
@@ -62,11 +90,13 @@ const VlogList = () => {
             confirmButtonText: "Yes, delete",
           }).then((result) => {
             if (result.isConfirmed) {
-              setVlogs((prev) => prev.filter((v) => v.id !== params.data.id));
+              setContract((prev) =>
+                prev.filter((b) => b.id !== params.data.id),
+              );
 
               Swal.fire({
                 title: "Deleted!",
-                text: "Vlog has been deleted successfully",
+                text: "Blog has been deleted successfully",
                 icon: "success",
                 confirmButtonColor: "#a99068",
               });
@@ -80,7 +110,9 @@ const VlogList = () => {
               className="btn p-0 bg-transparent border-0"
               title="View / Edit"
               onClick={() =>
-                navigate("/vlogs/view", { state: { vlog: params.data } })
+                navigate("/contracts/view", {
+                  state: { contract: params.data },
+                })
               }
             >
               <Eye size={18} />
@@ -102,25 +134,28 @@ const VlogList = () => {
   return (
     <main className="app-content body-bg">
       <section className="container">
+        {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <div className="title-heading">Vlog Management</div>
-            <p className="title-sub-heading">Manage all vlogs</p>
+            <div className="title-heading">Contract Management</div>
+            <p className="title-sub-heading ">Manage all contract</p>
           </div>
+
           <button
             className="primary-button"
-            onClick={() => navigate("/vlogs/add")}
+            onClick={() => navigate("/contracts/add")}
           >
-            Add Vlog
+            Add contract
           </button>
         </div>
 
         <Breadcrumbs />
 
+        {/* 🔍 Search */}
         <div className="search-bar mb-3">
           <input
             className="form-control w-50"
-            placeholder="Search by vlog title..."
+            placeholder="Search by contract title..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -129,9 +164,10 @@ const VlogList = () => {
           />
         </div>
 
+        {/* 📋 Table */}
         <div className="custom-card bg-white p-3">
           {paginatedData.length === 0 ? (
-            <NoData text="No vlogs found" />
+            <NoData text="No contract found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
@@ -147,6 +183,8 @@ const VlogList = () => {
                   })}
                 />
               </div>
+
+              {/* ✅ SAME CustomPagination AS PROPERTY */}
               <CustomPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -163,4 +201,4 @@ const VlogList = () => {
   );
 };
 
-export default VlogList;
+export default ContractList;

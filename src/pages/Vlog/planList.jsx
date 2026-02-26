@@ -5,71 +5,43 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
-import { BLOG_DATA } from "./BlogStaticData";
+import { VLOG_DATA } from "./VlogStaticData";
 import Swal from "sweetalert2";
 
-const BlogList = () => {
+const PlanList = () => {
   const navigate = useNavigate();
-
+  const [plans, setPlans] = useState(VLOG_DATA);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [blogs, setBlogs] = useState(BLOG_DATA);
 
-  /* Filter */
   const filteredData = useMemo(() => {
-    return blogs.filter((b) =>
-      b.title.toLowerCase().includes(search.toLowerCase()),
+    return plans.filter((v) =>
+      v.title.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [blogs, search]);
+  }, [plans, search]);
 
-  /* Pagination calculations */
   const totalCount = filteredData.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredData.slice(startIndex, startIndex + pageSize);
+    const start = (currentPage - 1) * pageSize;
+    return filteredData.slice(start, start + pageSize);
   }, [filteredData, currentPage, pageSize]);
 
-  /* Handlers */
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
+  const handlePageChange = (page) => setCurrentPage(page);
   const handlePageSizeChange = (size) => {
     setPageSize(size);
-    setCurrentPage(1); // reset page on size change
+    setCurrentPage(1);
   };
 
-  /* Columns */
   const columnDefs = [
     {
       headerName: "S.No",
       width: 90,
       valueGetter: (p) => (currentPage - 1) * pageSize + p.node.rowIndex + 1,
     },
-    {
-      headerName: "Title",
-      field: "title",
-      flex: 1.5,
-    },
-//     {
-//   headerName: "Status",
-//   field: "status",
-//   flex: 1,
-//   cellRenderer: (params) => {
-//     const isDraft = params.value === "Draft";
-
-//     return (
-//       <span
-//         className={`status-badge-table ${isDraft ? "pending" : ""}`}
-//       >
-//         {params.value}
-//       </span>
-//     );
-//   },
-// },
+    { headerName: "Title", field: "title", flex: 1.5 },
     {
       headerName: "Created At",
       flex: 1.2,
@@ -82,7 +54,7 @@ const BlogList = () => {
         const handleDelete = () => {
           Swal.fire({
             title: "Are you sure?",
-            text: `You want to delete blog "${params.data.title}"`,
+            text: `You want to delete plan "${params.data.title}"`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#a99068",
@@ -90,11 +62,11 @@ const BlogList = () => {
             confirmButtonText: "Yes, delete",
           }).then((result) => {
             if (result.isConfirmed) {
-              setBlogs((prev) => prev.filter((b) => b.id !== params.data.id));
+              setVlogs((prev) => prev.filter((v) => v.id !== params.data.id));
 
               Swal.fire({
                 title: "Deleted!",
-                text: "Blog has been deleted successfully",
+                text: "plan has been deleted successfully",
                 icon: "success",
                 confirmButtonColor: "#a99068",
               });
@@ -104,16 +76,16 @@ const BlogList = () => {
 
         return (
           <div className="d-flex align-items-center gap-2">
-            {/* <button
+            <button
               className="btn p-0 bg-transparent border-0"
               title="View / Edit"
               onClick={() =>
-                navigate("/blogs/view", { state: { blog: params.data } })
+                navigate("/plans/view", { state: { plan: params.data } })
               }
             >
               <Eye size={18} />
             </button>
-            | */}
+            |
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               title="Delete"
@@ -130,28 +102,25 @@ const BlogList = () => {
   return (
     <main className="app-content body-bg">
       <section className="container">
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <div className="title-heading">Blog Management</div>
-            <p className="title-sub-heading ">Manage all blogs</p>
+            <div className="title-heading">Plan Management</div>
+            <p className="title-sub-heading">Manage all plan</p>
           </div>
-
           <button
             className="primary-button"
-            onClick={() => navigate("/blogs/add")}
+            onClick={() => navigate("/plans/add")}
           >
-            Add Blog
+            Add Plan
           </button>
         </div>
 
         <Breadcrumbs />
 
-        {/* 🔍 Search */}
         <div className="search-bar mb-3">
           <input
             className="form-control w-50"
-            placeholder="Search by blog title..."
+            placeholder="Search by plan title..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -160,10 +129,9 @@ const BlogList = () => {
           />
         </div>
 
-        {/* 📋 Table */}
         <div className="custom-card bg-white p-3">
           {paginatedData.length === 0 ? (
-            <NoData text="No blogs found" />
+            <NoData text="No plans found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
@@ -179,8 +147,6 @@ const BlogList = () => {
                   })}
                 />
               </div>
-
-              {/* ✅ SAME CustomPagination AS PROPERTY */}
               <CustomPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -197,4 +163,4 @@ const BlogList = () => {
   );
 };
 
-export default BlogList;
+export default PlanList;

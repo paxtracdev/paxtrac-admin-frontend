@@ -7,28 +7,20 @@ import CustomDropdown from "../../Components/CustomDropdown";
 import defaultImage from "../../assets/images/businessImg3.png";
 import { Pencil } from "lucide-react";
 
-const ViewBlog = () => {
+const ViewContract = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const blog = state?.blog;
+  const contract = state?.contract;
 
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(blog?.image || defaultImage);
 
   // Validation errors
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (!blog) navigate("/blogs");
-    else {
-      setTitle(blog.title);
-      setStatus(blog.status);
-      setContent(blog.content);
-    }
-  }, [blog, navigate]);
+  useEffect(() => {}, [navigate]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -57,10 +49,10 @@ const ViewBlog = () => {
 
     Swal.fire({
       title: "Success",
-      text: "Blog updated successfully",
+      text: "Contract updated successfully",
       icon: "success",
       confirmButtonColor: "#a99068", // custom confirm button color
-    }).then(() => navigate("/blogs"));
+    }).then(() => navigate("/contracts"));
   };
 
   const statusOptions = [
@@ -71,55 +63,24 @@ const ViewBlog = () => {
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="title-heading mb-3">Edit Blog</div>
+        <div className="title-heading mb-3">Edit Contract</div>
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-4 mt-3">
           {/* Title */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Blog Image</label>
-
-            <div className="image-wrapper position-relative">
-              <img src={imagePreview} alt="Blog" className="blog-image" />
-
-              <label className="image-action edit-icon">
-                <Pencil size={18} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageChange}
-                />
-              </label>
-            </div>
-          </div>
 
           <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Blog Title</label>
+              <label className="form-label fw-semibold">Contract Title</label>
               <input
                 type="text"
                 className={`form-control ${errors.title ? "is-invalid" : ""}`}
-                placeholder="Enter blog title"
+                placeholder="Enter contract title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
               {errors.title && (
                 <div className="text-danger mt-1">{errors.title}</div>
-              )}
-            </div>
-
-            {/* Status */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Status</label>
-              <CustomDropdown
-                options={statusOptions}
-                placeholder="Select status"
-                value={status}
-                onChange={(val) => setStatus(val)}
-              />
-              {errors.status && (
-                <div className="text-danger mt-1">{errors.status}</div>
               )}
             </div>
           </div>
@@ -142,7 +103,7 @@ const ViewBlog = () => {
           <div className="mt-4 d-flex gap-3">
             <button
               className="button-secondary"
-              onClick={() => navigate("/blogs")}
+              onClick={() => navigate("/contracts")}
             >
               Cancel
             </button>
@@ -156,4 +117,4 @@ const ViewBlog = () => {
   );
 };
 
-export default ViewBlog;
+export default ViewContract;

@@ -17,12 +17,12 @@ import Legal from "./pages/legal";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import PropertyManagement from "./pages/PropertyManagement/PropertyManagement";
 import ViewProperty from "./pages/PropertyManagement/ViewProperty";
-import BlogList from "./pages/Blog/BlogList";
-import AddBlog from "./pages/Blog/AddBlog";
-import ViewBlog from "./pages/Blog/ViewBlog";
-import VlogList from "./pages/Vlog/VlogList";
-import AddVlog from "./pages/Vlog/AddVlog";
-import ViewVlog from "./pages/Vlog/ViewVlog";
+import ContractList from "./pages/Blog/ContractList";
+import AddContract from "./pages/Blog/AddContract";
+import ViewContract from "./pages/Blog/ViewContract";
+import PlanList from "./pages/Vlog/planList";
+import AddPlan from "./pages/Vlog/AddPlan";
+import ViewPlan from "./pages/Vlog/ViewPlan";
 import FaqList from "./pages/FAQ/FaqList";
 import AddFaq from "./pages/FAQ/AddFaq";
 import ViewFaq from "./pages/FAQ/ViewFaq";
@@ -64,13 +64,13 @@ export default function App() {
           <Route path="/bid-management" element={<BidManagement />} />
           <Route path="/bid-management/:id" element={<BidView />} />
 
-          <Route path="/blogs" element={<BlogList />} />
-          <Route path="/blogs/add" element={<AddBlog />} />
-          <Route path="/blogs/view" element={<ViewBlog />} />
+          <Route path="/Contracts" element={<ContractList />} />
+          <Route path="/contracts/add" element={<AddContract />} />
+          <Route path="/contracts/view" element={<ViewContract />} />
 
-          <Route path="/vlogs" element={<VlogList />} />
-          <Route path="/vlogs/add" element={<AddVlog />} />
-          <Route path="/vlogs/view" element={<ViewVlog />} />
+          <Route path="/plans" element={<PlanList />} />
+          <Route path="/plans/add" element={<AddPlan />} />
+          <Route path="/plans/view" element={<ViewPlan />} />
 
           <Route path="/faq" element={<FaqList />} />
           <Route path="/faq/add" element={<AddFaq />} />

@@ -7,7 +7,7 @@ import CustomDropdown from "../../Components/CustomDropdown";
 import defaultImage from "../../assets/images/blogimg.png"; 
 import { Pencil, Trash2 } from "lucide-react";
 
-const AddBlog = () => {
+const AddContract = () => {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -50,56 +50,29 @@ const AddBlog = () => {
 
     Swal.fire({
       title: "Success",
-      text: "Blog created successfully",
+      text: "Contract created successfully",
       icon: "success",
       confirmButtonColor: "#a99068",
-    }).then(() => navigate("/blogs"));
+    }).then(() => navigate("/contracts"));
   };
 
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="title-heading mb-3">Add New Blog</div>
+        <div className="title-heading mb-3">Add New Contract</div>
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-4 mt-3">
           {/* Title */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Blog Image</label>
-
-            <div className="image-wrapper position-relative">
-              <img src={imagePreview} alt="Blog" className="blog-image" />
-
-              {/* Image action  */}
-              {imageFile ? (
-                <button
-                  type="button"
-                  className="image-action remove-icon"
-                  onClick={handleRemoveImage}
-                >
-                  <Trash2 size={18} />
-                </button>
-              ) : (
-                <label className="image-action edit-icon">
-                  <Pencil size={18} />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={handleImageChange}
-                  />
-                </label>
-              )}
-            </div>
-          </div>
+        
 
           <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Blog Title</label>
+              <label className="form-label fw-semibold">Contract Title</label>
               <input
                 type="text"
                 className={`form-control ${errors.title ? "is-invalid" : ""}`}
-                placeholder="Enter blog title"
+                placeholder="Enter contract title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -140,12 +113,12 @@ const AddBlog = () => {
           <div className="mt-4 d-flex gap-3">
             <button
               className="button-secondary"
-              onClick={() => navigate("/blogs")}
+              onClick={() => navigate("/contracts")}
             >
               Cancel
             </button>
             <button className="primary-button" onClick={handleCreate}>
-              Create Blog
+             Save
             </button>
           </div>
         </div>
@@ -154,4 +127,4 @@ const AddBlog = () => {
   );
 };
 
-export default AddBlog;
+export default AddContract;
