@@ -7,6 +7,7 @@ import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { BLOG_DATA } from "./BlogStaticData";
 import Swal from "sweetalert2";
+import { useContractsQuery } from "../../api/userApi";
 
 const ContractList = () => {
   const navigate = useNavigate();
@@ -15,21 +16,24 @@ const ContractList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [contract, setContract] = useState(BLOG_DATA);
+  const { data, isLoading, error } = useContractsQuery();
 
   /* Filter */
   const filteredData = useMemo(() => {
-    return contract.filter((b) =>
-      b.title.toLowerCase().includes(search.toLowerCase()),
+    return data?.data?.filter((b) =>
+      b?.versions?.[0]?.contractForm
+        ?.toLowerCase()
+        .includes(search.toLowerCase()),
     );
-  }, [contract, search]);
+  }, [ data,search]);
 
   /* Pagination calculations */
-  const totalCount = filteredData.length;
+  const totalCount = filteredData?.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return filteredData.slice(startIndex, startIndex + pageSize);
+    return filteredData?.slice(startIndex, startIndex + pageSize);
   }, [filteredData, currentPage, pageSize]);
 
   /* Handlers */
@@ -51,7 +55,7 @@ const ContractList = () => {
     },
     {
       headerName: "Title",
-      field: "title",
+      valueGetter: (params) => params.data?.versions?.[0]?.contractForm || "-",
       flex: 1.5,
     },
     //     {
@@ -91,7 +95,7 @@ const ContractList = () => {
           }).then((result) => {
             if (result.isConfirmed) {
               setContract((prev) =>
-                prev.filter((b) => b.id !== params.data.id),
+                prev.filter((b) => b.id !== params.data._id),
               );
 
               Swal.fire({
@@ -110,7 +114,7 @@ const ContractList = () => {
               className="btn p-0 bg-transparent border-0"
               title="View / Edit"
               onClick={() =>
-                navigate("/contracts/view", {
+                navigate(`/contracts/${params.data._id}`, {
                   state: { contract: params.data },
                 })
               }
@@ -166,7 +170,7 @@ const ContractList = () => {
 
         {/* 📋 Table */}
         <div className="custom-card bg-white p-3">
-          {paginatedData.length === 0 ? (
+          {paginatedData?.length === 0 ? (
             <NoData text="No contract found" />
           ) : (
             <>

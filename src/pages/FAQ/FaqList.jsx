@@ -7,7 +7,8 @@ import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { FAQ_DATA } from "./FaqStaticData";
 import Swal from "sweetalert2";
-
+import { useFaqsQuery } from "../../api/userApi";
+import { useDeleteFaqMutation } from "../../api/userApi";
 const FaqList = () => {
   const navigate = useNavigate();
 
@@ -15,15 +16,18 @@ const FaqList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  const { data: faqs = [], isLoading, isError } = useFaqsQuery();
+
+  const [deleteFaq] = useDeleteFaqMutation();
   const filteredData = useMemo(() => {
-    return FAQ_DATA.filter((f) =>
-      f.question.toLowerCase().includes(search.toLowerCase()),
+    return faqs?.data?.filter((f) =>
+      f?.question?.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [search]);
+  }, [search,faqs]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
+    return filteredData?.slice(start, start + pageSize);
   }, [filteredData, currentPage]);
 
   const columnDefs = [
@@ -46,8 +50,8 @@ const FaqList = () => {
       headerName: "Action",
       width: 120,
       cellRenderer: (params) => {
-        const handleDelete = () => {
-          Swal.fire({
+        const handleDelete = async () => {
+          const result = await Swal.fire({
             title: "Are you sure?",
             text: "You want to delete this FAQ",
             icon: "warning",
@@ -55,29 +59,40 @@ const FaqList = () => {
             confirmButtonColor: "#a99068",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes, delete",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              Swal.fire({
-                title: "Deleted!",
-                text: "FAQ deleted successfully",
-                icon: "success",
-                confirmButtonColor: "#a99068",
-              });
-            }
           });
+          if (!result.isConfirmed) return;
+          try {
+            await deleteFaq(params.data._id).unwrap(); // RTK Query delete call
+            await Swal.fire({
+              title: "Deleted!",
+              text: "FAQ deleted successfully",
+              icon: "success",
+              confirmButtonColor: "#a99068",
+            });
+          } catch (err) {
+            console.error(err);
+            Swal.fire({
+              title: "Error!",
+              text: "Failed to delete FAQ",
+              icon: "error",
+              confirmButtonColor: "#a99068",
+            });
+          }
         };
 
         return (
           <div className="d-flex align-items-center gap-2">
-            {/* <button
+            <button
               className="btn p-0 bg-transparent border-0"
               onClick={() =>
-                navigate("/faq/view", { state: { faq: params.data } })
+                navigate(`/faq/${params.data._id}`, {
+                  state: { faq: params.data },
+                })
               }
             >
               <Eye size={18} />
             </button>
-            | */}
+            |
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               onClick={handleDelete}
@@ -119,7 +134,7 @@ const FaqList = () => {
         </div>
 
         <div className="custom-card bg-white p-3">
-          {paginatedData.length === 0 ? (
+          {paginatedData?.length === 0 ? (
             <NoData text="No FAQs found" />
           ) : (
             <>
@@ -139,8 +154,8 @@ const FaqList = () => {
 
               <CustomPagination
                 currentPage={currentPage}
-                totalPages={Math.ceil(filteredData.length / pageSize)}
-                totalCount={filteredData.length}
+                totalPages={Math.ceil(filteredData?.length / pageSize)}
+                totalCount={filteredData?.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
               />

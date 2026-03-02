@@ -66,15 +66,15 @@ export default function App() {
 
           <Route path="/Contracts" element={<ContractList />} />
           <Route path="/contracts/add" element={<AddContract />} />
-          <Route path="/contracts/view" element={<ViewContract />} />
+          <Route path="/contracts/:id" element={<ViewContract />} />
 
           <Route path="/plans" element={<PlanList />} />
           <Route path="/plans/add" element={<AddPlan />} />
-          <Route path="/plans/view" element={<ViewPlan />} />
+          <Route path="/plans/:id" element={<ViewPlan />} />
 
           <Route path="/faq" element={<FaqList />} />
           <Route path="/faq/add" element={<AddFaq />} />
-          <Route path="/faq/view" element={<ViewFaq />} />
+          <Route path="/faq/:id" element={<ViewFaq />} />
 
           <Route path="/reviews" element={<Review />} />
 

@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
 import defaultImage from "../../assets/images/businessImg3.png";
 import { Pencil } from "lucide-react";
+import { useContractQuery } from "../../api/userApi";
+import { useUpdateContractMutation } from "../../api/userApi";
 
 const ViewContract = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const contract = state?.contract;
+  const { id } = useParams();
+  const { data, error } = useContractQuery(id);
+  const [updateContract, { isLoading, isError, isSuccess }] =
+    useUpdateContractMutation();
 
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("");
@@ -20,7 +26,12 @@ const ViewContract = () => {
   // Validation errors
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {}, [navigate]);
+  useEffect(() => {
+    if (data?.data) {
+      setTitle(data?.data?.versions?.[0]?.contractForm || "");
+      setContent(data?.data?.versions?.[0]?.content || "");
+    }
+  }, [navigate, data]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -35,24 +46,31 @@ const ViewContract = () => {
     setImagePreview(defaultImage);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Reset errors
     const newErrors = {};
     if (!title.trim()) newErrors.title = "Title is required.";
-    if (!status) newErrors.status = "Status is required.";
     if (!content.trim()) newErrors.content = "Content cannot be empty.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+    try {
+      await updateContract({
+        data: { contractForm:title, content },
+      }).unwrap();
 
-    Swal.fire({
-      title: "Success",
-      text: "Contract updated successfully",
-      icon: "success",
-      confirmButtonColor: "#a99068", // custom confirm button color
-    }).then(() => navigate("/contracts"));
+      Swal.fire({
+        title: "Success",
+        text: "Contract updated successfully",
+        icon: "success",
+        confirmButtonColor: "#a99068", // custom confirm button color
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update contract");
+    }
   };
 
   const statusOptions = [

@@ -1,32 +1,33 @@
 import React, { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Eye, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import { VLOG_DATA } from "./VlogStaticData";
 import Swal from "sweetalert2";
-
+import { usePlansQuery } from "../../api/userApi";
 const PlanList = () => {
   const navigate = useNavigate();
-  const [plans, setPlans] = useState(VLOG_DATA);
+  const { id } = useParams();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const { data: plans, isLoading } = usePlansQuery(id);
 
   const filteredData = useMemo(() => {
-    return plans.filter((v) =>
-      v.title.toLowerCase().includes(search.toLowerCase()),
+    return plans?.data?.filter((v) =>
+      v.planName.toLowerCase().includes(search.toLowerCase()),
     );
   }, [plans, search]);
 
-  const totalCount = filteredData.length;
+  const totalCount = filteredData?.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
+    return filteredData?.slice(start, start + pageSize);
   }, [filteredData, currentPage, pageSize]);
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -41,7 +42,7 @@ const PlanList = () => {
       width: 90,
       valueGetter: (p) => (currentPage - 1) * pageSize + p.node.rowIndex + 1,
     },
-    { headerName: "Title", field: "title", flex: 1.5 },
+    { headerName: "Title", field: "planName", flex: 1.5 },
     {
       headerName: "Created At",
       flex: 1.2,
@@ -62,7 +63,7 @@ const PlanList = () => {
             confirmButtonText: "Yes, delete",
           }).then((result) => {
             if (result.isConfirmed) {
-              setVlogs((prev) => prev.filter((v) => v.id !== params.data.id));
+              setVlogs((prev) => prev.filter((v) => v.id !== params.data._id));
 
               Swal.fire({
                 title: "Deleted!",
@@ -80,7 +81,9 @@ const PlanList = () => {
               className="btn p-0 bg-transparent border-0"
               title="View / Edit"
               onClick={() =>
-                navigate("/plans/view", { state: { plan: params.data } })
+                navigate(`/plans/${params.data._id}`, {
+                  state: { plan: params.data },
+                })
               }
             >
               <Eye size={18} />
@@ -130,7 +133,7 @@ const PlanList = () => {
         </div>
 
         <div className="custom-card bg-white p-3">
-          {paginatedData.length === 0 ? (
+          {paginatedData?.length === 0 ? (
             <NoData text="No plans found" />
           ) : (
             <>

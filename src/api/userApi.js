@@ -129,7 +129,70 @@ export const userApi = createApi({
         method: "GET",
       }),
     }),
-     
+    Contracts: builder.query({
+      query: () => "/contract-terms",
+    }),
+    Contract: builder.query({
+      query: (id) => `/contract-terms/${id}`,
+    }),
+    updateContract: builder.mutation({
+      query: ({ data }) => ({
+        url: `/save-contract `,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Contract"],
+    }),
+    addContract: builder.mutation({
+      query: (newContract) => ({
+        url: "/contracts", // endpoint to post contract
+        method: "POST",
+        body: newContract,
+      }),
+    }),
+    Plans: builder.query({
+      query: () => "/plans", // GET /api/plans
+      providesTags: ["Plans"],
+    }),
+    Plan: builder.query({
+      query: ({ id }) => `/plan/${id} `,
+      providesTags: ["Plans"],
+    }),
+    updatePlan: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/plan/${id}`, // the endpoint for updating the plan
+        method: "PUT", // HTTP PUT method
+        body: data, // the rest of the plan data sent as JSON body
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "Plan", id: arg.id }, // ensures the cached plan refetches
+      ],
+    }),
+    Faqs: builder.query({
+      query: () => "/faqs",
+      providesTags: ["Faq"], // Use a meaningful tag
+    }),
+    faq: builder.query({
+      query: (id) => `/faq/${id}`,
+      providesTags: (result, error, id) => [{ type: "Faq", id }],
+    }),
+    deleteFaq: builder.mutation({
+      query: (id) => ({
+        url: `/faq/${id}`, // API endpoint for deleting a specific FAQ
+        method: "DELETE", // HTTP DELETE request
+      }),
+      invalidatesTags: (result, error, id) => [{ type: "Faq", id }],
+      // invalidatesTags ensures that any query providing this tag (like getFaq or getFaqList) will refetch
+    }),
+    updateFaq: builder.mutation({
+      query: ({ ...body }) => ({
+        url: `/faqs`, // API endpoint for updating a specific FAQ
+        method: "POST", // HTTP PUT request
+        body, // The data to update (question, answer, etc.)
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Faq", id }],
+      // invalidatesTags ensures that any cached queries for this FAQ (by id) will refetch automatically
+    }),
   }),
 });
 
@@ -147,4 +210,14 @@ export const {
   useSupportMutation,
   useSettingsMutation,
   useGetSettingsQuery,
+  useContractsQuery,
+  useContractQuery,
+  useUpdateContractMutation,
+  usePlansQuery,
+  usePlanQuery,
+  useUpdatePlanMutation,
+  useFaqsQuery,
+  useFaqQuery,
+  useDeleteFaqMutation,
+  useUpdateFaqMutation,
 } = userApi;

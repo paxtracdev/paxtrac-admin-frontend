@@ -3,9 +3,10 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
-
+import { useUpdateFaqMutation } from "../../api/userApi";
 const AddFaq = () => {
   const navigate = useNavigate();
+  const [updateFaq] = useUpdateFaqMutation();
 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -42,17 +43,18 @@ const AddFaq = () => {
     });
 
     if (!result.isConfirmed) return;
-
+    try {
+      await updateFaq({ question, answer }).unwrap();
+      await Swal.fire({
+        title: "Saved!",
+        text: "FAQ has been saved successfully.",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
     console.log({ question, answer });
-
-    await Swal.fire({
-      title: "Saved!",
-      text: "FAQ has been saved successfully.",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    });
-
-    navigate("/faq");
   };
 
   return (

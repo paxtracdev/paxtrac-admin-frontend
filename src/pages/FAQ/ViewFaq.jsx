@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
+import { useFaqQuery } from "../../api/userApi";
+import { useParams } from "react-router-dom";
 
 const ViewFaq = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const faq = state?.faq;
+  const { id } = useParams();
+  const { data: faqData, isLoading } = useFaqQuery(id);
+  const faq = faqData?.data;
 
-  const [question, setQuestion] = useState(faq?.question || "");
-  const [answer, setAnswer] = useState(faq?.answer || "");
+  const [question, setQuestion] = useState();
+  const [answer, setAnswer] = useState();
   const [errors, setErrors] = useState({
     question: "",
     answer: "",
   });
 
+  useEffect(() => {
+    if (faqData) {
+      setQuestion(faqData?.data?.question);
+      setAnswer(faqData?.data?.answer); 
+    }
+  }, [faqData]);
   const handleSubmit = async () => {
     let newErrors = {
       question: "",
@@ -88,6 +98,7 @@ const ViewFaq = () => {
             <Editor
               apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               init={{ height: 300, menubar: false }}
+              value={answer}
               onEditorChange={(v) => {
                 setAnswer(v);
 
