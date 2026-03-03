@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { useFaqQuery } from "../../api/userApi";
 import { useParams } from "react-router-dom";
+import { useUpdateFaqMutation } from "../../api/userApi";
+import Swal from "sweetalert2";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const ViewFaq = () => {
   const { state } = useLocation();
@@ -11,6 +14,7 @@ const ViewFaq = () => {
   const { id } = useParams();
   const { data: faqData, isLoading } = useFaqQuery(id);
   const faq = faqData?.data;
+  const [updateFaq, { isLoading: isUpdating }] = useUpdateFaqMutation();
 
   const [question, setQuestion] = useState();
   const [answer, setAnswer] = useState();
@@ -26,23 +30,6 @@ const ViewFaq = () => {
     }
   }, [faqData]);
   const handleSubmit = async () => {
-    let newErrors = {
-      question: "",
-      answer: "",
-    };
-
-    if (!question.trim()) {
-      newErrors.question = "Question is required";
-    }
-
-    if (!answer || !answer.replace(/<[^>]*>/g, "").trim()) {
-      newErrors.answer = "Answer is required";
-    }
-
-    setErrors(newErrors);
-
-    if (newErrors.question || newErrors.answer) return;
-
     const result = await Swal.fire({
       title: "Update FAQ?",
       text: "Are you sure you want to update this FAQ?",
@@ -53,18 +40,28 @@ const ViewFaq = () => {
     });
 
     if (!result.isConfirmed) return;
+    try {
+      // Call the updateFaq mutation
+      await updateFaq({ id, question, answer }).unwrap();
 
-    console.log({ question, answer });
+      await Swal.fire({
+        title: "Updated!",
+        text: "FAQ has been updated successfully.",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      });
 
-    await Swal.fire({
-      title: "Updated!",
-      text: "FAQ has been updated successfully.",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    });
-
-    navigate("/faq");
+      navigate("/faq");
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error?.data?.message || "Failed to update FAQ",
+        icon: "error",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
+  if (isLoading) return <LoadingComponent isLoading fullScreen />;
 
   return (
     <main className="app-content body-bg">

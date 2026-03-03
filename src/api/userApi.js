@@ -131,7 +131,6 @@ export const userApi = createApi({
     }),
     Contracts: builder.query({
       query: () => "/contract-terms",
-
     }),
     Contract: builder.query({
       query: (id) => `/contract-terms/${id}`,
@@ -185,14 +184,14 @@ export const userApi = createApi({
       invalidatesTags: ["Users"],
       // invalidatesTags ensures that any query providing this tag (like getFaq or getFaqList) will refetch
     }),
-    updateFaq: builder.mutation({
+
+    createFaq: builder.mutation({
       query: ({ ...body }) => ({
-        url: `/faqs`, // API endpoint for updating a specific FAQ
-        method: "POST", // HTTP PUT request
-        body, // The data to update (question, answer, etc.)
+        url: `/faqs`, // API endpoint for creating a new FAQ
+        method: "POST", // POST is used to create, not PUT
+        body, // Data for the FAQ (e.g., question, answer)
       }),
-      invalidatesTags: ["Users"],
-      // invalidatesTags ensures that any cached queries for this FAQ (by id) will refetch automatically
+      invalidatesTags: ["Users"], // Invalidate FAQ cache so list/refetch works
     }),
     createContractad: builder.mutation({
       query: (body) => ({
@@ -208,6 +207,14 @@ export const userApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["Contract"],
+    }),
+    updateFaq: builder.mutation({
+      query: ({ id, question, answer }) => ({
+        url: `faq/${id}`, // API endpoint
+        method: "PUT", // HTTP method for updating
+        body: { question, answer }, // request payload
+      }),
+      invalidatesTags: ["Users"], // triggers refetch for any queries tagged with "Faq"
     }),
   }),
 });
@@ -235,7 +242,8 @@ export const {
   useFaqsQuery,
   useFaqQuery,
   useDeleteFaqMutation,
-  useUpdateFaqMutation,
   useCreateContractadMutation,
   useDeleteContractMutation,
+  useUpdateFaqMutation,
+  useCreateFaqMutation,
 } = userApi;

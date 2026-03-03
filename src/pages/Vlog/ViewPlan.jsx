@@ -49,7 +49,7 @@ const ViewPlan = () => {
     error,
     isLoading,
   } = usePlanQuery({ id, includeDetails: true });
-  const [updatePlan] = useUpdatePlanMutation();
+  const [updatePlan ,{}] = useUpdatePlanMutation();
   const [planFeatures, setPlanFeatures] = useState([]);
   const {
     register,

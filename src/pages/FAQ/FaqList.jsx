@@ -9,13 +9,15 @@ import { FAQ_DATA } from "./FaqStaticData";
 import Swal from "sweetalert2";
 import { useFaqsQuery } from "../../api/userApi";
 import { useDeleteFaqMutation } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const FaqList = () => {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { data: faqs = [], isLoading, isError } = useFaqsQuery();
 
@@ -174,7 +176,9 @@ const FaqList = () => {
         </div>
 
         <div className="custom-card bg-white p-3">
-          {paginatedData?.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : paginatedData?.length === 0 ? (
             <NoData text="No FAQs found" />
           ) : (
             <>
@@ -198,6 +202,10 @@ const FaqList = () => {
                 totalCount={filteredData?.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
               />
             </>
           )}

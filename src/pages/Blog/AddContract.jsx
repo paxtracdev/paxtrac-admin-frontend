@@ -130,6 +130,7 @@ const AddContract = () => {
               Cancel
             </button>
             <button className="primary-button" onClick={handleCreate}>
+              
               Save
             </button>
           </div>

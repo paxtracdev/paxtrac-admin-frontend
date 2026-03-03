@@ -3,10 +3,10 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
-import { useUpdateFaqMutation } from "../../api/userApi";
+import { useCreateFaqMutation } from "../../api/userApi";
 const AddFaq = () => {
   const navigate = useNavigate();
-  const [updateFaq] = useUpdateFaqMutation();
+  const [updateFaq] = useCreateFaqMutation();
 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -51,6 +51,7 @@ const AddFaq = () => {
         icon: "success",
         confirmButtonColor: "#a99068",
       });
+      navigate("/faq")
     } catch (err) {
       console.error("Update failed:", err);
     }

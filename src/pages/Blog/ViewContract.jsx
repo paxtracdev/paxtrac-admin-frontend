@@ -8,14 +8,15 @@ import defaultImage from "../../assets/images/businessImg3.png";
 import { Pencil } from "lucide-react";
 import { useContractQuery } from "../../api/userApi";
 import { useUpdateContractMutation } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const ViewContract = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const contract = state?.contract;
   const { id } = useParams();
-  const { data, error } = useContractQuery(id);
-  const [updateContract, { isLoading, isError, isSuccess }] =
+  const { data, error, isLoading } = useContractQuery(id);
+  const [updateContract, { isError, isSuccess, isLoading: isUpdating }] =
     useUpdateContractMutation();
 
   const [title, setTitle] = useState("");
@@ -58,7 +59,7 @@ const ViewContract = () => {
     }
     try {
       await updateContract({
-        data: { contractForm:title, content },
+        data: { contractForm: title, content },
       }).unwrap();
 
       Swal.fire({
@@ -77,6 +78,10 @@ const ViewContract = () => {
     { label: "Draft", value: "Draft" },
     { label: "Published", value: "Published" },
   ];
+
+  if (isLoading) {
+    return <LoadingComponent isLoading fullScreen />;
+  }
 
   return (
     <main className="app-content body-bg">
@@ -126,7 +131,7 @@ const ViewContract = () => {
               Cancel
             </button>
             <button className="primary-button" onClick={handleSave}>
-              Save Changes
+              {isUpdating ? "Saving..." : "Save Changes"}{" "}
             </button>
           </div>
         </div>
