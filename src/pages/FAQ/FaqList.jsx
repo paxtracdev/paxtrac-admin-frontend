@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
@@ -9,6 +9,7 @@ import { FAQ_DATA } from "./FaqStaticData";
 import Swal from "sweetalert2";
 import { useFaqsQuery } from "../../api/userApi";
 import { useDeleteFaqMutation } from "../../api/userApi";
+
 const FaqList = () => {
   const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const FaqList = () => {
     return faqs?.data?.filter((f) =>
       f?.question?.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [search,faqs]);
+  }, [search, faqs]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -90,9 +91,48 @@ const FaqList = () => {
                 })
               }
             >
-              <Eye size={18} />
+              <Pencil size={18} />
             </button>
-            |
+          </div>
+        );
+      },
+    },
+    {
+      headerName: "Action",
+      width: 120,
+      cellRenderer: (params) => {
+        const handleDelete = async () => {
+          const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this FAQ",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          });
+          if (!result.isConfirmed) return;
+          try {
+            await deleteFaq(params.data._id).unwrap(); // RTK Query delete call
+            await Swal.fire({
+              title: "Deleted!",
+              text: "FAQ deleted successfully",
+              icon: "success",
+              confirmButtonColor: "#a99068",
+            });
+          } catch (err) {
+            console.error(err);
+            Swal.fire({
+              title: "Error!",
+              text: "Failed to delete FAQ",
+              icon: "error",
+              confirmButtonColor: "#a99068",
+            });
+          }
+        };
+
+        return (
+          <div className="d-flex align-items-center gap-2">
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               onClick={handleDelete}

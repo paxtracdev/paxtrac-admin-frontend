@@ -4,9 +4,9 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
 import CustomDropdown from "../../Components/CustomDropdown";
-import defaultImage from "../../assets/images/blogimg.png"; 
+import defaultImage from "../../assets/images/blogimg.png";
 import { Pencil, Trash2 } from "lucide-react";
-
+import { useCreateContractadMutation } from "../../api/userApi";
 const AddContract = () => {
   const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ const AddContract = () => {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-
+  const [createContractad, { isLoading }] = useCreateContractadMutation();
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(defaultImage);
@@ -37,7 +37,7 @@ const AddContract = () => {
     { label: "Published", value: "Published" },
   ];
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     const newErrors = {};
 
     if (!title.trim()) newErrors.title = "Title is required.";
@@ -47,13 +47,26 @@ const AddContract = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
+    try {
+      await createContractad({
+        content,
+        contractForm: title,
+      }).unwrap();
 
-    Swal.fire({
-      title: "Success",
-      text: "Contract created successfully",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    }).then(() => navigate("/contracts"));
+      Swal.fire({
+        title: "Success",
+        text: "Contract created successfully",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      }).then(() => navigate("/contracts"));
+    } catch (err) {
+      Swal.fire({
+        title: "Error",
+        text: err?.data?.message || "Failed to create contract",
+        icon: "error",
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   return (
@@ -64,7 +77,6 @@ const AddContract = () => {
 
         <div className="custom-card bg-white p-4 mt-3">
           {/* Title */}
-        
 
           <div className="row">
             <div className="col-md-6 mb-3">
@@ -118,7 +130,7 @@ const AddContract = () => {
               Cancel
             </button>
             <button className="primary-button" onClick={handleCreate}>
-             Save
+              Save
             </button>
           </div>
         </div>

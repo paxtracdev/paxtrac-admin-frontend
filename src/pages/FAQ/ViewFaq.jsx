@@ -22,7 +22,7 @@ const ViewFaq = () => {
   useEffect(() => {
     if (faqData) {
       setQuestion(faqData?.data?.question);
-      setAnswer(faqData?.data?.answer); 
+      setAnswer(faqData?.data?.answer);
     }
   }, [faqData]);
   const handleSubmit = async () => {

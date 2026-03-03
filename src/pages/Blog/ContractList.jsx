@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
@@ -8,6 +8,8 @@ import NoData from "../../Components/NoData";
 import { BLOG_DATA } from "./BlogStaticData";
 import Swal from "sweetalert2";
 import { useContractsQuery } from "../../api/userApi";
+import { useDeleteContractMutation } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const ContractList = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const ContractList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [contract, setContract] = useState(BLOG_DATA);
   const { data, isLoading, error } = useContractsQuery();
+  const [deleteContract] = useDeleteContractMutation();
 
   /* Filter */
   const filteredData = useMemo(() => {
@@ -25,7 +28,7 @@ const ContractList = () => {
         ?.toLowerCase()
         .includes(search.toLowerCase()),
     );
-  }, [ data,search]);
+  }, [data, search]);
 
   /* Pagination calculations */
   const totalCount = filteredData?.length;
@@ -83,6 +86,56 @@ const ContractList = () => {
       headerName: "Action",
       width: 140,
       cellRenderer: (params) => {
+        const handleDelete = async () => {
+          const result = await Swal.fire({
+            title: "Are you sure?",
+            text: `You want to delete contract "${params.data.title}"`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          });
+          if (!result.isConfirmed) return;
+          try {
+            await deleteContract(params.data._id).unwrap();
+
+            Swal.fire({
+              title: "Deleted!",
+              text: "Contract has been deleted successfully",
+              icon: "success",
+              confirmButtonColor: "#a99068",
+            });
+          } catch (err) {
+            Swal.fire({
+              title: "Error",
+              text: err?.data?.message || "Failed to delete contract",
+              icon: "error",
+            });
+          }
+        };
+
+        return (
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn p-0 bg-transparent border-0"
+              title="View / Edit"
+              onClick={() =>
+                navigate(`/contracts/${params.data._id}`, {
+                  state: { contract: params.data },
+                })
+              }
+            >
+              <Pencil size={18} />
+            </button>
+          </div>
+        );
+      },
+    },
+    {
+      headerName: "Action",
+      width: 140,
+      cellRenderer: (params) => {
         const handleDelete = () => {
           Swal.fire({
             title: "Are you sure?",
@@ -110,18 +163,6 @@ const ContractList = () => {
 
         return (
           <div className="d-flex align-items-center gap-2">
-            <button
-              className="btn p-0 bg-transparent border-0"
-              title="View / Edit"
-              onClick={() =>
-                navigate(`/contracts/${params.data._id}`, {
-                  state: { contract: params.data },
-                })
-              }
-            >
-              <Eye size={18} />
-            </button>
-            |
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               title="Delete"
@@ -170,7 +211,9 @@ const ContractList = () => {
 
         {/* 📋 Table */}
         <div className="custom-card bg-white p-3">
-          {paginatedData?.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : paginatedData?.length === 0 ? (
             <NoData text="No contract found" />
           ) : (
             <>

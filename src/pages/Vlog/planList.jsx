@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
@@ -8,6 +8,8 @@ import NoData from "../../Components/NoData";
 import { VLOG_DATA } from "./VlogStaticData";
 import Swal from "sweetalert2";
 import { usePlansQuery } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
+
 const PlanList = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -86,15 +88,7 @@ const PlanList = () => {
                 })
               }
             >
-              <Eye size={18} />
-            </button>
-            |
-            <button
-              className="btn p-0 bg-transparent border-0 text-danger"
-              title="Delete"
-              onClick={handleDelete}
-            >
-              <Trash2 size={18} />
+              <Pencil size={18} />
             </button>
           </div>
         );
@@ -110,12 +104,6 @@ const PlanList = () => {
             <div className="title-heading">Plan Management</div>
             <p className="title-sub-heading">Manage all plan</p>
           </div>
-          <button
-            className="primary-button"
-            onClick={() => navigate("/plans/add")}
-          >
-            Add Plan
-          </button>
         </div>
 
         <Breadcrumbs />
@@ -133,7 +121,9 @@ const PlanList = () => {
         </div>
 
         <div className="custom-card bg-white p-3">
-          {paginatedData?.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : paginatedData?.length === 0 ? (
             <NoData text="No plans found" />
           ) : (
             <>

@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { Editor } from "@tinymce/tinymce-react";
 import { usePlanQuery, useUpdatePlanMutation } from "../../api/userApi";
 import { useForm, Controller } from "react-hook-form";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const getEmbedUrl = (url) => {
   if (!url) return "";
@@ -43,8 +44,12 @@ const ViewPlan = () => {
   const [videoError, setVideoError] = useState("");
   const [content, setContent] = useState("");
 
-  const { data: plan, error } = usePlanQuery({ id, includeDetails: true });
-  const [updatePlan, { isLoading }] = useUpdatePlanMutation();
+  const {
+    data: plan,
+    error,
+    isLoading,
+  } = usePlanQuery({ id, includeDetails: true });
+  const [updatePlan] = useUpdatePlanMutation();
   const [planFeatures, setPlanFeatures] = useState([]);
   const {
     register,
@@ -64,7 +69,7 @@ const ViewPlan = () => {
     if (plan?.data?.features) {
       setPlanFeatures(plan.data.features);
     }
-  }, [plan, navigate, planFeatures]);
+  }, [plan, navigate]);
 
   const handleSave = () => {
     let hasError = false;
@@ -123,6 +128,10 @@ const ViewPlan = () => {
       });
     }
   };
+  if (isLoading) {
+    return <LoadingComponent />;
+  }
+
   return (
     <main className="app-content body-bg">
       <section className="container">
