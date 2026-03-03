@@ -131,6 +131,7 @@ export const userApi = createApi({
     }),
     Contracts: builder.query({
       query: () => "/contract-terms",
+
     }),
     Contract: builder.query({
       query: (id) => `/contract-terms/${id}`,

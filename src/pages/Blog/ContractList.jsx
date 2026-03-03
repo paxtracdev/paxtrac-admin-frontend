@@ -86,6 +86,39 @@ const ContractList = () => {
       headerName: "Action",
       width: 140,
       cellRenderer: (params) => {
+        const handleDelete = () => {
+          Swal.fire({
+            title: "Are you sure?",
+            text: `You want to delete contract "${params.data.title}"`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#a99068",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+          });
+        };
+
+        return (
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn p-0 bg-transparent border-0"
+              title="View / Edit"
+              onClick={() =>
+                navigate(`/contracts/${params.data._id}`, {
+                  state: { contract: params.data },
+                })
+              }
+            >
+              <Pencil size={18} />
+            </button>
+          </div>
+        );
+      },
+    },
+    {
+      headerName: "Action",
+      width: 140,
+      cellRenderer: (params) => {
         const handleDelete = async () => {
           const result = await Swal.fire({
             title: "Are you sure?",
@@ -113,52 +146,6 @@ const ContractList = () => {
               icon: "error",
             });
           }
-        };
-
-        return (
-          <div className="d-flex align-items-center gap-2">
-            <button
-              className="btn p-0 bg-transparent border-0"
-              title="View / Edit"
-              onClick={() =>
-                navigate(`/contracts/${params.data._id}`, {
-                  state: { contract: params.data },
-                })
-              }
-            >
-              <Pencil size={18} />
-            </button>
-          </div>
-        );
-      },
-    },
-    {
-      headerName: "Action",
-      width: 140,
-      cellRenderer: (params) => {
-        const handleDelete = () => {
-          Swal.fire({
-            title: "Are you sure?",
-            text: `You want to delete contract "${params.data.title}"`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#a99068",
-            cancelButtonColor: "#6c757d",
-            confirmButtonText: "Yes, delete",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              setContract((prev) =>
-                prev.filter((b) => b.id !== params.data._id),
-              );
-
-              Swal.fire({
-                title: "Deleted!",
-                text: "Blog has been deleted successfully",
-                icon: "success",
-                confirmButtonColor: "#a99068",
-              });
-            }
-          });
         };
 
         return (
