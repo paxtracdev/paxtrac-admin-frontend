@@ -134,6 +134,41 @@ const ViewContract = () => {
               {isUpdating ? "Saving..." : "Save Changes"}{" "}
             </button>
           </div>
+
+          <div className="accordion mt-3" id="versionAccordion">
+            {data?.data?.versions?.map((version, index) => (
+              <div className="accordion-item" key={version._id}>
+                {/* Header */}
+                <h2 className="accordion-header" id={`heading${index}`}>
+                  <button
+                    className={`accordion-button ${index !== 0 ? "collapsed" : ""}`}
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target={`#collapse${index}`}
+                  >
+                    Version {version.version}
+                  </button>
+                </h2>
+
+                {/* Body */}
+                <div
+                  id={`collapse${index}`}
+                  className={`accordion-collapse collapse ${index === 0 ? " " : ""}`}
+                  data-bs-parent="#versionAccordion"
+                >
+                  <div className="accordion-body">
+                    <div className="mb-2 text-muted">
+                      Created: {new Date(version.updated).toLocaleString()}
+                    </div>
+
+                    <div
+                      dangerouslySetInnerHTML={{ __html: version.content }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>

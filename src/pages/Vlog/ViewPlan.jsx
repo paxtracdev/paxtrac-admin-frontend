@@ -49,7 +49,7 @@ const ViewPlan = () => {
     error,
     isLoading,
   } = usePlanQuery({ id, includeDetails: true });
-  const [updatePlan ,{}] = useUpdatePlanMutation();
+  const [updatePlan, { isLoading: updating }] = useUpdatePlanMutation();
   const [planFeatures, setPlanFeatures] = useState([]);
   const {
     register,
@@ -235,7 +235,7 @@ const ViewPlan = () => {
               Back
             </button>
             <button className="primary-button" onClick={handleApproveConfirm}>
-              Save
+              {updating ? "Saving..." : "Save"}
             </button>
           </div>
         </div>

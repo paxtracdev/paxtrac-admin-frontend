@@ -206,7 +206,7 @@ export const userApi = createApi({
         url: `/contract/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Contract"],
+      invalidatesTags: ["Users"],
     }),
     updateFaq: builder.mutation({
       query: ({ id, question, answer }) => ({
