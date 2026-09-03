@@ -21,6 +21,7 @@ import {
   Star,
   Package,
   CircleDollarSign,
+  FileText,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -260,6 +261,12 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             <NavLink className="app-menu__item" to="/bid-management">
               <Package size={20} />
               <span className="app-menu__label">Bid Management</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink className="app-menu__item" to="/contracts-setting">
+              <FileText size={20} />
+              <span className="app-menu__label">Contracts</span>
             </NavLink>
           </li>
           {/* <li>

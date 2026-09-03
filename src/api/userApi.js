@@ -4,7 +4,7 @@ import { baseQueryWithAuth } from "./baseApi";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithAuth,
-  tagTypes: ["Users"],
+  tagTypes: ["Users", "ContractSetting"],
   endpoints: (builder) => ({
     //  GET Users (Pagination + Search)
     getUsers: builder.query({
@@ -216,6 +216,21 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["Users"], // triggers refetch for any queries tagged with "Faq"
     }),
+    getContractSettings: builder.query({
+      query: () => ({
+        url: "/paxtrac-contract-setting",
+        method: "GET",
+      }),
+      providesTags: ["ContractSetting"],
+    }),
+    updateContractSettings: builder.mutation({
+      query: (formData) => ({
+        url: "/paxtrac-contract-setting",
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: ["ContractSetting"],
+    }),
   }),
 });
 
@@ -246,4 +261,6 @@ export const {
   useDeleteContractMutation,
   useUpdateFaqMutation,
   useCreateFaqMutation,
+  useGetContractSettingsQuery,
+  useUpdateContractSettingsMutation,
 } = userApi;

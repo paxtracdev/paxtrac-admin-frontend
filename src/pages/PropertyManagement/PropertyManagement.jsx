@@ -6,7 +6,7 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import Swal from "sweetalert2";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FilterModal from "../../Components/FilterModal";
 import {
@@ -163,6 +163,13 @@ const ListingManagement = () => {
         flex: 1,
         minWidth: 250,
       },
+
+      {
+        headerName: "Role",
+        field: "role",
+        flex: 1,
+        minWidth: 200,
+      },
       {
         headerName: "Listing Type",
         field: "propertyType",
@@ -214,7 +221,7 @@ const ListingManagement = () => {
                 navigate(`/listing-management/view-listing/${params.data._id}`)
               }
             >
-              <Eye size={18} />
+              <Pencil size={18} />
             </button>
             |
             <button

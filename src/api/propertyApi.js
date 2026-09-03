@@ -45,6 +45,15 @@ export const propertyApi = createApi({
       }),
       invalidatesTags: ["Property"],
     }),
+
+    editProperty: builder.mutation({
+      query: ({ propertyId, payload }) => ({
+        url: `/properties/edit/${propertyId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["Property"],
+    }),
   }),
 });
 
@@ -54,4 +63,5 @@ export const {
   usePropertyByIdQuery,
   useApprovePropertyMutation,
   useRejectPropertyMutation,
+  useEditPropertyMutation,
 } = propertyApi;

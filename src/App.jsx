@@ -42,6 +42,7 @@ import BidView from "./pages/BidManagement/BidView";
 import { Toaster } from "sonner";
 import Payments from "./pages/Payments/Payments";
 import ListingManagement from "./pages/PropertyManagement/PropertyManagement";
+import ContractSettingPage from "./pages/Contracts/ContractSettingPage";
 
 export default function App() {
   return (
@@ -82,6 +83,8 @@ export default function App() {
 
           <Route path="/account-settings" element={<AccoountSetting />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />
+          <Route path="/contracts-setting" element={<ContractSettingPage />} />
+          <Route path="/contract-settings" element={<ContractSettingPage />} />
           <Route path="/support" element={<Support />} />
 
           <Route path="/listing-management" element={<ListingManagement />} />
