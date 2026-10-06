@@ -56,6 +56,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
               <div className="row">
                 {[
                   { label: "Under review", value: "under-review" },
+                  { label: "Contract Pending", value: "contractPending" },
                   { label: "Deal sealed", value: "dealSealed" },
                   { label: "Approved", value: "approved" },
                   { label: "Rejected", value: "rejected" },

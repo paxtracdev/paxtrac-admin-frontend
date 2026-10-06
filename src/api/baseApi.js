@@ -2,9 +2,16 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Swal from "sweetalert2";
 import { logout } from "../redux/slice/userSlice"; // adjust path
 
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_BASE_URL) return import.meta.env.VITE_BASE_URL;
+  const liveUrl = import.meta.env.VITE_LIVE_URL;
+  if (liveUrl) return `${liveUrl.replace(/\/+$/, "")}/api/admin`;
+  return "http://localhost:5050/api/admin";
+};
+
 const baseQuery = fetchBaseQuery({
-  baseUrl:import.meta.env.VITE_BASE_URL,
-   prepareHeaders: (headers, { getState }) => {
+  baseUrl: getBaseUrl(),
+  prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.token || localStorage.getItem("token");
 
     if (token) {

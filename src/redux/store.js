@@ -7,6 +7,8 @@ import { notificationApi } from "../api/notificationApi";
 import { analyticsApi } from "../api/analyticsApi";
 import { cmsApi } from "../api/cmsApi";
 import { reviewApi } from "../api/reviewApi";
+import { blogApi } from "../api/blogApi";
+
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -17,6 +19,7 @@ export const store = configureStore({
     [analyticsApi.reducerPath]: analyticsApi.reducer,
     [cmsApi.reducerPath]: cmsApi.reducer,
     [reviewApi.reducerPath]: reviewApi.reducer,
+    [blogApi.reducerPath]: blogApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -27,5 +30,6 @@ export const store = configureStore({
       analyticsApi.middleware,
       cmsApi.middleware,
       reviewApi.middleware,
+      blogApi.middleware,
     ),
 });

@@ -195,6 +195,7 @@ const ListingManagement = () => {
         cellRenderer: (p) => {
           const statusMap = {
             "under-review": { label: "Under review", className: "pending" },
+            contractPending: { label: "Contract Pending", className: "pending" },
             approved: { label: "Approved", className: "info" },
             dealSealed: { label: "Deal sealed", className: "" },
             rejected: { label: "Rejected", className: "inactive" },

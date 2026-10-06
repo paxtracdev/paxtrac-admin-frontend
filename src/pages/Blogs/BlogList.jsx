@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Eye, Trash2, Pencil } from "lucide-react";
 import Switch from "react-switch";
@@ -7,49 +7,78 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import Swal from "sweetalert2";
-import { getStoredBlogs, deleteBlogItem, updateBlogItem } from "./BlogMockData";
+import defaultBlogImg from "../../assets/images/blogimg.png";
+import {
+  useGetAdminBlogsQuery,
+  useToggleBlogStatusMutation,
+  useDeleteBlogMutation,
+  useCreateBlogCategoryMutation,
+} from "../../api/blogApi";
 import BlogViewModal from "./BlogViewModal";
+import ManageCategoriesModal from "./ManageCategoriesModal";
 
 const BlogList = () => {
   const navigate = useNavigate();
 
-  // State management
-  const [blogs, setBlogs] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Selected blog for View Modal
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
 
-  // Load stored blogs on mount
-  useEffect(() => {
-    setBlogs(getStoredBlogs());
-  }, []);
+  const { data: blogResponse, isLoading } = useGetAdminBlogsQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: search.trim() ? search.trim() : undefined,
+  });
 
-  // Filter logic
-  const filteredData = useMemo(() => {
-    return blogs.filter((b) => {
-      const query = search.toLowerCase();
-      return (
-        b.title?.toLowerCase().includes(query) ||
-        b.category?.toLowerCase().includes(query) ||
-        b.excerpt?.toLowerCase().includes(query)
-      );
+  const [toggleBlogStatus] = useToggleBlogStatusMutation();
+  const [deleteBlog] = useDeleteBlogMutation();
+  const [createBlogCategory] = useCreateBlogCategoryMutation();
+
+  const blogs = blogResponse?.data || [];
+  const totalCount = blogResponse?.pagination?.total ?? blogs.length;
+  const totalPages = blogResponse?.pagination?.totalPages || 1;
+
+  const handleAddNewCategory = async () => {
+    const { value: categoryName } = await Swal.fire({
+      title: "Create New Category",
+      input: "text",
+      inputPlaceholder: "Enter category name...",
+      showCancelButton: true,
+      confirmButtonText: "Create",
+      confirmButtonColor: "#a99068",
+      cancelButtonColor: "#6c757d",
+      inputValidator: (value) => {
+        if (!value?.trim()) {
+          return "Category name cannot be empty";
+        }
+      },
     });
-  }, [blogs, search]);
 
-  // Pagination calculation
-  const totalCount = filteredData.length;
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+    if (categoryName?.trim()) {
+      try {
+        await createBlogCategory({ name: categoryName.trim() }).unwrap();
+        Swal.fire({
+          icon: "success",
+          title: "Created!",
+          text: `Category "${categoryName.trim()}" created successfully.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err?.data?.message || "Failed to create category",
+          confirmButtonColor: "#a99068",
+        });
+      }
+    }
+  };
 
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredData.slice(startIndex, startIndex + pageSize);
-  }, [filteredData, currentPage, pageSize]);
-
-  // Toggle Status Handler
   const handleToggleStatus = (blogItem) => {
     const isPublished = blogItem.status === "Published";
     const nextStatus = isPublished ? "Draft" : "Published";
@@ -62,24 +91,29 @@ const BlogList = () => {
       confirmButtonText: `Yes, ${isPublished ? "deactivate" : "activate"}`,
       cancelButtonText: "Cancel",
       confirmButtonColor: "#a99068",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        updateBlogItem(blogItem.id, { status: nextStatus });
-        setBlogs((prev) =>
-          prev.map((b) => (b.id === blogItem.id ? { ...b, status: nextStatus } : b))
-        );
-        Swal.fire({
-          icon: "success",
-          title: "Updated!",
-          text: `Blog has been ${isPublished ? "deactivated" : "activated"}.`,
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        try {
+          await toggleBlogStatus({ id: blogItem.id, status: nextStatus }).unwrap();
+          Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: `Blog has been ${isPublished ? "deactivated" : "activated"}.`,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: err?.data?.message || "Failed to update blog status",
+            confirmButtonColor: "#a99068",
+          });
+        }
       }
     });
   };
 
-  // Delete Handler
   const handleDelete = async (blogItem) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -94,9 +128,7 @@ const BlogList = () => {
     if (!result.isConfirmed) return;
 
     try {
-      const updated = deleteBlogItem(blogItem.id);
-      setBlogs(updated);
-
+      await deleteBlog(blogItem.id).unwrap();
       await Swal.fire({
         title: "Deleted!",
         text: "Blog deleted successfully",
@@ -104,23 +136,20 @@ const BlogList = () => {
         confirmButtonColor: "#a99068",
       });
     } catch (err) {
-      console.error(err);
       Swal.fire({
         title: "Error!",
-        text: "Failed to delete blog",
+        text: err?.data?.message || "Failed to delete blog",
         icon: "error",
         confirmButtonColor: "#a99068",
       });
     }
   };
 
-  // Open Preview Modal
   const handleOpenViewModal = (blogItem) => {
     setSelectedBlog(blogItem);
     setIsModalOpen(true);
   };
 
-  // Column definitions matching Admin theme
   const columnDefs = [
     {
       headerName: "S.No",
@@ -133,7 +162,7 @@ const BlogList = () => {
       cellRenderer: (params) => (
         <div className="d-flex align-items-center h-100">
           <img
-            src={params.data.image}
+            src={params.data.image || defaultBlogImg}
             alt={params.data.title}
             className="rounded"
             style={{ width: "42px", height: "32px", objectFit: "cover" }}
@@ -225,12 +254,20 @@ const BlogList = () => {
             <p className="title-sub-heading">Manage all blogs</p>
           </div>
 
-          <button
-            className="primary-button"
-            onClick={() => navigate("/blogs/add")}
-          >
-            Add Blog
-          </button>
+          <div className="d-flex gap-2">
+            <button
+              className="button-secondary"
+              onClick={() => setIsCatModalOpen(true)}
+            >
+              Categories
+            </button>
+            <button
+              className="primary-button"
+              onClick={() => navigate("/blogs/add")}
+            >
+              Add Blog
+            </button>
+          </div>
         </div>
 
         <Breadcrumbs />
@@ -250,13 +287,13 @@ const BlogList = () => {
 
         {/* 📋 TABLE */}
         <div className="custom-card bg-white p-3">
-          {paginatedData?.length === 0 ? (
+          {blogs?.length === 0 ? (
             <NoData text="No blog found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedData}
+                  rowData={blogs}
                   columnDefs={columnDefs}
                   rowHeight={48}
                   headerHeight={40}
@@ -294,6 +331,11 @@ const BlogList = () => {
               state: { blog: blogItem },
             })
           }
+        />
+        {/* Category Management Modal */}
+        <ManageCategoriesModal
+          isOpen={isCatModalOpen}
+          onClose={() => setIsCatModalOpen(false)}
         />
       </section>
     </main>

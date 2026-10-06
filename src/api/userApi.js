@@ -4,8 +4,31 @@ import { baseQueryWithAuth } from "./baseApi";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithAuth,
-  tagTypes: ["Users", "ContractSetting"],
+  tagTypes: ["Users", "ContractSetting", "ContactUs"],
   endpoints: (builder) => ({
+    getContactUs: builder.query({
+      query: (params) => ({
+        url: "/contact-us",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["ContactUs"],
+    }),
+    updateContactStatus: builder.mutation({
+      query: ({ id, status, resolutionNotes, description }) => ({
+        url: `/contact-us/${id}/status`,
+        method: "PATCH",
+        body: { status, resolutionNotes: resolutionNotes || description },
+      }),
+      invalidatesTags: ["ContactUs"],
+    }),
+    deleteContactUs: builder.mutation({
+      query: (id) => ({
+        url: `/contact-us/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ContactUs"],
+    }),
     //  GET Users (Pagination + Search)
     getUsers: builder.query({
       query: ({ page = 1, limit = 10, search = "", role }) => ({
@@ -263,4 +286,7 @@ export const {
   useCreateFaqMutation,
   useGetContractSettingsQuery,
   useUpdateContractSettingsMutation,
+  useGetContactUsQuery,
+  useUpdateContactStatusMutation,
+  useDeleteContactUsMutation,
 } = userApi;

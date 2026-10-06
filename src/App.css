@@ -264,3 +264,71 @@ input#rememberMe {
     gap: 12px;
   }
 }
+
+/* Blog Article Content Viewer Styles */
+.blog-article-content h1,
+.blog-article-content h2,
+.blog-article-content h3,
+.blog-article-content h4 {
+  color: #0f172a;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.4;
+}
+
+.blog-article-content p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  color: #334155;
+}
+
+.blog-article-content ul,
+.blog-article-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.1rem;
+  color: #334155;
+}
+
+.blog-article-content li {
+  margin-bottom: 0.35rem;
+  line-height: 1.7;
+}
+
+.blog-article-content strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.blog-article-content blockquote {
+  border-left: 3px solid #a99068;
+  padding-left: 14px;
+  color: #64748b;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.blog-article-content img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+/* Custom Slim Scrollbar for Modals */
+.custom-modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-modal-scroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.custom-modal-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+.custom-modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a99068;
+}
+
