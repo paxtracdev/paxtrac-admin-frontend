@@ -335,17 +335,23 @@ const Support = () => {
 
         <Breadcrumbs />
 
-        {/* Horizontal Tab Navigation */}
-        <div className="d-flex align-items-center border-bottom mb-4 mt-3 gap-4">
+        {/* Segmented Tab Bar */}
+        <div
+          className="d-inline-flex p-1 rounded-3 mb-3 gap-2 border shadow-sm"
+          style={{ backgroundColor: "#f8f5f0", borderColor: "#e7e0d5" }}
+        >
           <button
             type="button"
-            className={`btn px-1 py-2 rounded-0 bg-transparent border-0 d-flex align-items-center gap-2 fw-semibold ${
-              activeTab === "general" ? "fw-bold" : "text-muted"
-            }`}
+            className=" btn-sm px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-2 border-0"
             style={{
-              borderBottom: activeTab === "general" ? "3px solid #a99068" : "3px solid transparent",
-              color: activeTab === "general" ? "#a99068" : "#6c757d",
-              fontSize: "15px",
+              backgroundColor: activeTab === "general" ? "#a99068" : "transparent",
+              color: activeTab === "general" ? "#ffffff" : "#6c757d",
+              boxShadow:
+                activeTab === "general"
+                  ? "0 2px 6px rgba(169, 144, 104, 0.35)"
+                  : "none",
+              transition: "all 0.2s ease-in-out",
+              fontSize: "14px",
               cursor: "pointer",
             }}
             onClick={() => {
@@ -353,19 +359,22 @@ const Support = () => {
               setSearch("");
             }}
           >
-            <MessageSquare size={18} />
+            <MessageSquare size={16} />
             General Support Requests
           </button>
 
           <button
             type="button"
-            className={`btn px-1 py-2 rounded-0 bg-transparent border-0 d-flex align-items-center gap-2 fw-semibold ${
-              activeTab === "listing" ? "fw-bold" : "text-muted"
-            }`}
+            className=" px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-2 border-0"
             style={{
-              borderBottom: activeTab === "listing" ? "3px solid #a99068" : "3px solid transparent",
-              color: activeTab === "listing" ? "#a99068" : "#6c757d",
-              fontSize: "15px",
+              backgroundColor: activeTab === "listing" ? "#a99068" : "transparent",
+              color: activeTab === "listing" ? "#ffffff" : "#6c757d",
+              boxShadow:
+                activeTab === "listing"
+                  ? "0 2px 6px rgba(169, 144, 104, 0.35)"
+                  : "none",
+              transition: "all 0.2s ease-in-out",
+              fontSize: "14px",
               cursor: "pointer",
             }}
             onClick={() => {
@@ -373,7 +382,7 @@ const Support = () => {
               setSearch("");
             }}
           >
-            <Building2 size={18} />
+            <Building2 size={16} />
             Listing Support Requests
           </button>
         </div>
