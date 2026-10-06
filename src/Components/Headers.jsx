@@ -337,6 +337,11 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
                 </NavLink>
               </li>
               <li>
+                <NavLink to="/blogs" className="treeview-item"> 
+                  <span className="app-menu__label px-2">Blogs</span>
+                </NavLink>
+              </li>
+              <li>
                 <NavLink to="/faq" className="treeview-item"> 
                   <span className="app-menu__label px-2">FAQs</span>
                 </NavLink>

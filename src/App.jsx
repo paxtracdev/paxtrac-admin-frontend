@@ -26,6 +26,9 @@ import ViewPlan from "./pages/Vlog/ViewPlan";
 import FaqList from "./pages/FAQ/FaqList";
 import AddFaq from "./pages/FAQ/AddFaq";
 import ViewFaq from "./pages/FAQ/ViewFaq";
+import BlogList from "./pages/Blogs/BlogList";
+import AddBlog from "./pages/Blogs/AddBlog";
+import EditBlog from "./pages/Blogs/EditBlog";
 import Setting from "./pages/AccountSettings/Setting";
 import Support from "./pages/Support/Support";
 import PlatformSettings from "./pages/PlatformSettings/PlatformSettings";
@@ -76,6 +79,10 @@ export default function App() {
           <Route path="/faq" element={<FaqList />} />
           <Route path="/faq/add" element={<AddFaq />} />
           <Route path="/faq/:id" element={<ViewFaq />} />
+
+          <Route path="/blogs" element={<BlogList />} />
+          <Route path="/blogs/add" element={<AddBlog />} />
+          <Route path="/blogs/edit/:id" element={<EditBlog />} />
 
           <Route path="/reviews" element={<Review />} />
 

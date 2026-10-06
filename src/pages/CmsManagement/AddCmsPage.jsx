@@ -96,7 +96,7 @@ const AddCmsPage = () => {
           <div className="mb-3">
             <label className="form-label fw-semibold">Page Content</label>
             <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY || ""}
+              apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               initialValue=""
               init={{
                 height: 350,
