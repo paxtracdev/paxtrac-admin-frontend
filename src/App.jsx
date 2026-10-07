@@ -46,6 +46,8 @@ import { Toaster } from "sonner";
 import Payments from "./pages/Payments/Payments";
 import ListingManagement from "./pages/PropertyManagement/PropertyManagement";
 import ContractSettingPage from "./pages/Contracts/ContractSettingPage";
+import SaasOffers from "./pages/SaasOffers/SaasOffers";
+import ViewSaasOffer from "./pages/SaasOffers/ViewSaasOffer";
 
 export default function App() {
   return (
@@ -87,6 +89,9 @@ export default function App() {
           <Route path="/reviews" element={<Review />} />
 
           <Route path="/payment" element={<Payments />} />
+          <Route path="/saas-offers" element={<SaasOffers />} />
+          <Route path="/saas-offers/view/:id" element={<ViewSaasOffer />} />
+          <Route path="/saas-details/:id" element={<ViewSaasOffer />} />
 
           <Route path="/account-settings" element={<AccoountSetting />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />

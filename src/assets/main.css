@@ -21535,14 +21535,18 @@ button.staff-pencilBtn {
 }
 
 input.form-control.input-price {
-    padding: 8px 12px 8px 40px !important;
+    padding: 8px 12px 8px 30px !important;
 }
 
 span.input-dollarsign {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    left: 10px;
+    left: 14px;
+    font-weight: 500;
+    color: #495057;
+    z-index: 5;
+    pointer-events: none;
 }
 
 .custom-select-box { 
@@ -23261,3 +23265,15 @@ span.assign-badge {
 .tox .tox-edit-area::before {
     border: 2px solid #a99068 !important; 
 } 
+
+/* Remove number input spinner controls & wheel arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

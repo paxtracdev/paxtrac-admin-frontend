@@ -122,19 +122,23 @@ const PlatformSettings = () => {
                   <label className="form-label fw-semibold">
                     Pre-registration Amount
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="form-control"
-                    placeholder="Enter pre-registration amount (USD)"
-                    value={settings.preRegistrationAmount}
-                    onChange={(e) =>
-                      handleChange(
-                        "preRegistrationAmount",
-                        Number(e.target.value),
-                      )
-                    }
-                  />
+                  <div className="position-relative">
+                    <span className="input-dollarsign">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="form-control input-price"
+                      placeholder="Enter pre-registration amount"
+                      value={settings.preRegistrationAmount}
+                      onChange={(e) =>
+                        handleChange(
+                          "preRegistrationAmount",
+                          e.target.value === "" ? "" : Number(e.target.value),
+                        )
+                      }
+                      onWheel={(e) => e.target.blur()}
+                    />
+                  </div>
                   {errors.preRegistrationAmount && (
                     <div className="text-danger">
                       {errors.preRegistrationAmount}
@@ -146,19 +150,23 @@ const PlatformSettings = () => {
                   <label className="form-label fw-semibold">
                     Background Check Amount
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="form-control"
-                    placeholder="Enter background check amount (USD)"
-                    value={settings.backgroundCheckAmount}
-                    onChange={(e) =>
-                      handleChange(
-                        "backgroundCheckAmount",
-                        Number(e.target.value),
-                      )
-                    }
-                  />
+                  <div className="position-relative">
+                    <span className="input-dollarsign">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="form-control input-price"
+                      placeholder="Enter background check amount"
+                      value={settings.backgroundCheckAmount}
+                      onChange={(e) =>
+                        handleChange(
+                          "backgroundCheckAmount",
+                          e.target.value === "" ? "" : Number(e.target.value),
+                        )
+                      }
+                      onWheel={(e) => e.target.blur()}
+                    />
+                  </div>
                   {errors.backgroundCheckAmount && (
                     <div className="text-danger">
                       {errors.backgroundCheckAmount}

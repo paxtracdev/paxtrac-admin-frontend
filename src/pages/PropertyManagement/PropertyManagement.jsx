@@ -6,9 +6,9 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
 import NoData from "../../Components/NoData";
 import Swal from "sweetalert2";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, FilterX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import FilterModal from "../../Components/FilterModal";
+import CustomDropdown from "../../Components/CustomDropdown";
 import {
   useGetPropertiesQuery,
   useDeletePropertyMutation,
@@ -16,6 +16,33 @@ import {
 import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+
+/* =======================
+   FILTER OPTIONS
+======================= */
+const STATUS_OPTIONS = [
+  { label: "All Status", value: "" },
+  { label: "Under review", value: "under-review" },
+  { label: "Contract Pending", value: "contractPending" },
+  { label: "Deal sealed", value: "dealSealed" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+];
+
+const PROPERTY_TYPE_OPTIONS = [
+  { label: "All Listing Types", value: "" },
+  { label: "Multi-Family", value: "Multi-Family" },
+  { label: "Vacation Rentals", value: "Vacation Rentals" },
+  { label: "Apartment Building", value: "Apartment Building" },
+  { label: "HOA Condo", value: "HOA Condo" },
+  { label: "HOA Single Family", value: "HOA Single Family" },
+  { label: "Co-op", value: "Co-op" },
+  { label: "REO", value: "REO" },
+  { label: "Commercial", value: "Commercial" },
+  { label: "Single Family", value: "Single Family" },
+  { label: "Single Family (portfolio)", value: "Single Family (portfolio)" },
+  { label: "Other", value: "Other" },
+];
 
 const ListingManagement = () => {
   const navigate = useNavigate();
@@ -66,7 +93,6 @@ const ListingManagement = () => {
   ======================= */
 
   const [searchInput, setSearchInput] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
   const [query, setQuery] = useState({
     page: 1,
     limit: 10,
@@ -93,8 +119,35 @@ const ListingManagement = () => {
   const pageSize = query.limit;
 
   /* =======================
-     SEARCH + FILTER + PAGINATION LOGIC
+     FILTER HANDLERS
   ======================= */
+  const handleStatusChange = (statusValue) => {
+    setFilters((prev) => ({ ...prev, status: statusValue }));
+    setQuery((prev) => ({
+      ...prev,
+      page: 1,
+      status: statusValue,
+    }));
+  };
+
+  const handleTypeChange = (typeValue) => {
+    setFilters((prev) => ({ ...prev, propertyType: typeValue }));
+    setQuery((prev) => ({
+      ...prev,
+      page: 1,
+      type: typeValue,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({ status: "", propertyType: "" });
+    setQuery((prev) => ({
+      ...prev,
+      page: 1,
+      status: "",
+      type: "",
+    }));
+  };
 
   /* =======================
      PAGINATION HANDLERS
@@ -149,6 +202,18 @@ const ListingManagement = () => {
   /* =======================
      COLUMNS
   ======================= */
+  const defaultColDef = useMemo(
+    () => ({
+      valueFormatter: (params) =>
+        params.value !== undefined &&
+        params.value !== null &&
+        String(params.value).trim() !== ""
+          ? params.value
+          : "-",
+    }),
+    []
+  );
+
   const columnDefs = useMemo(
     () => [
       {
@@ -169,30 +234,40 @@ const ListingManagement = () => {
         field: "role",
         flex: 1,
         minWidth: 200,
+        valueGetter: (params) => {
+          if (params.data?.ismanagerListing) return "Manager listing";
+          if (params.data?.isvendorListing) return "Vendor listing";
+          return params.data?.role || "-";
+        },
       },
       {
         headerName: "Listing Type",
         field: "propertyType",
         flex: 1,
         minWidth: 200,
+        valueFormatter: (params) =>
+          params.value && String(params.value).trim() !== ""
+            ? params.value
+            : "-",
       },
-      {
-        headerName: "Company Name",
-        field: "propertyManagementCompanyName",
-        flex: 2,
-        minWidth: 100,
-        cellStyle: {
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        },
-        tooltipField: "propertyManagementCompanyName",
-      },
+      // {
+      //   headerName: "Company Name",
+      //   field: "propertyManagementCompanyName",
+      //   flex: 2,
+      //   minWidth: 100,
+      //   cellStyle: {
+      //     whiteSpace: "nowrap",
+      //     overflow: "hidden",
+      //     textOverflow: "ellipsis",
+      //   },
+      //   tooltipField: "propertyManagementCompanyName",
+      // },
       {
         headerName: "Status",
         field: "status",
         minWidth: 140,
         cellRenderer: (p) => {
+          if (!p.value || String(p.value).trim() === "") return "-";
           const statusMap = {
             "under-review": { label: "Under review", className: "pending" },
             contractPending: { label: "Contract Pending", className: "pending" },
@@ -201,7 +276,7 @@ const ListingManagement = () => {
             rejected: { label: "Rejected", className: "inactive" },
           };
 
-          const status = statusMap[p.value] || {};
+          const status = statusMap[p.value] || { label: p.value };
 
           return (
             <span className={`status-badge-table ${status.className || ""}`}>
@@ -242,39 +317,73 @@ const ListingManagement = () => {
     <main className="app-content body-bg">
       <section className="container">
         {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <div className="title-heading mb-2">Listing Management</div>
-            <p className="title-sub-heading">
-              Monitor and manage registered listings
-            </p>
-          </div>
-          <button
-            className="primary-button"
-            onClick={() => setShowFilter(true)}
-          >
-            Filter
-          </button>
+        <div className="mb-4">
+          <div className="title-heading mb-2">Listing Management</div>
+          <p className="title-sub-heading">
+            Monitor and manage registered listings
+          </p>
         </div>
 
         <Breadcrumbs />
 
-        {/* SEARCH */}
-        <div className="search-bar mb-4">
-          <input
-            type="text"
-            className="form-control w-50"
-            placeholder="Search by listing ID or type..."
-            value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              setQuery((prev) => ({
-                ...prev,
-                page: 1,
-                search: e.target.value,
-              }));
-            }}
-          />
+        {/* SEARCH & FILTERS TOOLBAR */}
+        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <div className="search-bar flex-grow-1" style={{ maxWidth: "380px" }}>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by listing ID or type..."
+              value={searchInput}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                setQuery((prev) => ({
+                  ...prev,
+                  page: 1,
+                  search: e.target.value,
+                }));
+              }}
+            />
+          </div>
+
+          <div className="d-flex align-items-center gap-3 flex-wrap">
+            {/* STATUS FILTER DROPDOWN */}
+            <div style={{ minWidth: "200px" }}>
+              <CustomDropdown
+                placeholder="All Status"
+                value={filters.status}
+                options={STATUS_OPTIONS}
+                onChange={handleStatusChange}
+              />
+            </div>
+
+            {/* LISTING TYPE FILTER DROPDOWN */}
+            {/* <div style={{ minWidth: "220px" }}>
+              <CustomDropdown
+                placeholder="All Listing Types"
+                value={filters.propertyType}
+                options={PROPERTY_TYPE_OPTIONS}
+                onChange={handleTypeChange}
+              />
+            </div> */}
+
+            {/* CLEAR FILTERS */}
+            {/* {(filters.status || filters.propertyType) && (
+              <button
+                className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                style={{
+                  height: "42px",
+                  borderRadius: "8px",
+                  borderColor: "#a99068",
+                  color: "#a99068",
+                  fontWeight: "500",
+                }}
+                onClick={handleClearFilters}
+              >
+                <FilterX size={16} />
+                Clear
+              </button>
+            )} */}
+          </div>
         </div>
 
         {/* TABLE */}
@@ -289,6 +398,7 @@ const ListingManagement = () => {
                 <AgGridReact
                   rowData={rowData}
                   columnDefs={columnDefs}
+                  defaultColDef={defaultColDef}
                   domLayout="autoHeight"
                   headerHeight={40}
                   rowHeight={48}
@@ -312,25 +422,9 @@ const ListingManagement = () => {
           )}
         </div>
       </section>
-
-      {/* FILTER MODAL */}
-      <FilterModal
-        show={showFilter}
-        initialFilters={filters}
-        onClose={() => setShowFilter(false)}
-        onApply={(appliedFilters) => {
-          setFilters(appliedFilters);
-          setQuery((prev) => ({
-            ...prev,
-            page: 1,
-            status: appliedFilters.status,
-            type: appliedFilters.propertyType,
-          }));
-          setShowFilter(false);
-        }}
-      />
     </main>
   );
 };
 
 export default ListingManagement;
+

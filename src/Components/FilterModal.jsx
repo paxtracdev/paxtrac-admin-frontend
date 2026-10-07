@@ -89,7 +89,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
             </div>
 
             {/* PROPERTY TYPE SELECT */}
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <p className="mb-2 fw-semibold">Listing Type</p>
               <CustomDropdown
                 placeholder="All"
@@ -108,7 +108,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
                   })),
                 ]}
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="d-flex align-items-center justify-content-center gap-2">

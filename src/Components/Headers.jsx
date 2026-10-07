@@ -22,6 +22,7 @@ import {
   Package,
   CircleDollarSign,
   FileText,
+  Layers,
 } from "lucide-react";
 import Notification from "./Notification";
 
@@ -304,6 +305,13 @@ const Headers = ({ isSideBarOpen, setIsSideBarOpen }) => {
             <NavLink className="app-menu__item" to="/payment">
               <CircleDollarSign size={20} />
               <span className="app-menu__label">Payments</span>
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink className="app-menu__item" to="/saas-offers">
+              <Layers size={20} />
+              <span className="app-menu__label">SaaS Offers</span>
             </NavLink>
           </li>
 

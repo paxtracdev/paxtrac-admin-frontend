@@ -40,7 +40,7 @@ const BidView = () => {
   const { data, isLoading, isError } = useGetBidIndivisualQuery(id, {
     skip: !id,
   });
-  const [BidTime] = useStartBidMutation();
+  const [BidTime, { isLoading: isReopening }] = useStartBidMutation();
   const [broadcastBidders] = useBroadcastBiddersMutation();
   const [broadcastBidder] = useBroadcastBidderMutation();
 
@@ -114,15 +114,35 @@ const BidView = () => {
   };
 
   const handleSaveChanges = async () => {
-    const isoBidTime = new Date(bidTime).toLocaleString(); // converts local time to UTC ISO format
+    if (!bidTime) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Invalid bidTime format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    const dateObj = new Date(bidTime);
+    if (isNaN(dateObj.getTime())) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Invalid bidTime format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    const isoBidTime = dateObj.toISOString();
 
     const payload = {
       bidId: bid.propertyId,
       bidTime: isoBidTime,
     };
     try {
-      // Call your API mutation
-      await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
+      await BidTime(payload).unwrap();
       Swal.fire({
         icon: "success",
         title: "Saved",
@@ -130,10 +150,12 @@ const BidView = () => {
         confirmButtonColor: "#a99068",
       });
     } catch (error) {
+      const errorMessage =
+        error?.data?.message || error?.message || "Invalid bidTime format";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update bid time",
+        text: errorMessage,
         confirmButtonColor: "#a99068",
       });
     }
@@ -164,22 +186,55 @@ const BidView = () => {
   };
 
   const handleReopenBidding = async () => {
-    const isoBidTime = new Date(bidTime).toLocaleString(); // converts local time to UTC ISO format
+    if (!bidTime) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Invalid bidTime format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    const dateObj = new Date(bidTime);
+    if (isNaN(dateObj.getTime())) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Invalid bidTime format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    const isoBidTime = dateObj.toISOString();
 
     const payload = {
       bidId: bid.propertyId,
       bidTime: isoBidTime,
     };
-    await BidTime(payload).unwrap(); // assuming you have useStartBidMutation
-    setBid((prev) => ({ ...prev, status: "active" }));
-    setBidStatus("active");
 
-    Swal.fire({
-      icon: "success",
-      title: "Bidding Reopened",
-      text: "Bidding has been reopened successfully.",
-      confirmButtonColor: "#a99068",
-    });
+    try {
+      await BidTime(payload).unwrap();
+      setBid((prev) => ({ ...prev, status: "active" }));
+      setBidStatus("active");
+
+      Swal.fire({
+        icon: "success",
+        title: "Bidding Reopened",
+        text: "Bidding has been reopened successfully.",
+        confirmButtonColor: "#a99068",
+      });
+    } catch (error) {
+      const errorMessage =
+        error?.data?.message || error?.message || "Invalid bidTime format";
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        confirmButtonColor: "#a99068",
+      });
+    }
   };
 
   const bidderColumnDefs = [
@@ -319,16 +374,12 @@ const BidView = () => {
       <section className="container py-4 position-relative">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <div className="title-heading mb-2">View Bid</div>
+            <div className="title-heading mb-2">Bid Details</div>
             <p className="title-sub-heading">
-              <p className="title-sub-heading">
-                Bid details for {bid.holderName}
-              </p>{" "}
+              Monitor and manage bid details
             </p>
           </div>
         </div>
-
-        <div className="title-heading mb-2"></div>
 
         <Breadcrumbs />
 
@@ -427,8 +478,9 @@ const BidView = () => {
               <button
                 className="button-secondary"
                 onClick={handleReopenBidding}
+                disabled={isReopening}
               >
-                Reopen
+                {isReopening ? "Reopening..." : "Reopen"}
               </button>
             ) : (
               <button className="button-secondary" onClick={handleCloseBidding}>
@@ -451,9 +503,9 @@ const BidView = () => {
         <div className="custom-card bg-white p-4 mt-2">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="mb-0">Bidding Details</h5>
-            <button className="login-btn" onClick={openBroadcastModal}>
+            {/* <button className="login-btn" onClick={openBroadcastModal}>
               Broadcast
-            </button>
+            </button> */}
           </div>
           <div className="ag-theme-alpine">
             <AgGridReact

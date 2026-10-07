@@ -6,52 +6,18 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import NoData from "../../Components/NoData";
 import PaymentFilterModal from "../../Components/PaymentFilterModal";
-
 import { useGetAllTransactionsQuery } from "../../api/analyticsApi";
-const demoPayments = [
-  {
-    id: 1,
-    transactionId: "TXN-2026-001",
-    propertyId: "PROP-2026-001",
-    paymentType: "pre registration",
-    amount: 250,
-    status: "paid",
-  },
-  {
-    id: 2,
-    transactionId: "TXN-2026-002",
-    propertyId: "PROP-2026-002",
-    paymentType: "success fee",
-    amount: 500,
-    status: "failed",
-  },
-  {
-    id: 3,
-    transactionId: "TXN-2026-003",
-    propertyId: "PROP-2026-003",
-    paymentType: "subscription plan",
-    amount: 999,
-    status: "refund",
-  },
-  {
-    id: 4,
-    transactionId: "TXN-2026-004",
-    propertyId: "PROP-2026-004",
-    paymentType: "background check",
-    amount: 50,
-    status: "paid",
-  },
-];
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
-const pageSizeOptions = [2, 3, 5, 10];
+const pageSizeOptions = [5, 10, 20, 50];
 
 const Payments = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [payments, setPayments] = useState(demoPayments);
   const [searchInput, setSearchInput] = useState("");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+
   const { data, isLoading } = useGetAllTransactionsQuery({
     page: currentPage,
     limit: pageSize,
@@ -59,33 +25,26 @@ const Payments = () => {
     status: statusFilter,
   });
 
-  // FILTERED PAYMENTS
-  const filteredPayments = useMemo(() => {
-    if (!searchInput) return payments;
-    const query = searchInput.toLowerCase();
-    return payments.filter(
-      (p) =>
-        p.transactionId?.toLowerCase().includes(query) ||
-        p.propertyId?.toLowerCase().includes(query) ||
-        p.subscription?.toLowerCase().includes(query) ||
-        p.transactionStatus?.toLowerCase().includes(query),
-    );
-  }, [payments, searchInput]);
-
   const totalCount = data?.pagination?.total || 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
-
-  // PAGINATION SLICE
-  const paginatedPayments = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredPayments.slice(start, start + pageSize);
-  }, [filteredPayments, currentPage, pageSize]);
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handlePageSizeChange = (size) => {
     setPageSize(size);
     setCurrentPage(1);
   };
+
+  const defaultColDef = useMemo(
+    () => ({
+      valueFormatter: (params) =>
+        params.value !== undefined &&
+        params.value !== null &&
+        String(params.value).trim() !== ""
+          ? params.value
+          : "-",
+    }),
+    []
+  );
 
   // AG-GRID COLUMNS
   const columnDefs = useMemo(
@@ -99,21 +58,37 @@ const Payments = () => {
       {
         headerName: "Transaction ID",
         field: "transactionId",
-        flex: 1,
-        minWidth: 200,
-        cellStyle: { textTransform: "lowercase" },
+        flex: 2,
+        minWidth: 280,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: {
+          wordBreak: "break-all",
+          lineHeight: "1.5",
+          paddingTop: "10px",
+          paddingBottom: "10px",
+          textTransform: "lowercase",
+        },
       },
       {
         headerName: "Property ID",
         field: "propertyId",
-        flex: 1,
+        flex: 1.5,
         minWidth: 200,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: {
+          wordBreak: "break-all",
+          lineHeight: "1.5",
+          paddingTop: "10px",
+          paddingBottom: "10px",
+        },
       },
       {
         headerName: "Payment Type",
         field: "transactionfor",
         flex: 1,
-        minWidth: 200,
+        minWidth: 160,
         cellRenderer: (params) => (
           <span style={{ textTransform: "capitalize" }}>
             {params.value || "-"}
@@ -124,29 +99,32 @@ const Payments = () => {
         headerName: "Amount",
         field: "amount",
         flex: 1,
-        minWidth: 150,
+        minWidth: 120,
         cellRenderer: (params) =>
-          params.value != null ? `$${params.value}` : "-",
+          params.value != null && params.value !== "" ? `$${params.value}` : "-",
       },
       {
         headerName: "Status",
         field: "transactionStatus",
         flex: 1,
-        minWidth: 160,
+        minWidth: 140,
         cellRenderer: (params) => {
-          const value = params.value?.toLowerCase();
+          if (!params.value) return "-";
+          const value = String(params.value).toLowerCase();
 
           const statusClass =
-            value === "success"
+            value === "success" || value === "paid"
               ? ""
               : value === "pending"
                 ? "inactive"
-                : value === "refund"
+                : value === "refund" || value === "failed"
                   ? "pending"
                   : "";
 
           return (
-            <span className={`status-badge-table ${statusClass}`}>{value}</span>
+            <span className={`status-badge-table ${statusClass}`}>
+              {value.toUpperCase()}
+            </span>
           );
         },
       },
@@ -190,7 +168,9 @@ const Payments = () => {
 
         {/* TABLE */}
         <div className="custom-card bg-white p-4">
-          {data?.data.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : !data?.data || data?.data?.length === 0 ? (
             <NoData text="No payments found" />
           ) : (
             <>
@@ -201,9 +181,9 @@ const Payments = () => {
                 <AgGridReact
                   rowData={data?.data}
                   columnDefs={columnDefs}
+                  defaultColDef={defaultColDef}
                   domLayout="autoHeight"
                   headerHeight={40}
-                  rowHeight={48}
                   getRowStyle={(params) => ({
                     backgroundColor:
                       params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",

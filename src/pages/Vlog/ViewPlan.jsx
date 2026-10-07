@@ -71,31 +71,7 @@ const ViewPlan = () => {
     }
   }, [plan, navigate]);
 
-  const handleSave = () => {
-    let hasError = false;
 
-    setTitleError("");
-    setVideoError("");
-
-    if (!title.trim()) {
-      setTitleError("Title is required");
-      hasError = true;
-    }
-
-    if (!getEmbedUrl(videoUrl)) {
-      setVideoError("Please enter a valid YouTube link");
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    Swal.fire({
-      title: "Success",
-      text: "Vlog updated successfully",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    }).then(() => navigate("/plans"));
-  };
   const handleApproveConfirm = async () => {
     const values = getValues();
 
