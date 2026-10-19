@@ -63,6 +63,15 @@ export const userApi = createApi({
       invalidatesTags: ["Users"],
     }),
 
+    //  DELETE User
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/user/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
+
     getBids: builder.query({
       query: ({ page, limit, search, status, type }) => ({
         url: "/bid",
@@ -81,10 +90,17 @@ export const userApi = createApi({
       providesTags: ["Users"],
     }),
     startBid: builder.mutation({
-      query: ({ bidId, bidTime }) => ({
+      query: ({ bidId, bidTime, bidEndTime, bidStartTime }) => ({
         url: `/update-bidding-start/${bidId}`,
         method: "PUT",
-        body: { bidTime },
+        body: { bidTime, bidEndTime, bidStartTime },
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    closeBid: builder.mutation({
+      query: (propertyId) => ({
+        url: `/close-bidding/${propertyId}`,
+        method: "PUT",
       }),
       invalidatesTags: ["Users"],
     }),
@@ -154,9 +170,11 @@ export const userApi = createApi({
     }),
     Contracts: builder.query({
       query: () => "/contract-terms",
+      providesTags: ["Contracts"],
     }),
     Contract: builder.query({
       query: (id) => `/contract-terms/${id}`,
+      providesTags: ["Contracts"],
     }),
     updateContract: builder.mutation({
       query: ({ data }) => ({
@@ -164,7 +182,7 @@ export const userApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Contract"],
+      invalidatesTags: ["Contracts"],
     }),
     addContract: builder.mutation({
       query: (newContract) => ({
@@ -172,6 +190,7 @@ export const userApi = createApi({
         method: "POST",
         body: newContract,
       }),
+      invalidatesTags: ["Contracts"],
     }),
     Plans: builder.query({
       query: () => "/plans", // GET /api/plans
@@ -229,7 +248,7 @@ export const userApi = createApi({
         url: `/contract/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Users"],
+      invalidatesTags: ["Contracts"],
     }),
     updateFaq: builder.mutation({
       query: ({ id, question, answer }) => ({
@@ -261,9 +280,11 @@ export const {
   useGetUsersQuery,
   useGetUserByIdQuery,
   useUpdateUserMutation,
+  useDeleteUserMutation,
   useGetBidsQuery,
   useGetBidIndivisualQuery,
   useStartBidMutation,
+  useCloseBidMutation,
   useGetSupportQuery,
   useBiddersQuery,
   useBroadcastBiddersMutation,

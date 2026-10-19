@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
+import { useCreatePageMutation } from "../../api/cmsApi";
+import { cleanHtmlContent } from "../../utils/cleanHtml";
 
 const AddCmsPage = () => {
   const navigate = useNavigate();
+  const [createPage, { isLoading: isCreating }] = useCreatePageMutation();
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -20,7 +23,7 @@ const AddCmsPage = () => {
       .replace(/^-+|-+$/g, "");
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!title.trim()) {
       Swal.fire("Error", "Page title cannot be empty", "error");
       return;
@@ -31,22 +34,35 @@ const AddCmsPage = () => {
       return;
     }
 
-    const newPageData = {
-      title,
-      slug,
-      content,
-    };
+    const cleanedContent = cleanHtmlContent(content.trim());
+    if (!cleanedContent) {
+      Swal.fire("Error", "Page content cannot be empty", "error");
+      return;
+    }
 
-    console.log("Creating new CMS page:", newPageData);
+    try {
+      const res = await createPage({
+        title: title.trim(),
+        slug: slug.trim(),
+        content: cleanedContent,
+      }).unwrap();
 
-    Swal.fire({
-      title: "Page Created",
-      text: "CMS page added successfully!",
-      icon: "success",
-      confirmButtonColor: "#a99068",
-    }).then(() => {
-      navigate("/policies");
-    });
+      Swal.fire({
+        title: "Page Created",
+        text: res?.message || "CMS page added successfully!",
+        icon: "success",
+        confirmButtonColor: "#a99068",
+      }).then(() => {
+        navigate("/policies");
+      });
+    } catch (err) {
+      console.error("Failed to create CMS page:", err);
+      Swal.fire(
+        "Error",
+        err?.data?.message || err?.message || "Failed to create CMS page. Please try again.",
+        "error"
+      );
+    }
   };
 
   return (
@@ -123,8 +139,12 @@ const AddCmsPage = () => {
               Cancel
             </button>
 
-            <button className="primary-button card-btn" onClick={handleCreate}>
-              Create Page
+            <button
+              className="primary-button card-btn"
+              onClick={handleCreate}
+              disabled={isCreating}
+            >
+              {isCreating ? "Creating..." : "Create Page"}
             </button>
           </div>
         </div>

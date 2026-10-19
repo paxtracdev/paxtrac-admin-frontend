@@ -28,6 +28,7 @@ export const propertyApi = createApi({
     }),
     PropertyById: builder.query({
       query: (propertyId) => `/properties/${propertyId}`,
+      providesTags: ["Property"],
     }),
     approveProperty: builder.mutation({
       query: ({ listingId, startDate }) => ({

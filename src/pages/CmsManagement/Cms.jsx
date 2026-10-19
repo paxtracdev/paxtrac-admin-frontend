@@ -9,16 +9,61 @@ import NoData from "../../Components/NoData";
 import { useGetAllPagesQuery } from "../../api/cmsApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
 
-ModuleRegistry.registerModules([AllCommunityModule]); 
+ModuleRegistry.registerModules([AllCommunityModule]);
 const Cms = () => {
   const navigate = useNavigate();
-  const { data, isLoading } = useGetAllPagesQuery();
+  const { data, isLoading, isError, refetch } = useGetAllPagesQuery();
+
+  const formatTitle = (name, title) => {
+    if (name === "privacy-policy") return "Privacy Policy";
+    if (
+      name === "terms-of-service" ||
+      name === "terms-of-use" ||
+      name === "term-of-use" ||
+      (title && title.toLowerCase().includes("terms"))
+    ) {
+      return "Terms of Use";
+    }
+    if (name === "join-us") return "Join Us";
+    if (title && title.trim()) return title.trim();
+    return name
+      ? name
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
+      : "Untitled Page";
+  };
 
   const cmsData = useMemo(() => {
-    return (data?.data || []).map((item) => ({
-      ...item,
-      title: item.name, // map API field to table field
-    }));
+    const rawList = data?.data || [];
+    const seen = new Set();
+    const unique = [];
+
+    for (const item of rawList) {
+      const rawName = item.name || item.slug || "";
+      let canonicalKey = rawName;
+      if (
+        rawName === "terms-of-service" ||
+        rawName === "terms-of-use" ||
+        rawName === "term-of-use"
+      ) {
+        canonicalKey = "terms-of-use";
+      } else if (rawName === "privacy-policy" || rawName === "privacypolicy") {
+        canonicalKey = "privacy-policy";
+      } else if (rawName === "join-us" || rawName === "joinus") {
+        canonicalKey = "join-us";
+      }
+
+      if (!seen.has(canonicalKey)) {
+        seen.add(canonicalKey);
+        unique.push({
+          ...item,
+          title: formatTitle(item.name, item.title),
+        });
+      }
+    }
+
+    return unique;
   }, [data]);
 
   const columnDefs = useMemo(
@@ -39,6 +84,7 @@ const Cms = () => {
         field: "updatedAt",
         flex: 1.2,
         valueGetter: (p) => {
+          if (!p.data.updatedAt) return "-";
           const date = new Date(p.data.updatedAt);
           return date.toLocaleString("en-US", {
             month: "short",
@@ -55,7 +101,7 @@ const Cms = () => {
         cellRenderer: (params) => (
           <button
             className="btn p-0 bg-transparent border-0 text-start"
-            title="View"
+            title="Edit Content"
             onClick={() =>
               navigate("/policies/view", {
                 state: { cmsItem: params.data },
@@ -73,13 +119,19 @@ const Cms = () => {
   return (
     <main className="app-content body-bg">
       <section className="container">
-        <div className="d-flex justify-content-between mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <div className="title-heading mb-2">CMS Management</div>
             <p className="title-sub-heading">
               Manage content pages of your platform
             </p>
           </div>
+          {/* <button
+            className="login-btn"
+            onClick={() => navigate("/policies/add")}
+          >
+            Add New Page
+          </button> */}
         </div>
 
         <Breadcrumbs />
@@ -87,6 +139,16 @@ const Cms = () => {
         <div className="custom-card bg-white p-3">
           {isLoading ? (
             <LoadingComponent isLoading fullScreen />
+          ) : isError ? (
+            <div className="text-center py-5">
+              <p className="text-muted mb-2">Failed to load CMS pages. The server might have been reloading.</p>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => refetch()}
+              >
+                Retry
+              </button>
+            </div>
           ) : cmsData.length === 0 ? (
             <NoData text="No CMS pages found" />
           ) : (

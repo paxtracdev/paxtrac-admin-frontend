@@ -1,9 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import CustomDropdown from "./CustomDropdown";
 
-const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
+const FilterModal = ({
+  show,
+  onClose,
+  onApply,
+  initialFilters = { status: "", propertyType: "" },
+}) => {
   const [localFilters, setLocalFilters] = useState(initialFilters);
   const modalRef = useRef(null);
+
+  useEffect(() => {
+    setLocalFilters(initialFilters);
+  }, [initialFilters, show]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -12,9 +21,12 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, [show, onClose]);
 
   const PROPERTY_TYPES = [
     "Multi-Family",
@@ -30,6 +42,14 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
     "Other",
   ];
 
+  const STATUS_OPTIONS = [
+    { label: "Under review", value: "under-review" },
+    { label: "Contract Pending", value: "contractPending" },
+    { label: "Deal sealed", value: "dealSealed" },
+    { label: "Approved", value: "approved" },
+    { label: "Rejected", value: "rejected" },
+  ];
+
   if (!show) return null;
 
   return (
@@ -39,7 +59,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
     >
       <div className="modal-dialog modal-md modal-dialog-centered fade-in">
         <div ref={modalRef} className="modal-content position-relative p-3">
-          <div className=" w-100 text-center">
+          <div className="w-100 text-center">
             <h5>Filter Listing</h5>
           </div>
           <button
@@ -54,13 +74,7 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
               <p className="mb-2 fw-semibold">Status</p>
 
               <div className="row">
-                {[
-                  { label: "Under review", value: "under-review" },
-                  { label: "Contract Pending", value: "contractPending" },
-                  { label: "Deal sealed", value: "dealSealed" },
-                  { label: "Approved", value: "approved" },
-                  { label: "Rejected", value: "rejected" },
-                ].map((status) => (
+                {STATUS_OPTIONS.map((status) => (
                   <div className="col-sm-6 mb-2" key={status.value}>
                     <div className="form-check">
                       <input
@@ -69,6 +83,11 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
                         id={`status-${status.value}`}
                         name="status"
                         checked={localFilters.status === status.value}
+                        onClick={() => {
+                          if (localFilters.status === status.value) {
+                            setLocalFilters((prev) => ({ ...prev, status: "" }));
+                          }
+                        }}
                         onChange={() =>
                           setLocalFilters({
                             ...localFilters,
@@ -89,11 +108,11 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
             </div>
 
             {/* PROPERTY TYPE SELECT */}
-            {/* <div className="mt-3">
+            <div className="mt-3">
               <p className="mb-2 fw-semibold">Listing Type</p>
               <CustomDropdown
                 placeholder="All"
-                value={localFilters.propertyType}
+                value={localFilters.propertyType || ""}
                 onChange={(value) =>
                   setLocalFilters({
                     ...localFilters,
@@ -108,21 +127,25 @@ const FilterModal = ({ show, onClose, onApply, initialFilters }) => {
                   })),
                 ]}
               />
-            </div> */}
+            </div>
           </div>
 
-          <div className="d-flex align-items-center justify-content-center gap-2">
+          <div className="d-flex align-items-center justify-content-center gap-2 mt-3">
             <button
               className="button-secondary"
               onClick={() => {
-                setLocalFilters({ status: "", propertyType: "" });
-                onApply({ status: "", propertyType: "" });
+                const cleared = { status: "", propertyType: "" };
+                setLocalFilters(cleared);
+                onApply(cleared);
               }}
             >
               Clear
             </button>
 
-            <button className="login-btn" onClick={() => onApply(localFilters)}>
+            <button
+              className="login-btn"
+              onClick={() => onApply(localFilters)}
+            >
               Apply
             </button>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomPagination from "../../Components/CustomPagination";
@@ -8,20 +8,28 @@ import NoData from "../../Components/NoData";
 import PaymentFilterModal from "../../Components/PaymentFilterModal";
 import { useGetAllTransactionsQuery } from "../../api/analyticsApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
-
 const pageSizeOptions = [5, 10, 20, 50];
 
 const Payments = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const { data, isLoading } = useGetAllTransactionsQuery({
     page: currentPage,
     limit: pageSize,
-    search: searchInput,
+    search: debouncedSearch,
     status: statusFilter,
   });
 
@@ -58,31 +66,14 @@ const Payments = () => {
       {
         headerName: "Transaction ID",
         field: "transactionId",
-        flex: 2,
-        minWidth: 280,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: {
-          wordBreak: "break-all",
-          lineHeight: "1.5",
-          paddingTop: "10px",
-          paddingBottom: "10px",
-          textTransform: "lowercase",
-        },
+        flex: 2.5,
+        minWidth: 350,
       },
       {
         headerName: "Property ID",
         field: "propertyId",
         flex: 1.5,
-        minWidth: 200,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: {
-          wordBreak: "break-all",
-          lineHeight: "1.5",
-          paddingTop: "10px",
-          paddingBottom: "10px",
-        },
+        minWidth: 240,
       },
       {
         headerName: "Payment Type",
@@ -184,6 +175,7 @@ const Payments = () => {
                   defaultColDef={defaultColDef}
                   domLayout="autoHeight"
                   headerHeight={40}
+                  rowHeight={48}
                   getRowStyle={(params) => ({
                     backgroundColor:
                       params.node.rowIndex % 2 !== 0 ? "#e7e0d52b" : "white",

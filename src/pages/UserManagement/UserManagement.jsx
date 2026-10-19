@@ -9,164 +9,75 @@ import NoData from "../../Components/NoData";
 import { useNavigate } from "react-router-dom";
 import FilterUserModal from "../../Components/FilterUserModal";
 import Swal from "sweetalert2";
-import { useGetUsersQuery } from "../../api/userApi";
+import { useGetUsersQuery, useDeleteUserMutation } from "../../api/userApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const STATIC_USERS = [
-  {
-    _id: "1",
-    userId: "USR-001",
-    first_name: "Amit ",
-    last_name: "Sharma",
-    email: "john@amit.owner@example.com",
-    phone: "9876543210",
-    role: "Owner",
-    status: true,
-    registrationDate: "2025-12-01",
-  },
-  {
-    _id: "2",
-    userId: "USR-002",
-    first_name: "John ",
-    last_name: "Doe",
-    email: "john.vendor@example.com",
-    phone: "9876500000",
-    role: "Vendor",
-    status: false,
-    registrationDate: "2026-01-10",
-  },
-  {
-    _id: "3",
-    userId: "USR-003",
-    first_name: "Jane ",
-    last_name: "Smith",
-    email: "jane.manager@example.com",
-    phone: "9123456789",
-    role: "Manager",
-    status: true,
-    registrationDate: "2026-01-15",
-  },
-  {
-    _id: "4",
-    userId: "USR-002",
-    first_name: "John ",
-    last_name: "Doe",
-    email: "john.vendor@example.com",
-    phone: "9876500000",
-    role: "Vendor",
-    status: false,
-    registrationDate: "2026-01-10",
-  },
-  {
-    _id: "5",
-    userId: "USR-003",
-    first_name: "Jane ",
-    last_name: "Smith",
-    email: "jane.manager@example.com",
-    phone: "9123456789",
-    role: "Manager",
-    status: true,
-    registrationDate: "2026-01-15",
-  },
-  {
-    _id: "6",
-    userId: "USR-002",
-    first_name: "John ",
-    last_name: "Doe",
-    email: "john.vendor@example.com",
-    phone: "9876500000",
-    role: "Vendor",
-    status: false,
-    registrationDate: "2026-01-10",
-  },
-  {
-    _id: "7",
-    userId: "USR-003",
-    first_name: "Jane ",
-    last_name: "Smith",
-    email: "jane.manager@example.com",
-    phone: "9123456789",
-    role: "Manager",
-    status: true,
-    registrationDate: "2026-01-15",
-  },
-  // add more users as needed
-];
-
 const UserManagement = () => {
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [filters, setFilters] = useState({ role: "" });
-  const { data, error, isLoading, refetch } = useGetUsersQuery({
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const { data, isLoading } = useGetUsersQuery({
     page,
     limit: pageSize,
-    search,
+    search: debouncedSearch,
     role: filters.role,
   });
 
-  // Use userData state so we can update status locally
-  const [userData, setUserData] = useState(STATIC_USERS);
+  const [deleteUser] = useDeleteUserMutation();
+
   const user = data?.data || [];
-  const totalCount = data?.pagination.total || 0;
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+  const totalCount = data?.pagination?.total || 0;
+  const totalPages = data?.pagination?.totalPages || Math.ceil(totalCount / pageSize) || 1;
 
-  // Filtering + Searching on userData
-  const filteredUsers = useMemo(() => {
-    return userData.filter((user) => {
-      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-      const email = user.email.toLowerCase();
-      const phone = user.phone.toLowerCase();
-      const userId = user.userId.toLowerCase();
-      const searchLower = search.toLowerCase();
-
-      const matchesSearch =
-        fullName.includes(searchLower) ||
-        email.includes(searchLower) ||
-        phone.includes(searchLower) ||
-        userId.includes(searchLower);
-
-      const matchesRole =
-        !filters.role || filters.role === ""
-          ? true
-          : user.role.toLowerCase() === filters.role.toLowerCase();
-
-      return matchesSearch && matchesRole;
-    });
-  }, [search, filters, userData]);
-
-  const paginatedUsers = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredUsers.slice(start, start + pageSize);
-  }, [filteredUsers, page, pageSize]);
-
-  const handleDelete = (id) => {
-    const user = userData.find((u) => u._id === id);
-    if (!user) return;
+  const handleDelete = (targetUser) => {
+    if (!targetUser) return;
+    const displayName =
+      `${targetUser.firstName || ""} ${targetUser.lastName || ""}`.trim() ||
+      targetUser.email ||
+      "this user";
 
     Swal.fire({
-      title: `Delete user ${user.first_name} ${user.last_name}?`,
+      title: `Delete user "${displayName}"?`,
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#dc3545", // Bootstrap danger color
-    }).then((result) => {
+      confirmButtonColor: "#dc3545",
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setUserData((prev) => prev.filter((u) => u._id !== id));
-        Swal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: "User has been deleted.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        try {
+          await deleteUser(targetUser._id).unwrap();
+          Swal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "User has been deleted successfully.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "Delete Failed",
+            text: err?.data?.message || "Failed to delete user.",
+          });
+        }
       }
     });
   };
@@ -244,7 +155,7 @@ const UserManagement = () => {
             <button
               className="btn p-0 border-0 bg-transparent text-danger"
               title="Delete"
-              onClick={() => handleDelete(params.data._id)}
+              onClick={() => handleDelete(params.data)}
               style={{ cursor: "pointer" }}
             >
               <Trash2 size={18} />
@@ -285,12 +196,9 @@ const UserManagement = () => {
             type="text"
             className="form-control ps-3 w-50"
             placeholder="Search users by name, email or phone..."
-            value={search}
+            value={searchInput}
             autoFocus
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 

@@ -23,8 +23,12 @@ const FaqList = () => {
 
   const [deleteFaq] = useDeleteFaqMutation();
   const filteredData = useMemo(() => {
-    return faqs?.data?.filter((f) =>
-      f?.question?.toLowerCase().includes(search.toLowerCase()),
+    const list = faqs?.data || [];
+    if (!search.trim()) return list;
+    const term = search.toLowerCase().trim();
+    return list.filter((f) =>
+      f?.question?.toLowerCase().includes(term) ||
+      f?.answer?.toLowerCase().includes(term)
     );
   }, [search, faqs]);
 

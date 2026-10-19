@@ -18,16 +18,23 @@ const ContractList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [contract, setContract] = useState(BLOG_DATA);
-  const { data, isLoading, error } = useContractsQuery();
+  const { data, isLoading, error, refetch } = useContractsQuery();
   const [deleteContract] = useDeleteContractMutation();
 
   /* Filter */
   const filteredData = useMemo(() => {
-    return data?.data?.filter((b) =>
-      b?.versions?.[0]?.contractForm
-        ?.toLowerCase()
-        .includes(search.toLowerCase()),
-    );
+    const list = data?.data || [];
+    if (!search.trim()) return list;
+    const term = search.toLowerCase().trim();
+    return list.filter((b) => {
+      const title =
+        b?.contractForm ||
+        b?.versions?.[0]?.contractForm ||
+        b?.title ||
+        b?.name ||
+        "";
+      return title.toLowerCase().includes(term);
+    });
   }, [data, search]);
 
   /* Pagination calculations */
@@ -58,7 +65,11 @@ const ContractList = () => {
     },
     {
       headerName: "Title",
-      valueGetter: (params) => params.data?.versions?.[0]?.contractForm || "-",
+      valueGetter: (params) =>
+        params.data?.contractForm ||
+        params.data?.versions?.[0]?.contractForm ||
+        params.data?.title ||
+        "-",
       flex: 1.5,
     },
     //     {
@@ -83,46 +94,23 @@ const ContractList = () => {
       valueGetter: (p) => new Date(p.data.createdAt).toLocaleDateString(),
     },
     {
-      headerName: "Action",
-      width: 140,
-      cellRenderer: (params) => {
-        const handleDelete = () => {
-          Swal.fire({
-            title: "Are you sure?",
-            text: `You want to delete contract "${params.data.title}"`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#a99068",
-            cancelButtonColor: "#6c757d",
-            confirmButtonText: "Yes, delete",
-          });
-        };
-
-        return (
-          <div className="d-flex align-items-center gap-2">
-            <button
-              className="btn p-0 bg-transparent border-0"
-              title="View / Edit"
-              onClick={() =>
-                navigate(`/contracts/${params.data._id}`, {
-                  state: { contract: params.data },
-                })
-              }
-            >
-              <Pencil size={18} />
-            </button>
-          </div>
-        );
-      },
+      headerName: "Version",
+      width: 110,
+      valueGetter: (p) => `v${p.data?.versions?.[0]?.version || 1}`,
     },
     {
-      headerName: "Action",
-      width: 140,
+      headerName: "Actions",
+      width: 130,
       cellRenderer: (params) => {
+        const titleText =
+          params.data?.versions?.[0]?.contractForm ||
+          params.data?.contractForm ||
+          "Contract";
+
         const handleDelete = async () => {
           const result = await Swal.fire({
             title: "Are you sure?",
-            text: `You want to delete contract "${params.data.title}"`,
+            text: `You want to delete "${titleText}"?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#a99068",
@@ -149,7 +137,18 @@ const ContractList = () => {
         };
 
         return (
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center gap-3">
+            <button
+              className="btn p-0 bg-transparent border-0"
+              title="View / Edit"
+              onClick={() =>
+                navigate(`/contracts/${params.data._id}`, {
+                  state: { contract: params.data },
+                })
+              }
+            >
+              <Pencil size={18} />
+            </button>
             <button
               className="btn p-0 bg-transparent border-0 text-danger"
               title="Delete"
@@ -200,6 +199,16 @@ const ContractList = () => {
         <div className="custom-card bg-white p-3">
           {isLoading ? (
             <LoadingComponent isLoading fullScreen />
+          ) : error ? (
+            <div className="text-center py-5">
+              <p className="text-muted mb-2">Failed to load contracts. The server might have been reloading.</p>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => refetch()}
+              >
+                Retry
+              </button>
+            </div>
           ) : paginatedData?.length === 0 ? (
             <NoData text="No contract found" />
           ) : (

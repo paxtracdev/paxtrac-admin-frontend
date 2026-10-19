@@ -25,21 +25,24 @@ const baseQuery = fetchBaseQuery({
 export const baseQueryWithAuth = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
-  // if (result?.error?.status === 401) {
-  //   Swal.fire({
-  //     icon: "warning",
-  //     title: "Session Expired",
-  //     text: "Your session has expired. Please login again.",
-  //     confirmButtonText: "OK",
-  //   }).then(() => {
-  //     // Clear auth
-  //     api.dispatch(logout());
-  //     localStorage.clear();
-
-  //     // Redirect to login
-  //     window.location.href = "/login";
-  //   });
-  // }
+  if (result?.error?.status === 401) {
+    const existingToken = localStorage.getItem("token");
+    if (existingToken) {
+      api.dispatch(logout());
+      localStorage.clear();
+      Swal.fire({
+        icon: "warning",
+        title: "Session Expired",
+        text: "Your session has expired. Please log in again.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#a99068",
+      }).then(() => {
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+      });
+    }
+  }
 
   return result;
 };
