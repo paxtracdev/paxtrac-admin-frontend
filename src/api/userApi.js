@@ -4,7 +4,7 @@ import { baseQueryWithAuth } from "./baseApi";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithAuth,
-  tagTypes: ["Users", "ContractSetting", "ContactUs"],
+  tagTypes: ["Users", "ContractSetting", "ContactUs", "Plans", "Plan", "PlatformSettings", "SaasOffers"],
   endpoints: (builder) => ({
     getContactUs: builder.query({
       query: (params) => ({
@@ -160,6 +160,7 @@ export const userApi = createApi({
         method: "POST", // or "PUT" depending on your backend
         body: payload, // the data you are sending
       }),
+      invalidatesTags: ["PlatformSettings"],
     }),
 
     getSettings: builder.query({
@@ -167,6 +168,7 @@ export const userApi = createApi({
         url: "/settings",
         method: "GET",
       }),
+      providesTags: ["PlatformSettings"],
     }),
     Contracts: builder.query({
       query: () => "/contract-terms",
@@ -197,8 +199,11 @@ export const userApi = createApi({
       providesTags: ["Plans"],
     }),
     Plan: builder.query({
-      query: ({ id }) => `/plan/${id} `,
-      providesTags: ["Plans"],
+      query: ({ id }) => `/plan/${id}`,
+      providesTags: (result, error, arg) => [
+        { type: "Plan", id: arg?.id },
+        "Plans",
+      ],
     }),
     updatePlan: builder.mutation({
       query: ({ id, ...data }) => ({
@@ -207,7 +212,8 @@ export const userApi = createApi({
         body: data, // the rest of the plan data sent as JSON body
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: "Plan", id: arg.id }, // ensures the cached plan refetches
+        { type: "Plan", id: arg?.id },
+        "Plans",
       ],
     }),
     Faqs: builder.query({
@@ -273,6 +279,28 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["ContractSetting"],
     }),
+    getSaasOffers: builder.query({
+      query: (params) => ({
+        url: "/saas-offers",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SaasOffers"],
+    }),
+    getSaasOfferById: builder.query({
+      query: (id) => ({
+        url: `/saas-offers/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "SaasOffers", id }],
+    }),
+    deleteSaasOffer: builder.mutation({
+      query: (id) => ({
+        url: `/saas-offers/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SaasOffers"],
+    }),
   }),
 });
 
@@ -310,4 +338,7 @@ export const {
   useGetContactUsQuery,
   useUpdateContactStatusMutation,
   useDeleteContactUsMutation,
+  useGetSaasOffersQuery,
+  useGetSaasOfferByIdQuery,
+  useDeleteSaasOfferMutation,
 } = userApi;

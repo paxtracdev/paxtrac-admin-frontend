@@ -7,120 +7,46 @@ import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Eye } from "lucide-react";
+import { Eye, FileText } from "lucide-react";
+import { useGetSaasOffersQuery } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-/* =======================
-   STATIC DEMO DATA (SaaS Offers)
-======================= */
-export const MOCK_SAAS_OFFERS = [
-  {
-    _id: "6ac5fb2e832a8c3cd39dac47",
-    firstName: "test",
-    lastName: "saas",
-    email: "testsaas@gmail.com",
-    mobileNumber: "2563987452",
-    countryOfInterest: "India",
-    amountUsd: 19998,
-    salesPercentage: 15,
-    platformSetup: "Over $100,000",
-    marketingAndStaff: "$50,000 – $100,000",
-    relevantExperience: "i have 20 yrs of experience",
-    paxtrac: "leadership , technical capacity",
-    website: "http://www.test.com",
-    confirmation: true,
-    submittedAt: "2026-10-07T07:56:30.311Z",
-    createdAt: "2026-10-07T07:56:30.312Z",
-    updatedAt: "2026-10-07T07:56:30.312Z",
-  },
-  {
-    _id: "6ac5fb2e832a8c3cd39dac48",
-    firstName: "Alexander",
-    lastName: "Wright",
-    email: "alex.wright@globalrealty.io",
-    mobileNumber: "+1 415 892 3410",
-    countryOfInterest: "United States",
-    amountUsd: 45000,
-    salesPercentage: 20,
-    platformSetup: "Over $100,000",
-    marketingAndStaff: "Over $100,000",
-    relevantExperience: "Managed large scale commercial real estate platforms in US & UK with 15+ years enterprise growth.",
-    paxtrac: "strategic partnership, leadership & technical capacity",
-    website: "http://www.globalrealty.io",
-    confirmation: true,
-    submittedAt: "2026-10-06T14:30:00.000Z",
-    createdAt: "2026-10-06T14:30:00.000Z",
-    updatedAt: "2026-10-06T14:30:00.000Z",
-  },
-  {
-    _id: "6ac5fb2e832a8c3cd39dac49",
-    firstName: "Sofia",
-    lastName: "Chen",
-    email: "sofia.chen@apacventures.com",
-    mobileNumber: "+65 9123 4567",
-    countryOfInterest: "Singapore",
-    amountUsd: 28500,
-    salesPercentage: 12.5,
-    platformSetup: "$50,000 – $100,000",
-    marketingAndStaff: "$25,000 – $50,000",
-    relevantExperience: "12 years tech leadership & SaaS growth operations across Southeast Asia markets.",
-    paxtrac: "regional execution & technical capacity",
-    website: "http://www.apacventures.com",
-    confirmation: true,
-    submittedAt: "2026-10-05T11:15:00.000Z",
-    createdAt: "2026-10-05T11:15:00.000Z",
-    updatedAt: "2026-10-05T11:15:00.000Z",
-  },
-  {
-    _id: "6ac5fb2e832a8c3cd39dac50",
-    firstName: "Carlos",
-    lastName: "Mendoza",
-    email: "carlos.m@latamproptech.com",
-    mobileNumber: "+52 55 1234 5678",
-    countryOfInterest: "Mexico",
-    amountUsd: 15000,
-    salesPercentage: 10,
-    platformSetup: "$25,000 – $50,000",
-    marketingAndStaff: "$10,000 – $25,000",
-    relevantExperience: "8 years proptech founder & operations lead in Latin America.",
-    paxtrac: "local market expansion & sales capacity",
-    website: "http://www.latamproptech.com",
-    confirmation: false,
-    submittedAt: "2026-10-04T09:20:00.000Z",
-    createdAt: "2026-10-04T09:20:00.000Z",
-    updatedAt: "2026-10-04T09:20:00.000Z",
-  },
-];
+export const MOCK_SAAS_OFFERS = [];
 
 const SaasOffers = () => {
   const navigate = useNavigate();
-  const [offers] = useState(MOCK_SAAS_OFFERS);
   const [searchInput, setSearchInput] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Filtered data
-  const filteredOffers = useMemo(() => {
-    if (!searchInput.trim()) return offers;
-    const query = searchInput.toLowerCase();
-    return offers.filter(
-      (item) =>
-        `${item.firstName} ${item.lastName}`.toLowerCase().includes(query) ||
-        item.email?.toLowerCase().includes(query) ||
-        item.countryOfInterest?.toLowerCase().includes(query) ||
-        item.mobileNumber?.toLowerCase().includes(query) ||
-        item.amountUsd?.toString().includes(query)
-    );
-  }, [offers, searchInput]);
+  const { data: serverResponse, isLoading, isFetching } = useGetSaasOffersQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: searchInput,
+  });
 
-  const totalCount = filteredOffers.length;
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+  const offers = useMemo(() => {
+    if (serverResponse?.data && Array.isArray(serverResponse.data)) {
+      return serverResponse.data;
+    }
+    return [];
+  }, [serverResponse]);
 
-  const paginatedOffers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredOffers.slice(start, start + pageSize);
-  }, [filteredOffers, currentPage, pageSize]);
+  const totalCount = serverResponse?.total ?? offers.length;
+  const totalPages = serverResponse?.totalPages ?? (Math.ceil(totalCount / pageSize) || 1);
+
+  const handleDownloadPdf = (offerId) => {
+    const token = localStorage.getItem("token") || "";
+    const liveUrl = import.meta.env.VITE_LIVE_URL;
+    const base = liveUrl
+      ? liveUrl.replace(/\/+$/, "")
+      : (import.meta.env.VITE_BASE_URL || "http://localhost:5050");
+    const cleanBase = base.replace(/\/api\/admin\/?$/, "");
+    const url = `${cleanBase}/api/admin/saas-offers/${offerId}/pdf?token=${encodeURIComponent(token)}`;
+    window.open(url, "_blank");
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
@@ -209,20 +135,37 @@ const SaasOffers = () => {
       },
       {
         headerName: "Action",
-        width: 100,
+        width: 120,
         cellRenderer: (params) => (
-          <button
-            className="border-0 bg-transparent text-primary p-0"
-            title="View Details"
-            onClick={() => navigate(`/saas-offers/view/${params.data._id}`)}
-          >
-            <Eye size={18} style={{ color: "#a99068" }} />
-          </button>
+          <div className="d-flex align-items-center gap-3" style={{ height: "100%" }}>
+            <button
+              className="border-0 bg-transparent p-0 cursor-pointer"
+              title="View Details"
+              onClick={() => navigate(`/saas-offers/view/${params.data._id}`)}
+            >
+              <Eye size={18} style={{ color: "#a99068" }} />
+            </button>
+            <button
+              className="border-0 bg-transparent p-0 cursor-pointer"
+              title="Download SaaS PDF Report"
+              onClick={() => handleDownloadPdf(params.data._id)}
+            >
+              <FileText size={18} style={{ color: "#0d6efd" }} />
+            </button>
+          </div>
         ),
       },
     ],
     [currentPage, pageSize, navigate]
   );
+
+  const displayOffers = useMemo(() => {
+    if (serverResponse?.totalPages !== undefined) {
+      return offers;
+    }
+    const start = (currentPage - 1) * pageSize;
+    return offers.slice(start, start + pageSize);
+  }, [offers, serverResponse, currentPage, pageSize]);
 
   return (
     <main className="app-content body-bg">
@@ -253,7 +196,9 @@ const SaasOffers = () => {
 
         {/* TABLE CARD */}
         <div className="custom-card bg-white p-4">
-          {paginatedOffers.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : displayOffers.length === 0 ? (
             <NoData text="No SaaS offers found" />
           ) : (
             <>
@@ -263,7 +208,7 @@ const SaasOffers = () => {
               >
                 <AgGridReact
                   theme="legacy"
-                  rowData={paginatedOffers}
+                  rowData={displayOffers}
                   columnDefs={columnDefs}
                   defaultColDef={defaultColDef}
                   domLayout="autoHeight"
