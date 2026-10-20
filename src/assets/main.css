@@ -21509,9 +21509,9 @@ button.staff-pencilBtn {
   top: 50%;
 }
 
-.form-select{
-    background: #f1f6f5 !important;
-    border: 2px solid #71A99A !important;
+.form-select {
+    background: #aa926b10 !important;
+    border: 2px solid #a99068 !important;
     border-radius: 8px !important;
     padding: 8px 12px !important;
     /* height: 45px; */

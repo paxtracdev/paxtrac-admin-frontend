@@ -7,12 +7,19 @@ function Dashboard() {
   const navigate = useNavigate();
   const { data, isLoading } = useGetAnalyticsQuery();
 
-  // Mock static data instead of API
+  let adminUser = null;
+  try {
+    adminUser = JSON.parse(localStorage.getItem("user") || "null");
+  } catch (e) {
+    adminUser = null;
+  }
+
   const statsData = {
-    active_users: data?.data.totalUsers,
-    total_events: data?.data.totalProperties,
-    engagement_ratio: "75%",
-    total_revenue: data?.data.totalRevenue,
+    active_users: isLoading ? "..." : (data?.data?.totalUsers ?? 0),
+    total_events: isLoading ? "..." : (data?.data?.totalProperties ?? 0),
+    total_revenue: isLoading
+      ? "..."
+      : `$${new Intl.NumberFormat("en-US").format(data?.data?.totalRevenue || 0)}`,
   };
 
   const stats = [
@@ -28,16 +35,10 @@ function Dashboard() {
       value: statsData.total_events,
       path: "/listing-management",
     },
-    // {
-    //   icon: <TrendingUp size={22} />,
-    //   title: "Engagement Ratio",
-    //   value: statsData.engagement_ratio,
-    //   path: "/analytics",
-    // },
     {
       icon: <DollarSign size={22} />,
       title: "Revenue",
-      value: `$${statsData.total_revenue}`,
+      value: statsData.total_revenue,
       path: "/payment",
     },
   ];
@@ -50,12 +51,14 @@ function Dashboard() {
     {/* LEFT: Admin Welcome Card */}
     <div className="col-lg-6 col-xl-5">
       <div className="dashboard-welcome-card p-4 h-100">
-        <h4 className="mb-1 fw-semibold">Hey Admin!</h4>
+        <h4 className="mb-1 fw-semibold">
+          Hey {adminUser?.name || "Admin"}!
+        </h4>
         <p className="mb-2 text-muted">
-          Ready to conquer the day? Let's get started!
+          Welcome to the Paxtrac Administration Portal.
         </p>
-        <div className="mt-5">
-          <strong>Last Login:</strong> 29 Jan 2026 | 18:04 PM
+        <div className="mt-5 text-muted small">
+          <strong>Logged in as:</strong> {adminUser?.email || "admin@paxtrac.com"}
         </div>
       </div>
     </div>

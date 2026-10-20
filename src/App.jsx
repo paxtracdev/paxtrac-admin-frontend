@@ -70,6 +70,7 @@ export default function App() {
           <Route path="/bid-management" element={<BidManagement />} />
           <Route path="/bid-management/:id" element={<BidView />} />
 
+          <Route path="/contracts" element={<ContractList />} />
           <Route path="/Contracts" element={<ContractList />} />
           <Route path="/contracts/add" element={<AddContract />} />
           <Route path="/contracts/:id" element={<ViewContract />} />

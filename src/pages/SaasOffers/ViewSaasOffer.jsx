@@ -1,14 +1,27 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { ArrowLeft, ExternalLink, Globe, User, Mail, Phone, Calendar, DollarSign, Briefcase, CheckCircle2 } from "lucide-react";
-import { MOCK_SAAS_OFFERS } from "./SaasOffers";
+import { ArrowLeft, ExternalLink, Globe, User, Mail, Phone, Calendar, DollarSign, Briefcase, CheckCircle2, FileText } from "lucide-react";
+import { useGetSaasOfferByIdQuery } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 const ViewSaasOffer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const offer = MOCK_SAAS_OFFERS.find((item) => item._id === id) || MOCK_SAAS_OFFERS[0];
+  const { data: serverResponse, isLoading } = useGetSaasOfferByIdQuery(id);
+  const offer = serverResponse?.data || null;
+
+  const handleDownloadPdf = (offerId) => {
+    const token = localStorage.getItem("token") || "";
+    const liveUrl = import.meta.env.VITE_LIVE_URL;
+    const base = liveUrl
+      ? liveUrl.replace(/\/+$/, "")
+      : (import.meta.env.VITE_BASE_URL || "http://localhost:5050");
+    const cleanBase = base.replace(/\/api\/admin\/?$/, "");
+    const url = `${cleanBase}/api/admin/saas-offers/${offerId}/pdf?token=${encodeURIComponent(token)}`;
+    window.open(url, "_blank");
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
@@ -22,6 +35,16 @@ const ViewSaasOffer = () => {
     if (val == null || val === "") return "-";
     return `$${Number(val).toLocaleString()}`;
   };
+
+  if (isLoading) {
+    return (
+      <main className="app-content body-bg">
+        <section className="container py-4">
+          <LoadingComponent isLoading fullScreen />
+        </section>
+      </main>
+    );
+  }
 
   if (!offer) {
     return (
@@ -39,20 +62,35 @@ const ViewSaasOffer = () => {
   return (
     <main className="app-content body-bg">
       <section className="container py-4 position-relative">
-        {/* HEADER & BACK BUTTON */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        {/* HEADER & ACTION BUTTONS */}
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <div>
             <div className="title-heading mb-2">SaaS Offer Details</div>
             <p className="title-sub-heading">
               View detailed submission for {offer.firstName} {offer.lastName}
             </p>
           </div>
-          <button
-            className="login-btn d-flex align-items-center gap-2"
-            onClick={() => navigate("/saas-offers")}
-          >
-            <ArrowLeft size={16} /> Back to Offers
-          </button>
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn d-flex align-items-center gap-2 text-white"
+              style={{
+                backgroundColor: "#a99068",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                fontWeight: 600,
+              }}
+              onClick={() => handleDownloadPdf(offer._id)}
+            >
+              <FileText size={16} /> Download PDF Report
+            </button>
+            <button
+              className="login-btn d-flex align-items-center gap-2"
+              onClick={() => navigate("/saas-offers")}
+            >
+              <ArrowLeft size={16} /> Back to Offers
+            </button>
+          </div>
         </div>
 
         <Breadcrumbs />

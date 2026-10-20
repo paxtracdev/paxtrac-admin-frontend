@@ -1,178 +1,127 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { Eye } from "lucide-react";
-import Switch from "react-switch";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import NoData from "../../Components/NoData";
 import CustomPagination from "../../Components/CustomPagination";
+import { useGetUsersQuery } from "../../api/userApi";
+import { LoadingComponent } from "../../Components/LoadingComponent";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const STATIC_VENDORS = [
-  {
-    _id: "v1",
-    vendorName: "Alice Wake",
-    email: "contact@acme.com",
-    phoneNumber: "1234567890",
-    businessDetails: {
-      businessName: "Acme Services LLC",
-      numberOfStaff: 50,
-      businessStartYear: 2015,
-      propertyManagementLicense: true,
-    },
-    accountStatus: true,
-  },
-  {
-    _id: "v2",
-    vendorName: "William Byce",
-    email: "info@bestbuilders.com",
-    phoneNumber: "0987654321",
-    businessDetails: {
-      businessName: "Best Builders Inc",
-      numberOfStaff: 30,
-      businessStartYear: 2010,
-      propertyManagementLicense: false,
-    },
-    accountStatus: false,
-  },
-];
-
 export default function VendorManagement() {
   const navigate = useNavigate();
-  const [vendors, setVendors] = useState(STATIC_VENDORS);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const totalCount = vendors.length;
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
-  const paginatedVendors = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return vendors.slice(start, start + pageSize);
-  }, [vendors, currentPage, pageSize]);
+  const { data, isLoading } = useGetUsersQuery({
+    role: "vendor",
+    page: currentPage,
+    limit: pageSize,
+    search: debouncedSearch,
+  });
 
-  const toggleAccountStatus = (id) => {
-    const vendor = vendors.find((v) => v._id === id);
-    if (!vendor) return;
+  const vendors = data?.data || [];
+  const totalCount = data?.pagination?.total || 0;
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(totalCount / pageSize) || 1;
 
-    Swal.fire({
-      title: `Change account status for ${vendor.vendorName}?`,
-      text: `This will ${vendor.accountStatus ? "deactivate" : "activate"} this vendor.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, change it",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#a99068",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setVendors((prev) =>
-          prev.map((v) =>
-            v._id === id ? { ...v, accountStatus: !v.accountStatus } : v
-          )
-        );
-        Swal.fire({
-          icon: "success",
-          title: "Updated!",
-          text: `Vendor account status has been ${
-            vendor.accountStatus ? "deactivated" : "activated"
-          }.`,
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-    });
-  };
-
-  const columnDefs = useMemo(() => [
-    {
-      headerName: "S.NO.",
-      valueGetter: (params) => params.node.rowIndex + 1 + (currentPage - 1) * pageSize,
-      minWidth: 80,
-      flex: 0.5,
-      cellStyle: { textAlign: "center" },
-    },
-    {
-      headerName: "Name",
-      field: "vendorName",
-      minWidth: 180,
-      flex: 1,
-    },
-    {
-      headerName: "Email",
-      field: "email",
-      minWidth: 250,
-      flex: 1.2,
-      cellStyle: { textTransform: "lowercase" },
-    },
-    {
-      headerName: "Phone",
-      field: "phoneNumber",
-      minWidth: 140,
-      flex: 1,
-    },
-    {
-      headerName: "Business Name",
-      minWidth: 250,
-      flex: 1.5,
-      valueGetter: (params) => params.data.businessDetails.businessName,
-    },
-    {
-      headerName: "Status",
-      field: "accountStatus",
-      minWidth: 120,
-      flex: 1,
-      cellRenderer: (params) => (
-        <Switch
-          checked={params.value}
-          onChange={() => toggleAccountStatus(params.data._id)}
-          onColor="#a99068"
-          uncheckedIcon={false}
-          checkedIcon={false}
-          height={20}
-          width={40}
-        />
-      ),
-    },
-    {
-      headerName: "Number of Staff",
-      minWidth: 150,
-      flex: 1,
-      valueGetter: (params) => params.data.businessDetails.numberOfStaff,
-    },
-    {
-      headerName: "Licensed",
-      minWidth: 100,
-      flex: 1,
-      cellRenderer: (params) =>
-        params.data.businessDetails.propertyManagementLicense ? (
-          <span className="status-badge-table ">Yes</span>
-        ) : (
-          <span className="status-badge-table inactive ">No</span>
+  const columnDefs = useMemo(
+    () => [
+      {
+        headerName: "S.NO.",
+        valueGetter: (params) =>
+          params.node.rowIndex + 1 + (currentPage - 1) * pageSize,
+        minWidth: 80,
+        flex: 0.5,
+        cellStyle: { textAlign: "center" },
+      },
+      {
+        headerName: "Vendor Name",
+        valueGetter: (params) =>
+          `${params.data.firstName || ""} ${params.data.lastName || ""}`.trim() ||
+          "N/A",
+        minWidth: 180,
+        flex: 1,
+      },
+      {
+        headerName: "Email",
+        field: "email",
+        minWidth: 220,
+        flex: 1.2,
+        cellStyle: { textTransform: "lowercase" },
+      },
+      {
+        headerName: "Phone",
+        field: "mobileNumber",
+        minWidth: 140,
+        flex: 1,
+        valueGetter: (params) => params.data.mobileNumber || "N/A",
+      },
+      {
+        headerName: "Business Name",
+        minWidth: 220,
+        flex: 1.5,
+        valueGetter: (params) =>
+          params.data.VendorbusinessDetails?.[0]?.businessName ||
+          params.data.position ||
+          "-",
+      },
+      {
+        headerName: "Number of Staff",
+        minWidth: 140,
+        flex: 1,
+        valueGetter: (params) =>
+          params.data.VendorbusinessDetails?.[0]?.numberOfStaff || "-",
+      },
+      {
+        headerName: "Licensed",
+        minWidth: 120,
+        flex: 0.8,
+        cellRenderer: (params) => {
+          const isLicensed = Boolean(
+            params.data.VendorbusinessDetails?.[0]?.propertyManagementLicense,
+          );
+          return (
+            <span
+              className={`status-badge-table ${isLicensed ? "" : "inactive"}`}
+            >
+              {isLicensed ? "Yes" : "No"}
+            </span>
+          );
+        },
+      },
+      {
+        headerName: "Action",
+        minWidth: 100,
+        flex: 0.8,
+        cellRenderer: (params) => (
+          <button
+            className="btn p-0 bg-transparent border-0 text-start"
+            title="View Vendor Details"
+            onClick={() =>
+              navigate(`/user-management/view-user/${params.data._id}`)
+            }
+          >
+            <Eye size={18} />
+          </button>
         ),
-    },
-    {
-      headerName: "Business Start ",
-      minWidth: 150,
-      flex: 1,
-      valueGetter: (params) => params.data.businessDetails.businessStartYear,
-    },
-    {
-      headerName: "Action",
-      minWidth: 130,
-      flex: 1,
-      cellRenderer: (params) => (
-        <button
-          className="btn p-0 bg-transparent border-0 text-start"
-          onClick={() => navigate(`/vendor-management/view?id=${params.data._id}`)}
-        >
-          <Eye size={16} /> 
-        </button>
-      ),
-    },
-  ], [currentPage, pageSize]);
+      },
+    ],
+    [currentPage, pageSize, navigate],
+  );
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -190,21 +139,34 @@ export default function VendorManagement() {
           <div>
             <h1 className="title-heading">Vendor Management</h1>
             <p className="title-sub-heading">
-              Approve or reject vendors and manage their profiles
+              Monitor registered vendors and review their business profiles
             </p>
           </div>
         </div>
 
         <Breadcrumbs />
 
+        {/* Search Toolbar */}
+        <div className="search-bar mb-4 position-relative">
+          <input
+            type="text"
+            className="form-control ps-3 w-50"
+            placeholder="Search vendors by name, email or phone..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+
         <div className="custom-card bg-white p-3">
-          {vendors.length === 0 ? (
+          {isLoading ? (
+            <LoadingComponent isLoading fullScreen />
+          ) : vendors.length === 0 ? (
             <NoData text="No vendors found" />
           ) : (
             <>
               <div className="ag-theme-alpine">
                 <AgGridReact
-                  rowData={paginatedVendors}
+                  rowData={vendors}
                   columnDefs={columnDefs}
                   domLayout="autoHeight"
                   headerHeight={40}
@@ -216,7 +178,6 @@ export default function VendorManagement() {
                 />
               </div>
 
-              {/* ✅ CUSTOM PAGINATION */}
               <CustomPagination
                 currentPage={currentPage}
                 totalPages={totalPages}

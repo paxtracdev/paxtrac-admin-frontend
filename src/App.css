@@ -6,16 +6,19 @@
   cursor: pointer;
 }
 
-.form-control {
+.form-control,
+.form-select {
   background: #aa926b10 !important;
   border: 2px solid #a99068 !important;
   border-radius: 8px !important; 
   padding: 8px 12px !important;
 }
 
-.form-control:focus {
+.form-control:focus,
+.form-select:focus {
   box-shadow: none !important;
- }
+  border-color: #a99068 !important;
+}
 
 .login-card {
   border-radius: 10px;

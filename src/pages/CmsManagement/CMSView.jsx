@@ -4,30 +4,49 @@ import Breadcrumbs from "../../Components/Breadcrumbs";
 import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
 import {
-  useGetPrivacyPolicyQuery,
-  useGetTermsOfServiceQuery,
-  useUpdatePrivacyPolicyMutation,
-  useUpdateTermsOfServiceMutation,
+  useGetPageBySlugQuery,
+  useUpdatePageBySlugMutation,
 } from "../../api/cmsApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
-import NoData from "../../Components/NoData";
+import { cleanHtmlContent } from "../../utils/cleanHtml";
 
 const CMSView = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const pageType = location.state?.cmsItem?.name; // "privacy-policy" or "terms-of-service"
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  // API hooks
-  const { data: privacyData } = useGetPrivacyPolicyQuery(undefined, {
-    skip: pageType !== "privacy-policy",
+  const cmsItem = location.state?.cmsItem;
+  const pageType = cmsItem?.name; // "privacy-policy", "terms-of-service", "join-us", etc.
+
+  const formatTitle = (name, rawTitle) => {
+    if (name === "privacy-policy") return "Privacy Policy";
+    if (
+      name === "terms-of-service" ||
+      name === "terms-of-use" ||
+      name === "term-of-use" ||
+      (rawTitle && rawTitle.toLowerCase().includes("terms"))
+    ) {
+      return "Terms of Use";
+    }
+    if (name === "join-us") return "Join Us";
+    if (rawTitle && rawTitle.trim()) return rawTitle.trim();
+    return name
+      ? name
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
+      : "CMS Page";
+  };
+
+  const [title, setTitle] = useState(
+    cmsItem?.title || formatTitle(pageType, cmsItem?.title)
+  );
+  const [content, setContent] = useState(cleanHtmlContent(cmsItem?.description || ""));
+
+  // Fetch freshest data from server for this page slug
+  const { data: pageData, isLoading } = useGetPageBySlugQuery(pageType, {
+    skip: !pageType,
   });
-  const { data: termsData } = useGetTermsOfServiceQuery(undefined, {
-    skip: pageType !== "terms-of-service",
-  });
-  const [updatePrivacyPolicy] = useUpdatePrivacyPolicyMutation();
-  const [updateTermsOfService] = useUpdateTermsOfServiceMutation();
+  const [updatePage, { isLoading: isUpdating }] = useUpdatePageBySlugMutation();
 
   useEffect(() => {
     if (!pageType) {
@@ -35,35 +54,39 @@ const CMSView = () => {
       return;
     }
 
-    setTitle(
-      pageType === "privacy-policy" ? "Privacy Policy" : "Terms of Service",
-    );
-
-    if (pageType === "privacy-policy" && privacyData?.data) {
-      setContent(privacyData.data.description);
-    } else if (pageType === "terms-of-service" && termsData?.data) {
-      setContent(termsData.data.description);
+    if (pageData?.data) {
+      if (pageData.data.title) {
+        setTitle(pageData.data.title);
+      } else {
+        setTitle(formatTitle(pageType, cmsItem?.title));
+      }
+      setContent(cleanHtmlContent(pageData.data.description || ""));
+    } else if (cmsItem) {
+      setTitle(cmsItem.title || formatTitle(pageType, cmsItem.title));
+      if (cmsItem.description && !content) {
+        setContent(cleanHtmlContent(cmsItem.description));
+      }
     }
-  }, [pageType, privacyData, termsData, navigate]);
+  }, [pageType, pageData, cmsItem, navigate]);
 
   const handleSave = async () => {
-    if (!content.trim()) {
-      Swal.fire("Error", "Content cannot be empty", "error");
+    const cleaned = cleanHtmlContent(content.trim());
+    if (!cleaned) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Content cannot be empty",
+        confirmButtonColor: "#a99068",
+      });
       return;
     }
 
     try {
-      if (pageType === "privacy-policy") {
-        await updatePrivacyPolicy({
-          name: "privacy policy",
-          description: content,
-        }).unwrap();
-      } else if (pageType === "terms-of-service") {
-        await updateTermsOfService({
-          name: "terms of service",
-          description: content,
-        }).unwrap();
-      }
+      await updatePage({
+        slug: pageType,
+        title: title.trim(),
+        description: cleaned,
+      }).unwrap();
 
       Swal.fire({
         title: "Success",
@@ -73,7 +96,12 @@ const CMSView = () => {
       });
       navigate("/policies");
     } catch (err) {
-      Swal.fire("Error", "Failed to update CMS page", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.data?.message || err?.message || "Failed to update CMS page",
+        confirmButtonColor: "#a99068",
+      });
     }
   };
 
@@ -92,8 +120,7 @@ const CMSView = () => {
         <Breadcrumbs />
 
         <div className="custom-card bg-white p-4 mt-3">
-          {(!privacyData && pageType === "privacy-policy") ||
-          (!termsData && pageType === "terms-of-service") ? (
+          {isLoading && !content ? (
             <LoadingComponent isLoading fullScreen />
           ) : (
             <>
@@ -104,9 +131,8 @@ const CMSView = () => {
                   className="form-control"
                   placeholder="Enter page title"
                   value={title}
-                  readOnly
                   disabled
-                  onChange={(e) => setTitle(e.target.value)}
+                  readOnly
                 />
               </div>
 
@@ -116,16 +142,32 @@ const CMSView = () => {
                   apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                   value={content}
                   init={{
-                    height: 350,
-                    menubar: false,
-                    plugins:
-                      "advlist autolink lists link image charmap preview fullscreen",
+                    height: 480,
+                    menubar: true,
+                    plugins: [
+                      "advlist",
+                      "autolink",
+                      "lists",
+                      "link",
+                      "image",
+                      "charmap",
+                      "preview",
+                      "anchor",
+                      "searchreplace",
+                      "visualblocks",
+                      "code",
+                      "fullscreen",
+                      "insertdatetime",
+                      "table",
+                      "wordcount",
+                    ],
                     toolbar:
-                      "undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | preview fullscreen",
+                      "undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link table | removeformat code fullscreen",
                     content_style: ` 
+                      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; }
                       ::selection {
-                        background: #a99068 !important; /* selection background color */
-                        color: #fff !important;    /* text color when selected */
+                        background: #a99068 !important;
+                        color: #fff !important;
                       } `,
                   }}
                   onEditorChange={(value) => setContent(value)}
@@ -136,14 +178,16 @@ const CMSView = () => {
                 <button
                   className="button-secondary"
                   onClick={() => navigate("/policies")}
+                  disabled={isUpdating}
                 >
                   Cancel
                 </button>
                 <button
                   className="primary-button card-btn"
                   onClick={handleSave}
+                  disabled={isUpdating}
                 >
-                  Save Changes
+                  {isUpdating ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </>

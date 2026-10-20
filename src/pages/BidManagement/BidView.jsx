@@ -6,11 +6,29 @@ import { AgGridReact } from "ag-grid-react";
 import CustomPagination from "../../Components/CustomPagination";
 import { Form, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { useGetBidIndivisualQuery } from "../../api/userApi";
-import { useStartBidMutation } from "../../api/userApi";
-import { useBiddersQuery } from "../../api/userApi";
-import { useBroadcastBiddersMutation } from "../../api/userApi";
-import { useBroadcastBidderMutation } from "../../api/userApi";
+import {
+  useGetBidIndivisualQuery,
+  useStartBidMutation,
+  useCloseBidMutation,
+  useBiddersQuery,
+  useBroadcastBiddersMutation,
+  useBroadcastBidderMutation,
+} from "../../api/userApi";
+
+const formatToLocalDateTimeLocal = (dateInput) => {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return "";
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 const BidView = () => {
   const mockBidders = [
@@ -41,6 +59,7 @@ const BidView = () => {
     skip: !id,
   });
   const [BidTime, { isLoading: isReopening }] = useStartBidMutation();
+  const [closeBid, { isLoading: isClosing }] = useCloseBidMutation();
   const [broadcastBidders] = useBroadcastBiddersMutation();
   const [broadcastBidder] = useBroadcastBidderMutation();
 
@@ -83,31 +102,41 @@ const BidView = () => {
   });
 
   useEffect(() => {
-    if (data?.data) {
-      setBid(data.data[0]);
+    if (data?.data && data.data[0]) {
+      const b = data.data[0];
+      setBid(b);
+      if (b.bidStatus) {
+        setBidStatus(b.bidStatus);
+      } else if (
+        b.status === "approved" &&
+        b.bidDuration &&
+        new Date(b.bidDuration) >= new Date()
+      ) {
+        setBidStatus("active");
+      } else {
+        setBidStatus("inactive");
+      }
+
+      if (b.bidDuration) {
+        const localFormatted = formatToLocalDateTimeLocal(b.bidDuration);
+        if (localFormatted) {
+          setBidTime(localFormatted);
+        }
+      }
     }
   }, [data]);
 
   useEffect(() => {
-    if (bidStatusFromList) {
+    if (bidStatusFromList && !bidStatus) {
       setBidStatus(bidStatusFromList);
     }
-  }, [bidStatusFromList]);
+  }, [bidStatusFromList, bidStatus]);
 
   if (!bid) return null;
 
-  // For datetime-local input, convert "YYYY-MM-DD HH:mm" to "YYYY-MM-DDTHH:mm"
-  const formattedBidTime = bid.bidTime
-    ? new Date(bid.bidTime).toISOString().slice(0, 16)
+  const currentDeadline = bid.bidDuration
+    ? formatToLocalDateTimeLocal(bid.bidDuration)
     : "";
-
-  const formattedBidEndTime = bid.bidTime
-    ? new Date(bid.bidEndTime).toISOString().slice(0, 16)
-    : bid.bidDuration
-      ? new Date(new Date(bid.bidDuration).getTime() + 60 * 60 * 1000)
-          .toISOString()
-          .slice(0, 16)
-      : ""; // default to 1 hour after bidTime
 
   const handleBidTimeChange = (e) => {
     setBidTime(e.target.value);
@@ -118,7 +147,7 @@ const BidView = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Invalid bidTime format",
+        text: "Please select a valid bidding deadline date and time.",
         confirmButtonColor: "#a99068",
       });
       return;
@@ -129,7 +158,17 @@ const BidView = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Invalid bidTime format",
+        text: "Invalid date format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    if (dateObj.getTime() <= Date.now()) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Deadline",
+        text: "The bidding deadline must be set to a future date and time.",
         confirmButtonColor: "#a99068",
       });
       return;
@@ -140,18 +179,25 @@ const BidView = () => {
     const payload = {
       bidId: bid.propertyId,
       bidTime: isoBidTime,
+      bidEndTime: isoBidTime,
     };
     try {
       await BidTime(payload).unwrap();
+      setBid((prev) => ({
+        ...prev,
+        bidDuration: isoBidTime,
+        status: "approved",
+      }));
+      setBidStatus("active");
       Swal.fire({
         icon: "success",
         title: "Saved",
-        text: "Bid details updated successfully.",
+        text: "Bidding deadline updated successfully.",
         confirmButtonColor: "#a99068",
       });
     } catch (error) {
       const errorMessage =
-        error?.data?.message || error?.message || "Invalid bidTime format";
+        error?.data?.message || error?.message || "Failed to update bidding deadline.";
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -162,11 +208,27 @@ const BidView = () => {
   };
 
   const handleCloseBidding = async () => {
-    try {
-      // Call backend to close the bid
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will close bidding on this property immediately.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#a99068",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, close bidding",
+    });
 
-      // Update UI
-      setBid((prev) => ({ ...prev, status: "inactive" }));
+    if (!result.isConfirmed) return;
+
+    try {
+      await closeBid(bid.propertyId).unwrap();
+
+      // Update UI state
+      setBid((prev) => ({
+        ...prev,
+        status: "under-review",
+        bidDuration: new Date().toISOString(),
+      }));
       setBidStatus("inactive");
 
       Swal.fire({
@@ -176,10 +238,12 @@ const BidView = () => {
         confirmButtonColor: "#a99068",
       });
     } catch (error) {
+      const errorMessage =
+        error?.data?.message || error?.message || "Failed to close bidding";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to close bidding",
+        text: errorMessage,
         confirmButtonColor: "#a99068",
       });
     }
@@ -190,7 +254,7 @@ const BidView = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Invalid bidTime format",
+        text: "Please select a bidding deadline to reopen bidding.",
         confirmButtonColor: "#a99068",
       });
       return;
@@ -201,7 +265,17 @@ const BidView = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Invalid bidTime format",
+        text: "Invalid date format",
+        confirmButtonColor: "#a99068",
+      });
+      return;
+    }
+
+    if (dateObj.getTime() <= Date.now()) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Deadline",
+        text: "The new bidding deadline must be set to a future date and time.",
         confirmButtonColor: "#a99068",
       });
       return;
@@ -212,22 +286,29 @@ const BidView = () => {
     const payload = {
       bidId: bid.propertyId,
       bidTime: isoBidTime,
+      bidEndTime: isoBidTime,
+      bidStartTime: new Date().toISOString(),
     };
 
     try {
       await BidTime(payload).unwrap();
-      setBid((prev) => ({ ...prev, status: "active" }));
+      setBid((prev) => ({
+        ...prev,
+        status: "approved",
+        bidDuration: isoBidTime,
+        biddingStartAt: new Date().toISOString(),
+      }));
       setBidStatus("active");
 
       Swal.fire({
         icon: "success",
         title: "Bidding Reopened",
-        text: "Bidding has been reopened successfully.",
+        text: "Bidding has been reopened and is now available for vendors.",
         confirmButtonColor: "#a99068",
       });
     } catch (error) {
       const errorMessage =
-        error?.data?.message || error?.message || "Invalid bidTime format";
+        error?.data?.message || error?.message || "Failed to reopen bidding";
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -436,18 +517,18 @@ const BidView = () => {
             </div>
 
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Bid Duration</label>
+              <label className="form-label fw-semibold">Current Bidding Deadline</label>
               <input
                 type="datetime-local"
                 className="form-control"
-                value={formattedBidEndTime}
+                value={currentDeadline}
                 disabled
                 readOnly
               />
             </div>
 
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Bid Time</label>
+              <label className="form-label fw-semibold">Extend / Reopen Bidding Deadline</label>
               <input
                 type="datetime-local"
                 className="form-control"
@@ -470,8 +551,12 @@ const BidView = () => {
           </div>
 
           <div className="d-flex gap-2 mt-3">
-            <button className="login-btn" onClick={handleSaveChanges}>
-              Save Changes
+            <button
+              className="login-btn"
+              onClick={handleSaveChanges}
+              disabled={isReopening}
+            >
+              {isReopening ? "Saving..." : "Save Changes"}
             </button>
 
             {bidStatus?.toLowerCase() !== "active" ? (
@@ -483,8 +568,12 @@ const BidView = () => {
                 {isReopening ? "Reopening..." : "Reopen"}
               </button>
             ) : (
-              <button className="button-secondary" onClick={handleCloseBidding}>
-                Close this Bidding
+              <button
+                className="button-secondary"
+                onClick={handleCloseBidding}
+                disabled={isClosing}
+              >
+                {isClosing ? "Closing..." : "Close this Bidding"}
               </button>
             )}
           </div>

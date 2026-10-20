@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Eye, Trash2, Pencil } from "lucide-react";
 import Switch from "react-switch";
@@ -21,6 +21,7 @@ const BlogList = () => {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -28,10 +29,18 @@ const BlogList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const { data: blogResponse, isLoading } = useGetAdminBlogsQuery({
     page: currentPage,
     limit: pageSize,
-    search: search.trim() ? search.trim() : undefined,
+    search: debouncedSearch.trim() ? debouncedSearch.trim() : undefined,
   });
 
   const [toggleBlogStatus] = useToggleBlogStatusMutation();

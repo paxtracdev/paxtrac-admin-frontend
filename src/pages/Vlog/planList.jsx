@@ -19,8 +19,13 @@ const PlanList = () => {
   const { data: plans, isLoading } = usePlansQuery(id);
 
   const filteredData = useMemo(() => {
-    return plans?.data?.filter((v) =>
-      v.planName.toLowerCase().includes(search.toLowerCase()),
+    const list = plans?.data || [];
+    if (!search.trim()) return list;
+    const term = search.toLowerCase().trim();
+    return list.filter((v) =>
+      v?.planName?.toLowerCase().includes(term) ||
+      v?.planDescription?.toLowerCase().includes(term) ||
+      v?.role?.toLowerCase().includes(term)
     );
   }, [plans, search]);
 

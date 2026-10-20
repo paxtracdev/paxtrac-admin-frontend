@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Eye } from "lucide-react";
 import Breadcrumbs from "../../Components/Breadcrumbs";
@@ -11,111 +11,41 @@ import BidManagementFilterModal from "../../Components/BidManagementFilterModal"
 import { LoadingComponent } from "../../Components/LoadingComponent";
 import NoData from "../../Components/NoData";
 
-const initialProperties = [
-  {
-    id: "PROP-2026-001",
-    propertyType: "Commercial",
-    listerName: "Sarah Williams",
-    status: "active",
-    totalBidders: 5,
-    email: "sarah.williams@prestigevacation.com",
-    address: "123 Market Street, New York, NY",
-  },
-  {
-    id: "PROP-2026-002",
-    propertyType: "Vacation Rentals",
-    listerName: "John Doe",
-    status: "inactive",
-    totalBidders: 2,
-    email: "john.doe@sunriserealty.com",
-    address: "45 Ocean Drive, Miami, FL",
-  },
-  {
-    id: "PROP-2026-003",
-    propertyType: "Multi-Family",
-    listerName: "Michael Johnson",
-    status: "active",
-    totalBidders: 8,
-    email: "michael.johnson@evergreenmf.com",
-    address: "890 Pine Avenue, Seattle, WA",
-  },
-  {
-    id: "PROP-2026-004",
-    propertyType: "Commercial",
-    listerName: "Emma Thompson",
-    status: "request-reopen",
-    totalBidders: 4,
-    email: "emma.thompson@skyline.com",
-    address: "77 Broadway, San Francisco, CA",
-  },
-];
-
 const pageSizeOptions = [2, 3, 5, 10];
 
 const BidManagement = () => {
-  // Pagination state
-
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState({
     status: "",
     propertyType: "",
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   const { data, isLoading, isError } = useGetBidsQuery({
     page: currentPage,
     limit: pageSize,
-    search: searchInput,
+    search: debouncedSearch,
     status: filters.status,
     type: filters.propertyType,
   });
-  // Data state (for flag toggle)
+
   const navigate = useNavigate();
 
-  // Paginate Properties
-  const properties = useMemo(() => {
-    let filtered = data?.data;
-
-    // Apply search
-    if (searchInput) {
-      const query = searchInput.toLowerCase();
-      filtered = filtered.filter(
-        (item) =>
-          item?._id?.toLowerCase().includes(query) ||
-          item?.propertyType?.toLowerCase().includes(query) ||
-          item?.listerName?.toLowerCase().includes(query) ||
-          item?.email?.toLowerCase().includes(query),
-      );
-    }
-
-    // Apply status filter
-    if (filters.status) {
-      filtered = filtered.filter(
-        (item) =>
-          item.bidStatus?.toLowerCase() === filters.status.toLowerCase(),
-      );
-    }
-
-    // Apply property type filter
-    if (filters.propertyType) {
-      filtered = filtered.filter(
-        (item) =>
-          item.propertyType?.toLowerCase().trim() ===
-          filters.propertyType.toLowerCase().trim(),
-      );
-    }
-
-    return filtered;
-  }, [data, searchInput, filters]);
-
-  const paginatedProperties = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-  }, [currentPage, pageSize]);
-
-  const totalCount = data?.pagination?.total;
-  const totalPages = Math.ceil(totalCount / pageSize);
+  const properties = data?.data || [];
+  const totalCount = data?.pagination?.total || 0;
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(totalCount / pageSize) || 1;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -242,10 +172,7 @@ const BidManagement = () => {
             className="form-control w-50"
             placeholder="Search by property ID, type, lister, or email..."
             value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 

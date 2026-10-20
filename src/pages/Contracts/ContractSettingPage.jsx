@@ -3,9 +3,9 @@ import {
   Upload,
   User,
   Briefcase,
-  FileText,
   Clock,
   FileCheck,
+  PenTool,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Components/Breadcrumbs";
@@ -14,6 +14,7 @@ import {
   useUpdateContractSettingsMutation,
 } from "../../api/userApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
+import { formatHumanReadableFileName, formatBytes } from "../../utils/helpers";
 
 const getFileUrl = (imageProp) => {
   if (!imageProp) return "";
@@ -53,54 +54,12 @@ const getFileUrl = (imageProp) => {
   return `${domain}/rustfs/paxtrac${cleanPath}`;
 };
 
-const formatBytes = (bytes, decimals = 2) => {
-  if (!bytes || bytes === 0) return "";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
-
-const PdfIcon = () => (
-  <svg
-    width="28"
-    height="34"
-    viewBox="0 0 28 34"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M18 1H3C1.89543 1 1 1.89543 1 3V31C1 32.1046 1.89543 33 3 33H25C26.1046 33 27 32.1046 27 31V10L18 1Z"
-      fill="white"
-      stroke="#E53935"
-      strokeWidth="2"
-    />
-    <path
-      d="M18 1V10H27"
-      stroke="#E53935"
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <text
-      x="5"
-      y="24"
-      fontFamily="sans-serif"
-      fontSize="8"
-      fontWeight="bold"
-      fill="#E53935"
-    >
-      PDF
-    </text>
-  </svg>
-);
-
 const ContractSettingPage = () => {
   const fileInputRef = useRef(null);
   const [form, setForm] = useState({
     signerName: "",
     signerTitle: "",
-    automaticSignatureText: "",
+    automaticSignatureText: "Automatic E-Signature from PaxTrac",
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -121,9 +80,11 @@ const ContractSettingPage = () => {
     if (data) {
       const contractData = data?.data || data;
       setForm({
-        signerName: contractData.signerName || "",
-        signerTitle: contractData.signerTitle || "",
-        automaticSignatureText: contractData.automaticSignatureText || "",
+        signerName: contractData.signerName || "Lauren Gobel",
+        signerTitle: contractData.signerTitle || "Manager",
+        automaticSignatureText:
+          contractData.automaticSignatureText ||
+          "Automatic E-Signature from PaxTrac",
       });
 
       if (contractData.automaticSignatureImage) {
@@ -194,8 +155,8 @@ const ContractSettingPage = () => {
     } else {
       Swal.fire({
         icon: "warning",
-        title: "No document available",
-        text: "No contract document has been uploaded yet.",
+        title: "No signature image available",
+        text: "No authorized signature image has been uploaded yet.",
         confirmButtonColor: "#a99068",
       });
     }
@@ -204,16 +165,12 @@ const ContractSettingPage = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!form.signerName.trim()) {
+    if (!form.signerName?.trim()) {
       newErrors.signerName = "Signer name is required";
     }
 
-    if (!form.signerTitle.trim()) {
+    if (!form.signerTitle?.trim()) {
       newErrors.signerTitle = "Signer title is required";
-    }
-
-    if (!form.automaticSignatureText.trim()) {
-      newErrors.automaticSignatureText = "Automatic signature text is required";
     }
 
     setErrors(newErrors);
@@ -226,9 +183,12 @@ const ContractSettingPage = () => {
 
     try {
       const formData = new FormData();
-      formData.append("signerName", form.signerName);
-      formData.append("signerTitle", form.signerTitle);
-      formData.append("automaticSignatureText", form.automaticSignatureText);
+      formData.append("signerName", form.signerName.trim());
+      formData.append("signerTitle", form.signerTitle.trim());
+      formData.append(
+        "automaticSignatureText",
+        form.automaticSignatureText?.trim() || "Automatic E-Signature from PaxTrac"
+      );
 
       if (selectedFile) {
         formData.append("automaticSignatureImage", selectedFile);
@@ -256,11 +216,19 @@ const ContractSettingPage = () => {
     }
   };
 
-  const fileName =
-    selectedFile?.name ||
-    imageMeta?.originalFileName ||
-    imageMeta?.storedFileName ||
-    "Contract.pdf";
+  const hasSignature = Boolean(previewUrl || imageMeta?.fileUrl || selectedFile);
+
+  const displayFileName = hasSignature
+    ? formatHumanReadableFileName(
+        selectedFile?.name ||
+          imageMeta?.originalFileName ||
+          imageMeta?.storedFileName ||
+          previewUrl,
+        "Contract_Signature.png"
+      )
+    : "No signature file uploaded yet";
+
+  const displayFileSize = selectedFile?.size || imageMeta?.fileSize;
 
   return (
     <main className="app-content body-bg">
@@ -307,7 +275,7 @@ const ContractSettingPage = () => {
                     className={`form-control ${
                       errors.signerName ? "is-invalid" : ""
                     }`}
-                    placeholder="e.g. Lauren G"
+                    placeholder="e.g. Lauren Gobel"
                     value={form.signerName}
                     onChange={handleChange}
                   />
@@ -328,7 +296,7 @@ const ContractSettingPage = () => {
                     className={`form-control ${
                       errors.signerTitle ? "is-invalid" : ""
                     }`}
-                    placeholder="e.g. Admin"
+                    placeholder="e.g. Manager"
                     value={form.signerTitle}
                     onChange={handleChange}
                   />
@@ -337,9 +305,7 @@ const ContractSettingPage = () => {
                   )}
                 </div>
 
-         
-
-                {/* Contract Section (Matching Reference UI Screenshot) */}
+                {/* Contract Section (Matching PaxTrac Theme) */}
                 <div className="col-md-12">
                   <h5
                     style={{ color: "#a99068", fontWeight: "600" }}
@@ -350,41 +316,75 @@ const ContractSettingPage = () => {
 
                   <div className="border rounded-3 p-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
                     <div className="d-flex align-items-center gap-3">
-                      <PdfIcon />
+                      {previewUrl ? (
+                        <div
+                          className="border rounded-2 p-1 bg-light d-flex align-items-center justify-content-center"
+                          style={{
+                            width: "48px",
+                            height: "40px",
+                            overflow: "hidden",
+                            backgroundColor: "#fcfbf9",
+                          }}
+                        >
+                          <img
+                            src={previewUrl}
+                            alt="Signature Preview"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="rounded-2 p-2 d-flex align-items-center justify-content-center"
+                          style={{
+                            backgroundColor: "#fcfbf9",
+                            border: "1px solid #ebd9c0",
+                            width: "48px",
+                            height: "40px",
+                          }}
+                        >
+                          <PenTool size={20} color="#a99068" />
+                        </div>
+                      )}
                       <div>
                         <span className="fw-semibold text-dark fs-6 d-block">
-                          {fileName}
+                          {displayFileName}
                         </span>
-                        {imageMeta?.fileSize && (
+                        {displayFileSize ? (
                           <small className="text-muted">
-                            {formatBytes(imageMeta.fileSize)}
+                            {formatBytes(displayFileSize)}
                           </small>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 
                     <div className="d-flex align-items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleViewDocument}
-                        className="btn border-0 bg-transparent p-0 text-decoration-none fw-semibold"
-                        style={{
-                          color: "#a99068",
-                          backgroundColor: "transparent",
-                          fontSize: "15px",
-                          cursor: "pointer",
-                          boxShadow: "none",
-                          outline: "none",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.textDecoration = "underline")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.textDecoration = "none")
-                        }
-                      >
-                        View
-                      </button>
+                      {hasSignature && (
+                        <button
+                          type="button"
+                          onClick={handleViewDocument}
+                          className="btn border-0 bg-transparent p-0 text-decoration-none fw-semibold"
+                          style={{
+                            color: "#a99068",
+                            backgroundColor: "transparent",
+                            fontSize: "15px",
+                            cursor: "pointer",
+                            boxShadow: "none",
+                            outline: "none",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.textDecoration = "underline")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.textDecoration = "none")
+                          }
+                        >
+                          View
+                        </button>
+                      )}
 
                       <input
                         type="file"
@@ -416,7 +416,7 @@ const ContractSettingPage = () => {
                           e.currentTarget.style.color = "#a99068";
                         }}
                       >
-                        <Upload size={14} /> Change
+                        <Upload size={14} /> {hasSignature ? "Change" : "Upload"}
                       </button>
                     </div>
                   </div>

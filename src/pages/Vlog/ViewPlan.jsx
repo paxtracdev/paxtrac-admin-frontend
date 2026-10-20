@@ -74,20 +74,36 @@ const ViewPlan = () => {
 
   const handleApproveConfirm = async () => {
     const values = getValues();
+    const bgChecksNum = values.backgroundChecks !== "" ? Number(values.backgroundChecks) : undefined;
+
+    // Automatically synchronize feature bullet points that reference background checks
+    const synchronizedFeatures = planFeatures.map((f) => {
+      if (
+        bgChecksNum !== undefined &&
+        !Number.isNaN(bgChecksNum) &&
+        typeof f === "string" &&
+        /free\s+.*background/i.test(f)
+      ) {
+        return f.replace(/\b\d+\b/, String(bgChecksNum));
+      }
+      return f;
+    });
 
     try {
       await updatePlan({
         id,
         planName: values.planName,
-        features: planFeatures,
+        features: synchronizedFeatures,
         prices: {
-          annually: values.annuallyPrice,
-          oneTime: values.onePrice,
+          annually: Number(values.annuallyPrice) || 0,
+          oneTime: Number(values.onePrice) || 0,
         },
-        includedProperties: values.included,
-        backgroundChecks: values.backgroundChecks,
-        saveannually: values.saveannually,
+        includedProperties: Number(values.included) || 0,
+        backgroundChecks: bgChecksNum ?? 0,
+        saveannually: Number(values.saveannually) || 0,
       }).unwrap();
+
+      setPlanFeatures(synchronizedFeatures);
 
       Swal.fire({
         title: "Success",
@@ -98,7 +114,7 @@ const ViewPlan = () => {
     } catch (err) {
       Swal.fire({
         title: "Error",
-        text: err?.data?.message,
+        text: err?.data?.message || err?.message || "Failed to update plan",
         icon: "error",
         confirmButtonColor: "#a99068",
       });
@@ -156,9 +172,23 @@ const ViewPlan = () => {
                 Background Checks
               </label>
               <input
-                type="text"
+                type="number"
+                min="0"
                 className="form-control bg-light"
-                {...register("backgroundChecks")}
+                {...register("backgroundChecks", {
+                  onChange: (e) => {
+                    const val = e.target.value;
+                    if (val !== "" && !Number.isNaN(Number(val))) {
+                      setPlanFeatures((prev) =>
+                        prev.map((f) =>
+                          typeof f === "string" && /free\s+.*background/i.test(f)
+                            ? f.replace(/\b\d+\b/, String(val))
+                            : f
+                        )
+                      );
+                    }
+                  },
+                })}
               />
             </div>
             <div className="col-md-6 mb-3">
