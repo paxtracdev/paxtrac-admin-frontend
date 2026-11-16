@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import Swal from "sweetalert2";
 import { useCreateContractadMutation } from "../../api/userApi";
 import { cleanHtmlContent } from "../../utils/cleanHtml";
@@ -75,7 +75,6 @@ const AddContract = () => {
           <div className="mb-3">
             <label className="form-label fw-semibold">Contract Content</label>
             <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               value={content}
               init={{
                 height: 480,

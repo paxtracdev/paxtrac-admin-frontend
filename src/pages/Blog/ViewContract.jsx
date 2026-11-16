@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import Swal from "sweetalert2";
 import { useContractQuery, useUpdateContractMutation } from "../../api/userApi";
 import { LoadingComponent } from "../../Components/LoadingComponent";
@@ -175,7 +175,6 @@ const ViewContract = () => {
                   </small>
                 </div>
                 <Editor
-                  apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                   value={content}
                   init={{
                     height: 480,

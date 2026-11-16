@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
@@ -88,7 +88,6 @@ const AddFaq = () => {
           <div className="mb-4">
             <label className="form-label">Answer</label>
             <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               init={{ height: 300, menubar: false }}
               onEditorChange={(v) => {
                 setAnswer(v);

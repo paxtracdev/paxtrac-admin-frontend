@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import Swal from "sweetalert2";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 
 // Helper to convert normal YouTube URL to embed URL
 const getEmbedUrl = (url) => {
@@ -109,7 +109,6 @@ const AddPlan = () => {
             <div className="mb-3">
               <label className="form-label fw-semibold">Features</label>
               <Editor
-                apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                 value={content}
                 init={{
                   height: 350,
