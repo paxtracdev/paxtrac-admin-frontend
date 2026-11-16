@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import CustomDropdown from "../../Components/CustomDropdown";
 import ManageCategoriesModal from "./ManageCategoriesModal";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import Swal from "sweetalert2";
 import {
   useCreateBlogMutation,
@@ -237,7 +237,6 @@ const AddBlog = () => {
           <div className="mb-3">
             <label className="form-label fw-semibold">Description</label>
             <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               init={{ height: 320, menubar: false }}
               onEditorChange={(v) => setDescription(v)}
             />

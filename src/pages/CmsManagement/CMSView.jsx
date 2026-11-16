@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import Swal from "sweetalert2";
 import {
   useGetPageBySlugQuery,
@@ -139,7 +139,6 @@ const CMSView = () => {
               <div className="mb-3">
                 <label className="form-label fw-semibold">Page Content</label>
                 <Editor
-                  apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                   value={content}
                   init={{
                     height: 480,

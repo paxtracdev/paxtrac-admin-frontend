@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Components/Breadcrumbs";
-import { Editor } from "@tinymce/tinymce-react";
+import Editor from "../../Components/TinyMceEditor";
 import Swal from "sweetalert2";
 import { useCreatePageMutation } from "../../api/cmsApi";
 import { cleanHtmlContent } from "../../utils/cleanHtml";
@@ -112,7 +112,6 @@ const AddCmsPage = () => {
           <div className="mb-3">
             <label className="form-label fw-semibold">Page Content</label>
             <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               initialValue=""
               init={{
                 height: 350,
@@ -120,7 +119,7 @@ const AddCmsPage = () => {
                 plugins: [
                   "advlist autolink lists link image charmap preview anchor",
                   "searchreplace visualblocks code fullscreen",
-                  "insertdatetime media table paste help wordcount",
+                  "insertdatetime media table help wordcount",
                 ],
                 toolbar:
                   "undo redo | bold italic underline | alignleft aligncenter alignright |" +
